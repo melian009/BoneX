@@ -2,18 +2,33 @@
 %Ecosystem services in ecological network seascapes
 %Guimaraes&Melian@KB May 2024
 %----------------------------------------------------------------------
-function DynS()  
+%function DynS()  
 
     show=true;
     showEach = 1;
+    countheat = 0;
     countgen = 0;
+    heat = zeros(1,4);
     %gamma=[];
-    T=1000;%time    
-    As = [0.025 0.05 0.075 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1];%amplitude
-    GPTs =[100 500 1000]; % GPT=1 is Static 1 5 10 50 
+    T=100;%time    
+    %As = [0.00625 0.0125 0.025 0.05 0.075 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1];%amplitude
+    %GPTs =[100 500 1000]; % GPT=1 is Static 1 5 10 50 
+    %GPTs = [0.1 0.5 1 5 10 50 100 500 1000 2000 5000 10000 12000 15000 20000];
+    As = linspace(0.0001,10,100);
+    GPTs = linspace(0.001,20000,100);
+    
+    
+    %Short test
+    %As = [0.025 0.05 0.075 0.1 0.2];%amplitude
+    %GPTs =[100 500 1000]; % GPT=1 is Static 1 5 10 50 
+    %GPTs = [1 5 10 50 100];
+    
+    
     R_k={};  %Composicion de species @ each Site and each Generation k  
-  
+    countAs = 0;
+   
  for i = 1:length(As); % i refersw to values of amplitude
+    countAs = countAs + 1;
     for j = 1:length(GPTs); % j refers to values of frequency
 
 
@@ -82,10 +97,17 @@ end
         end
         NSt;
         r(k,3) = NSt;
+        %
         %pause
         end%k
         A
         f
+        countheat = countheat + 1;
+      heat(countheat,1) = A; 
+      heat(countheat,2) = f;  
+      heat(countheat,3) = mean(r(k,3)); 
+      heat(countheat,4) = std(r(k,3));
+      %pause
         %subplot(1,1,1)
         %plot(r(:,1),r(:,2))
         %hold on
@@ -95,16 +117,64 @@ end
         %set(gca,'fontsize',24);
         %print -color -F:20 Fig5a.eps
         %subplot(1,1,3)
-        plot(r(:,1),r(:,3))
-        hold on
-        axis([0 1000 0 50])%N
-        hold on
-        title("B")
-        xlabel('Time',"fontsize",26)
-        ylabel('Species richness',"fontsize",26)
-        set(gca,'fontsize',24);
-        print -color -F:20 Fig5b.eps
+        
+        %plot(r(:,1),r(:,3))
+        %hold on
+        %axis([0 1000 0 50])%N
+        %hold on
+        %title("B")
+        %xlabel('Time',"fontsize",26)
+        %ylabel('Species richness',"fontsize",26)
+        %set(gca,'fontsize',24);
+        %print -color -F:20 Fig5b.eps
         %pause
     end
  end       
+         
+        %x=linspace(min(heat(:,1)),max(heat(:,1)),150);
+        %y=linspace(min(heat(:,2)),max(heat(:,2)),150);
+        %[X,Y]=meshgrid(x,y);
+        
+x = heat(:,1);
+y = heat(:,2);
+z = heat(:,3);
+%Z = zeros(length(x),length(x));
+%countn = 0;
+%a = linspace(1,length(x),length(x))
+%for u = 1:length(x);
+%   for v = 1:length(y);
+%       %countn = countn + 1
+       %pause
+%       Z(u,v) = x(u,1),y(v,2);
+%   end
+%end
+%n = 256;
+%[X, Y] = meshgrid(linspace(min(x),max(x),n), linspace(min(y),max(y),n));
+%Z = griddata(x,y,z,X,Y);
+%// Remove the NaNs for imshow:
+%Z(isnan(Z)) = 0;
+%imshow(Z)
+%m = min(Z(Z~=0));
+%M = max(Z(Z~=0));
+%imshow((Z-m)/(M-m));
+ 
+ 
+x = linspace(min(x),max(x),length(x)); % 1-by-1000
+y = linspace(min(y),max(y),length(y)); % 1-by-1000
+Z = reshape(z,length(As),length(As));
+
+%z = ; % 1000-by-1000
+fig = figure();
+imagesc(x,y,Z);
+xlabel("x");
+ylabel("y");
+title("Species richness");
+colorbar();
+xlabel('A',"fontsize",26)
+ylabel('\omega',"fontsize",26)
+title("C) Species Richness")
+set(gca,'fontsize',24);
+print -color -F:20 FigheatmapNOG04.eps
+
+%end
       
