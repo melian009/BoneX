@@ -1,11 +1,11 @@
 %% 1- basic simulation features/parameters
-environment=0; % no fluctuating environment, 1 fluctuacting environment
+environment=1; % no fluctuating environment, 1 fluctuacting environment
 S=29; %species richness
 E= 1; %number of ecosystem services
 dim=S+E; %matrix size
 p=0.2; %connectance
 nsims=100; %number of simulations
-scenario=4; %1- random, 2 - reciprocal negative, 3- trophic layer (2 layers) + consumer service, 4- trophic layer (2 layers) + top service
+scenario=3; %1- random, 2 - reciprocal negative, 3- trophic layer (2 layers) + consumer service, 4- trophic layer (2 layers) + top service
 tfim=100; %final timestep
 theta=randn(1,1); % environmentgal optima
 resultadosfinais=zeros(nsims,4); %store results
@@ -212,7 +212,7 @@ for simulacoes=1:nsims
 
         %%%fluctuating environment
         if environment==1
-            theta=theta+0.1.*randn(1,1);
+           % theta=theta+0.1.*randn(1,1);
             for i=1:S
                 x=exp(-2.*((theta-z(i)).*(theta-z(i))));
                 q=rand(1,1);
@@ -233,5 +233,5 @@ for simulacoes=1:nsims
     resultadosfinais(simulacoes,3)=mean(Resultados(:,end));
     resultadosfinais(simulacoes,4)=var(Resultados(:,end));
 end
-dlmwrite('resultados_figfinal_modelo4.txt',resultadosfinais) %print results
+dlmwrite('resultados_figfinal_modelo3env.txt',resultadosfinais) %print results
 %dlmwrite('resultados_figfinal_modelo4_environment.txt',resultadosfinais) %print results
