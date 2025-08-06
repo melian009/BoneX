@@ -1,0 +1,40 @@
+---
+title: "Meetings Spark Project"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Project Overview
+
+Boolean networks as a way of modeling ecosystems services
+
+## Meeting 05/08/225
+Alvaro, Bruno, Carlos, Paulinha at EAWAG
+
+Brainstorming ideas and some key points that were made:
+
+* Usually in Boolean networks there is no population dynamics associated and it would be a great contribution to integrate these two
+* Even more if we integrated Stochastic Hybrid Systems (SHS) with Boolean Networks in a community ecology context. In SHS some populations are so rare that their dynamics could be considered stochastic, whereas other populations would follow classic deterministic dynamics
+
+* What Bruno has started involves understanding how costs and benefits of interactions influence the persistence of species within a networks. For that he uses the structure of empirical mutualistic networks and associated costs and benefits for each species. When benefits surpass costs, species are "on" and present on the networks, as the cost of interaction increases, once it surpasses the benefits, species get extinct from the network. He found a sharp transition where above a certain cost, most species go extinct. Costs and benefits are randomly sampled from a distribution. Next steps to explore include:
+  + What are the analytical expectation for the boundary conditions (having all species present when $benefits > costs$ and all species extinct when $benefits < costs$ considering normally distributed costs and benefit functions)$
+  + Expectations for random networks, what are the final number of interactions when network is random and cost benefit functions are also random
+  + Starting from a random network, what kind of cost and benefit functions would result in networks that resemble the structure of empirical networks? Perhaps here we need to explore different distributions (beyond uniform or normal, for example, beta or lognormal) to give rise to networks with asymmetries like we observe in empirical networks (nestedness patterns for example, which are a common structure found in mutualistic systems)
+  + Connection of boolean networks, costs and benefits and game theory -- what is the threshold for a Nash equilibrium considering costs and benefits in mutualisms? Is it possible to find an equilibrium even when the cost of the interaction is not zero?
+  + Asymmetries in the costs benefit functions (shifting the curves to understand when the system collapses)
+  
+* How environmental fluctuations influences the predictability of ecosystem services
+  + Fluctuations from the topics to the pole
+  + $O_2$ as a global service $vs$ pollination as a local service
+  
+
+
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
