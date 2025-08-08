@@ -19,33 +19,49 @@ model <- function(A, alpha, n_steps = 100) {
     }
   }
   
+  return(list(B_mat = B_mat, C_mat = C_mat, Cf_vec = Cf_vec))
+}
+  
 #the Boolean actualization  
-  state <- rep(1, n) #all species will begin as present at networks (1)
-  #bollean function
-  actualize_state <- function(actual_state) {
-    nb <- numeric(n) #net benefit (NB) of interaction pairs
-    for (i in 1:n) { #for each species i
-      partners <- which(A[i, ] == 1) #identify their interaction partners [A_ij for all j]
-      total_benefit <- sum(B_mat[i, partners] * actual_state[partners]) #sum the benefits provided by all active partners 
-      total_cost <- sum(C_mat[i, partners] * estado_atual[partners]) + Cf_vec[i] #sum the the costs to interact with all active partners and the phisiological costs 
-      nb[i] <- total_benefit - total_cost
-    }
-    #new nodes state {1,0}
-    new_state <- ifelse(nb > 0, 1, 0)
-    return(new_state)
+
+#bollean function
+actualize_state <- function(actual_state) {
+  n <- nrow(A)  
+  nb <- numeric(n) #net benefit (NB) of interaction pairs
+  
+  for (i in 1:n) { #for each species i
+     partners <- which(A[i, ] == 1) #identify their interaction partners [A_ij for all j]
+     total_benefit <- sum(B_mat[i, partners] * actual_state[partners]) #sum the benefits provided by all active partners 
+     total_cost <- sum(C_mat[i, partners] * estado_atual[partners]) + Cf_vec[i] #sum the the costs to interact with all active partners and the phisiological costs 
+     nb[i] <- total_benefit - total_cost
   }
-  #iterate
-  for (t in 1:n_steps) {
-    new_state <- actualiza_state(state) #call the function of boolean function
-    if (all(new_state == state)) break #when no one node changes state from time t to time t+1, stop iteration
+  #new nodes state {1,0}
+  new_state <- ifelse(nb > 0, 1, 0)
+  return(new_state)
+}
+  
+#iterate
+simulation <- function(A, alpha, n_steps = 100){
+  matrices <- model(A, alpha)
+  B_mat <- matrices$B_mat
+  C_mat <- matrices$C_mat
+  Cf_vec <- matrices$Cf_vec
+  
+  state <- rep(1, nrow(A)) #all species starts as present in network (1)
+  
+  for (t in n_steps) {
+    new_state <- actualize_state(A, state, B_mat, C_mat, Cf_vec)
+    if (all(new_state == state)) break 
     state <- new_state
+      
   }
-  #return(sum(estado) / n)
   # Calculate the functional interactions matrix (between active species)
   A_active <- A * (state %o% state) #using the outer product to create a n x n matrix with the values in each position is the product of the states of the nodes interacting in A
   #here, we only obtain an 1 value (maintenence of interaction) if the state of two interacting nodes are 1 (active)
   #Therefore, if one of the species are 0 (extinct) the interaction will disappear.
-  
+
+
+
   #proportion of active species
   prop_active_species <- (sum(state) / n)
   
@@ -55,9 +71,9 @@ model <- function(A, alpha, n_steps = 100) {
   prop_remaining_interactions <- active_interactions / total_inicial_interactions
   
   
-  return(list(
-    prop_active_species,
-    prop_remaining_interactions
-  ))
+ return(list(
+  prop_active_species,
+  prop_remaining_interactions
+ ))
   
 }
