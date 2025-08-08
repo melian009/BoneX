@@ -38,3 +38,10 @@ import_bipartite_net <- function(path) {
   diag(A) <- 0
   return(A)
 }
+
+# Lista of networks
+net_lists <- lapply(archives, import_net)
+names(NET_LISTS) <- basename(archives) # Archive name to identification
+
+# save in an rds archive
+saveRDS(net_lists, "prepared_nets.RDS")
