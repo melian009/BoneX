@@ -1,0 +1,72 @@
+---
+title: "Notes on Spark Project"
+author: "Paulinha"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(tidyverse)
+```
+
+## Random networks
+
+Under a Boolean approach, is it possible to find cost and benefit functions that would result in networks resembling the structure of ecological networks? 
+We have a model for understanding transition phases in mutualisms based on increasing costs of interactions, parameterized using empirical networks and sampled cost/benefit functions. One of our goals is to compare the results of the empirical data with the expectations under a null model. Additionally, we ask whether the random structure of a networks can be "pruned" given the structure of costs and benefits generating/resulting in networks that resemble empirical ones.
+
+### Cost and benefit functions
+Costs and benefits can be describe as functions with a giving underlying distribution. 
+
+
+### Boundary conditions for costs and benefits and the persistence/extinction of species
+What are the boundary conditions for having all species present ($benefits > costs$) and for having all species extinct of the system (i.e., when $benefits < costs$)? In other words, we want to know what is the probability of having the benefits surpass the costs, resulting in all species present in the network, and alternatively, what is the probability of having all species removed from the network if the costs of interaction surpass their benefits.
+
+Assuming normally and independently distributed costs $C \sim N(\mu_c, \sigma_c)$ and benefits $B \sim  N(\mu_{b}, \sigma_b)$, we want first to know $P(B>C)$. 
+
+$$
+\begin{aligned}
+P(B>C) = P(B-C > 0) \\
+       = 1 - P(B-C \le 0) \\
+\end{aligned}
+$$
+If $B$ and $C$ are independent and normally distributed so is their difference, with the expectation of their mean as $\mathbb{E}(B -C) = \mathbb{E} (B) - \mathbb{E}(C) = \mu_b - \mu_c = \mu$ and of their variance as $Var(B-C) = \sigma^2_b + \sigma^2_c = \sigma$. Now we subtract the mean and divide by the variance so that our difference is normally distributed with $\mu = 0$ and $\sigma^2 = 1)$ such that $\frac{B-C-\mu}{\sigma} \sim N(0,1)$. And so: 
+$$
+ P(B>C) = 1- \Phi \left(\frac{-\mu}{\sigma} \right)
+$$
+where $\Phi$ is the cumulative distribution function of $N(0,1)$. 
+
+Now let's consider an example: if species benefits have the distribution $B \sim N(1.2,2)$ and costs are distributed as $C \sim N(2,1.5)$, the distribution describing these values is:
+
+```{r functions, echo=FALSE}
+# Define the means and standard deviations for costs and benefits
+mean_benefit <- 1.2
+sd_benefit <- 2
+mean_cost <- 2
+sd_cost <- 1.5
+
+# Sequence of x values
+x <- seq(-5, 7, length.out = 100)
+
+# Values for each curve
+dbenefit <- dnorm(x, mean = mean_benefit, sd = sd_benefit)
+dcost <- dnorm(x, mean = mean_cost, sd = sd_cost)
+
+# Create a data frame
+toplot<- data.frame(x = rep(x, 2),
+                  y = c(dbenefit, dcost),
+                  group = factor(rep(c("Benefit", "Cost"), each = length(x))))
+
+# Plot the curves
+ggplot(toplot, aes(x = x, y = y, color = group)) +
+  geom_line(lwd =1) +
+  scale_color_manual(values = c("Benefit" = "purple", "Cost" = "red")) +
+  labs(x = "Value",
+       y = "Density",
+       color = "Curve") +
+  theme_bw()
+```
+
+Using the derived expression, the resulting probability of having all species present in this system, i.e., the $P(B>C)$, meaning benefits are greater than costs is: `r 1-pnorm(0, mean_benefit-mean_cost, sqrt(sd_benefit+sd_cost))`
+
+
