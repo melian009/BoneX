@@ -22,7 +22,7 @@ Costs and benefits can be describe as functions with a giving underlying distrib
 ### Boundary conditions for costs and benefits and the persistence/extinction of species
 What are the boundary conditions for having all species present ($benefits > costs$) and for having all species extinct of the system (i.e., when $benefits < costs$)? In other words, we want to know what is the probability of having the benefits surpass the costs, resulting in all species present in the network, and alternatively, what is the probability of having all species removed from the network if the costs of interaction surpass their benefits.
 
-Assuming normally and independently distributed costs $C \sim N(\mu_c, \sigma_c)$ and benefits $B \sim  N(\mu_{b}, \sigma_b)$, we want first to know $P(B>C)$. 
+Assuming normally and independently distributed costs $C \sim N(\mu_c, \sigma^2_c)$ and benefits $B \sim  N(\mu_{b}, \sigma^2_b)$, we want first to know $P(B>C)$. 
 
 $$
 \begin{aligned}
