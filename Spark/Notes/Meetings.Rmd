@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Boolean networks as a way of modeling ecosystems services
 
-## Meeting 05/08/225
+## Meeting 05/08/2025
 Alvaro, Bruno, Carlos, Paulinha at EAWAG
 
 Brainstorming ideas and some key points that were made:
@@ -30,3 +30,25 @@ Brainstorming ideas and some key points that were made:
   + Fluctuations from the topics to the pole
   + $O_2$ as a global service $vs$ pollination as a local service
   
+![Board from 05/08/2025 meeting](../photos/M0805.png){width=70%}
+  
+## Meeting 12/08/2025
+Bruno, Carlos & Paulinha @ EAWAG
+  
+* Discussion of the probability of all species being present (or extinct) given the distribution of costs and benefits following a normal distribution with means $\mu_1$ and $\mu_2$ and standard deviations $\sigma_1$ and $\sigma_2$. The derivation is on the Notes folder
+    + Next step: understand the shape of the decay -- does it follow the same pattern observed for ecological networks?
+    
+* **Environmental function** Within the cost function, there is a physiological cost, which can be associated with an increase in cost given a deviation from an environmental optimum $\theta$. This would become: $\alpha = | \theta - z_i|$, where $z_i$ is the optimum for species $i$ and $\theta$ can be either sampled or alternatively it can include environmental fluctuations (akin to the proposal and published paper by Carlos and Paulo). The added environmental fluctuation could be of the form $\theta = \frac{A}{2} \left( 1 + \sin(2 \pi \omega t\right)$
+
+* **Specialization function** considering that benefits cannot accumulate indefinitely, we can incorporate a saturation function into the benefit function. With this we can explore the trade-off between number of partners and costs and benefits of interactions. 
+  + Consider bottom-up assembly building networks? For now we are considering a "top-down" approach in which the interaction network is given (might be the simplest to keep this and incorporate the saturation when parameterizing the cost-benefit functions).
+  The form of this function is:
+$$
+S = \frac{\left( \sum_j^k A_{ij} B_j \right) B_{max}}{\beta + \sum_j^k A_{ij} B_j}
+$$
+  
+  
+* Connection between network structure and ecosystem services: how are the collapse of networks related to the loss of ecosystem services? Services are lost before the network collapses but what are the "early signs" that can signal such a shift? If we find literature exploring this aspect we can use it to parameterize the ecosystem service in a Boolean way. For example, imagine that one of these signals is the change in one of the properties of the network, as long as that property holds (degree of nestedness, for example), the service is "on", after a certain threshold, even if you have species and interactions the service is no longer available. In one extreme you can imagine that a single species performs the service. In that case, losing that species would lead to the loss of the service as well. Here we can explore how far a network can be "perturbed" (loss of interaction due to increase in cost) until the service is lost, based on information on properties of the network. 
+
+
+![Board from 12/08/2025 meeting](../photos/M0812.png){width=40%}

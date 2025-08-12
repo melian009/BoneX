@@ -67,6 +67,6 @@ ggplot(toplot, aes(x = x, y = y, color = group)) +
   theme_bw()
 ```
 
-Using the derived expression, the resulting probability of having all species present in this system, i.e., the $P(B>C)$, meaning benefits are greater than costs is: `r 1-pnorm(0, mean_benefit-mean_cost, sqrt(sd_benefit+sd_cost))`
+Using the derived expression, the resulting probability of having all species present in this system, i.e., the $P(B>C)$, meaning benefits are greater than costs is: `r 1-pnorm(0, mean_benefit-mean_cost, sqrt(sd_benefit+sd_cost))`. Alternatively, 
 
 
