@@ -30,7 +30,7 @@ Brainstorming ideas and some key points that were made:
   + Fluctuations from the topics to the pole
   + $O_2$ as a global service $vs$ pollination as a local service
   
-![Board from 05/08/2025 meeting](../photos/M0805.png){width=70%}
+
   
 ## Meeting 12/08/2025
 Bruno, Carlos & Paulinha @ EAWAG
@@ -50,5 +50,3 @@ $$
   
 * Connection between network structure and ecosystem services: how are the collapse of networks related to the loss of ecosystem services? Services are lost before the network collapses but what are the "early signs" that can signal such a shift? If we find literature exploring this aspect we can use it to parameterize the ecosystem service in a Boolean way. For example, imagine that one of these signals is the change in one of the properties of the network, as long as that property holds (degree of nestedness, for example), the service is "on", after a certain threshold, even if you have species and interactions the service is no longer available. In one extreme you can imagine that a single species performs the service. In that case, losing that species would lead to the loss of the service as well. Here we can explore how far a network can be "perturbed" (loss of interaction due to increase in cost) until the service is lost, based on information on properties of the network. 
 
-
-![Board from 12/08/2025 meeting](../photos/M0812.png){width=40%}
