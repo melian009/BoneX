@@ -31,14 +31,16 @@ P(B>C) = P(B-C > 0) \\
 \end{aligned}
 $$
 If $B$ and $C$ are independent and normally distributed so is their difference, with the expectation of their mean as $\mathbb{E}(B -C) = \mathbb{E} (B) - \mathbb{E}(C) = \mu_b - \mu_c = \mu$ and of their variance as $Var(B-C) = \sigma^2_b + \sigma^2_c = \sigma$. Now we subtract the mean and divide by the variance so that our difference is normally distributed with $\mu = 0$ and $\sigma^2 = 1)$ such that $\frac{B-C-\mu}{\sigma} \sim N(0,1)$. And so: 
-$$
+
+\begin{equation} \label{eq:probs}
  P(B>C) = 1- \Phi \left(\frac{-\mu}{\sigma} \right)
-$$
+\end{equation}
+
 where $\Phi$ is the cumulative distribution function of $N(0,1)$. 
 
 Now let's consider an example: if species benefits have the distribution $B \sim N(1.2,2)$ and costs are distributed as $C \sim N(2,1.5)$, the distribution describing these values is:
 
-```{r functions, echo=FALSE}
+```{r functions, echo=FALSE, out.width="50%", fig.cap="Example of cost-benefit functions"}
 # Define the means and standard deviations for costs and benefits
 mean_benefit <- 1.2
 sd_benefit <- 2
@@ -67,6 +69,23 @@ ggplot(toplot, aes(x = x, y = y, color = group)) +
   theme_bw()
 ```
 
-Using the derived expression, the resulting probability of having all species present in this system, i.e., the $P(B>C)$, meaning benefits are greater than costs is: `r 1-pnorm(0, mean_benefit-mean_cost, sqrt(sd_benefit+sd_cost))`. Alternatively, 
+Using the derived expression, the resulting probability of having all species present in this system, i.e., the $P(B>C)$, meaning benefits are greater than costs is: `r 1-pnorm(0, mean_benefit-mean_cost, sqrt(sd_benefit+sd_cost))`. Alternatively, the probability that all species goes extinct in this example is: `r 1-pnorm(0, mean_cost-mean_benefit, sqrt(sd_benefit+sd_cost))`.
+
+In more general terms, we can explore how the difference between benefits and costs influences the probability of all species coexisting. Assuming a standard deviation of $\sigma^2 = 1$ we explore the effect of the mean difference between costs and benefits in species' probability of persistence, deriving the probability according to equation \ref{eq:probs}.
+
+
+```{r coexistence, echo=FALSE, out.width="50%", fig.cap="Porbability of species' persistence given the difference in benefits and costs"}
+# Creating the data with values for the difference and estimating prob of persistence
+diff_probs <- tibble(diff_values = seq(-3.5,3.8, by = 0.01))
+diff_probs <- diff_probs %>% mutate(probs = pnorm(0, mean=diff_values))
+
+ggplot(diff_probs, aes(x = diff_values, y=probs)) +
+  geom_line(lwd =1) +
+  labs(x = "Difference between benefits and costs (B-C = D)",
+       y = "Probabiliy of all species persisting P(D>0)",
+       color = "Curve") +
+  theme_bw()
+
+```
 
 
