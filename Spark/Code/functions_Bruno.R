@@ -65,7 +65,8 @@ simulation <- function(A, B_vec, Ce_vec, Cp_vec, zi, theta, n_steps = 100){
   state_history <- matrix(NA, nrow = min(n_steps, t_max), ncol = n)
   colnames(state_history) <- paste0("sp", 1:n)
   
-  for (t in 1:min(n_steps, t_max)) {
+  state_history[1, ] <- state
+  for (t in 2:min(n_steps, t_max)) {
     
     # Filtering A Matriz for just active species (1) 
     active_species <- which(state == 1)
@@ -118,7 +119,7 @@ simulation <- function(A, B_vec, Ce_vec, Cp_vec, zi, theta, n_steps = 100){
 #----------------------
 # Simulation example
 set.seed(123)
-A <- network(10, 0.3)
+A <- network(50, 0.3)
 diag(A) <- 0
 n <- nrow(A)
 B_vec <- rlnorm(n)
@@ -129,3 +130,5 @@ theta <- environment(0.01, 0.1, 0.01, 0.1, t_max = 100)
 
 resultado <- simulation(A, B_vec, Ce_vec, Cp_vec, zi, theta, n_steps = 100)
 resultado
+
+
