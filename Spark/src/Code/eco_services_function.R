@@ -27,7 +27,7 @@ ecosystem <- function(object, P_matrix) {
 
 #--------------------------------------------
 
-Implementation exemple
+#Implementation exemple
 set.seed(123)
 #exemple matrix of the size of the iterations time steps and species number in the main model
 P_matrix <- matrix(runif(nrow(resultado$state_history)*ncol(resultado$state_history), 0, 1), nrow = 3)
