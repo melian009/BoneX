@@ -34,7 +34,7 @@ alpha_fun <- function(theta, zi) {
 }
 
 #----------------------
-# Physiological cost (Cf is just to distinguich from Cp - fisiologico / physilogical )
+# Physiological cost (Cf is just to distinguish from Cp - fisiologico / physiological )
 Cf <- function(alpha, Cp){
   t_max = nrow(alpha)
   n <- length(Cp)
