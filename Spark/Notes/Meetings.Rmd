@@ -1,6 +1,10 @@
 ---
 title: "Meetings Spark Project"
 output: pdf_document
+header-includes:
+  - \usepackage{indentfirst}
+indent: true
+bibliography: refs_Spark.bib
 ---
 
 ```{r setup, include=FALSE}
@@ -43,6 +47,7 @@ Bruno, Carlos & Paulinha @ EAWAG
 * **Specialization function** considering that benefits cannot accumulate indefinitely, we can incorporate a saturation function into the benefit function. With this we can explore the trade-off between number of partners and costs and benefits of interactions. 
   + Consider bottom-up assembly building networks? For now we are considering a "top-down" approach in which the interaction network is given (might be the simplest to keep this and incorporate the saturation when parameterizing the cost-benefit functions).
   The form of this function is:
+  
 $$
 S = \frac{\left( \sum_j^k A_{ij} B_j \right) B_{max}}{\beta + \sum_j^k A_{ij} B_j}
 $$
@@ -50,3 +55,59 @@ $$
   
 * Connection between network structure and ecosystem services: how are the collapse of networks related to the loss of ecosystem services? Services are lost before the network collapses but what are the "early signs" that can signal such a shift? If we find literature exploring this aspect we can use it to parameterize the ecosystem service in a Boolean way. For example, imagine that one of these signals is the change in one of the properties of the network, as long as that property holds (degree of nestedness, for example), the service is "on", after a certain threshold, even if you have species and interactions the service is no longer available. In one extreme you can imagine that a single species performs the service. In that case, losing that species would lead to the loss of the service as well. Here we can explore how far a network can be "perturbed" (loss of interaction due to increase in cost) until the service is lost, based on information on properties of the network. 
 
+## Meeting 14/08/2025
+Bruno, Carlos, Paula & Paulo - Zoom
+
+* Aiming for infinity in 5 steps. 
+
+For ecosystem services there is probably not much data available but what we can do is build expectations through a theoretical map. How general can we make the rules or does it have to be system specific? How does the topology of the system influences the provision of ecosystem services? Keep in mind potential trade-offs in the maintenance of services and the idea of services and de-services.
+
+
+1. Theoretical Map
+
+Develop a framework to understand expectations that can generated predictions to be empirically tested. One example could be to explore ecosystem services that rely on species considered the "core" of the network \textit{versus} services that dependent on species that are at the periphery of the network.
+Additionally we can consider multiple services such as pollination, seed dispersal, food provision, bird watching,...
+
+
+2. Case studies
+
+  + Ecosystem services and indigenous knowledge networks [@camara2019indigenous]
+  + Bird watching
+
+
+3. Localities
+  + Pantanal could be an interesting system to explore [@donatti2011analysis]
+
+
+4. Spatial distribution of services (focused on one service)
+
+  + Exploring uneven distribution of services across space and time.
+  + Conflict between micro and macro scales: the services emerges at the micro scale (pollination, carbon storage); process base is local but some have a global component ($CO_2$, $0_2$). For some services we observe "pumps"
+  + Are there hotspots for different services?
+
+5. Generalizations
+
+Based on the information we gain from the combination of the previous steps, can we make generalizations about the ecosystem services and ecological networks? 
+
+
+* Current understanding of ecosystem service debt is mainly based on species loss and not necessarily on loss of interactions
+
+* Static value of nature
+
+* **Potential extensions** as a first approximation we are removing species that have a negative net benefit but another idea would be to remove interactions (instead of species); turning off interactions that are negative. 
+
+
+## Meeting 18/08/2025
+Bruno, Carlos, Paulinha @ Eawag
+
+* Proposal of an Ecosystem Service matrix, in which services are organized in rows and columns represent species that contribute to the service. Based on this we can explore the structure of this matrix by:
+  + Assuming services are correlated (positively or negatively)
+  + Services are randomly structured
+  + The role of the species in the adjacency matrix determines the services it proves (core $vs$ periphery)
+ 
+* **Keeping in mind** Currently our assumption is of a Boolean function operating in an static environment; fluctuations can arise via parameter $\alpha$ regarding costs of interactions, influencing the cost-benefit function.
+
+* **Next steps** Challenges on allowing species to come back to the network, there is a problem of the arbitrary choice of species order when estimating CB function; another challenge is to establish when to stop simulations if species keep changing. Regarding the second challenge we discussed including species "life cycles", which arise naturally when thinking about the fluctuating environments in the $\alpha$ parameter (e.g., follow5 complete cycles) and another way would be to establish an extinction threshold in which we create a vector $v$ and species can persist in the network even when they are not interacting/have negative benefits for a certain number of Boolean iterations (which would be akin to a "cycle")
+
+
+### References
