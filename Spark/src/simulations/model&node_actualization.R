@@ -35,7 +35,7 @@ simulation <- function(A, B_vec, Ce_vec, Cp_vec, zi, theta, n_steps = 100){
     B_max <- max(B_vec)
     B_final <- ifelse(sum_b > B_max, B_max, sum_b)
     
-    # Calculating netbenefits NB: benefits - (ecological costs + ´hysiological costs)
+    # Calculating netbenefits NB: benefits - (ecological costs + B4hysiological costs)
     C_total <- rowSums(C_mat) + physio_all[t, ]
     nb <- B_final - C_total
     
@@ -72,9 +72,9 @@ set.seed(123)
 A <- network(50, 0.3)
 diag(A) <- 0
 n <- nrow(A)
-B_vec <- rlnorm(n)
-Ce_vec <- rlnorm(n)
-Cp_vec <- rlnorm(n) * 0.1
+B_vec <- rlnorm(n, 10, 5)
+Ce_vec <- rlnorm(n, 10, 5)
+Cp_vec <- rlnorm(n, 1.5, 1) 
 zi <- rnorm(n, 0, 1)
 theta <- environment(0.01, 0.1, 0.01, 0.1, t_max = 100)
 
