@@ -100,10 +100,26 @@ Based on the information we gain from the combination of the previous steps, can
 ## Meeting 18/08/2025
 Bruno, Carlos, Paulinha @ Eawag
 
-* Proposal of an Ecosystem Service matrix, in which services are organized in rows and columns represent species that contribute to the service. Based on this we can explore the structure of this matrix by:
+* Proposal of an Ecosystem Service matrix, in which services are organized in rows and columns represent species that contribute to the service. Therefore, the ecosystem services provided by species follows:
+
+$$
+E = \mathbf{P}\vec{x}
+$$
+where, $\mathbf{P}$ is a matrix of $k \times s$ dimension, in which $k$ is the ecosystem services vector and $s$ is the species vector. The entries $P_{ij}$ depicts the effect of each species $j$ on ecosystem service $i$. The vector $\vec{x}$ is related to the state of species. For instance, present or absent, abundance and so on. For our purpose:
+
+$$
+E_{ij} = 
+\begin{cases}
+P_{ij}, & \text{if } x_i = 1\\
+0, & \text{if } x_i = 0
+\end{cases}
+$$
+
+* Based on this we can explore the structure of this matrix by:
   + Assuming services are correlated (positively or negatively)
   + Services are randomly structured
   + The role of the species in the adjacency matrix determines the services it proves (core $vs$ periphery)
+  + 
  
 * **Keeping in mind** Currently our assumption is of a Boolean function operating in an static environment; fluctuations can arise via parameter $\alpha$ regarding costs of interactions, influencing the cost-benefit function.
 
