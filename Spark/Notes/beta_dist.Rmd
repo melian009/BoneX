@@ -3,6 +3,9 @@ title: "Beta distribution"
 author: "Bruno Melati"
 date: "2025-08-20"
 output: pdf_document
+header-includes:
+  - \usepackage{amsmath}
+  - \usepackage{amssymb}
 ---
 
 ```{r setup, include=FALSE}
@@ -16,5 +19,35 @@ To set the costs and benefits parameters we chosed a **beta distribution**. This
   - As the values are bounded between 0 and 1, we know the maximum value of benefits for one species, that is $B \le k_{i}$, where *k* is the degree of *i*;
   - The shape of the curve assume diffent forms as a function of the paramters. In nature we really do not know the shape of the distribuitions of costs and benefits;
   - It have a solution for ou case, which the other option of distribution (lognormal) do not.
-  
+
+The beta distribution have two parameters $\alpha$ abd $\beta$ and both control the shpae of the distribution. Therefore, 
+
+$$ X \approx Beta(\alpha,\beta)$$
+
+where, $\alpha > 0$ and  $\beta > 0$. Both parameters control de "influence" of of the shape bias. Higher $\alpha$ values, higher the concentration towards the right side of the curve. Higher $\beta$ values, higher the concentration towards the left side of the curve. 
+
+The mean and variance of Beta depends on $\alpha$ and $\beta$ parameters, as:
+
+$$\bar{x} = \frac{\alpha}{\alpha + \beta}$$
+$$\mathrm{Var}(X) = \frac{\alpha \beta} {(\alpha + \beta)^2 (\alpha + \beta + 1)}$$
+
+and $$E[X] = \frac{\alpha}{\alpha + \beta}$$
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
