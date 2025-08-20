@@ -7,7 +7,7 @@ source("functions.R")
 nspi <- 50
 nspj <- 65
 connect <- .65
-nsim <- 500
+nsim <- 250
 
 res <- tibble()
 ratio <- tibble()
@@ -42,12 +42,13 @@ res
 
 ## Testing CB ratio
 test <- estimate_CB_overtime(model_res)
-test <- ratio %>% filter(iteration == 2)
+test <- ratio %>% filter(iteration == 7)
 
-ggplot(test, aes(x = time_step, y = ratio, group = sp_id, color = sp_k)) +
+ggplot(test, aes(x = time_step, y = ratio, group = sp_id, color = sp_k_initial)) +
   geom_line() +
   geom_hline(yintercept = 1, lty = 2) +
+  scale_color_viridis_c() +
   theme_bw()
 
 
-
+test %>% filter(sp_id == "sp25")

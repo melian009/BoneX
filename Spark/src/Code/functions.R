@@ -150,7 +150,7 @@ estimate_CB_overtime <- function(model_output){
   C <- model_output$C
   cp <- model_output$costs_p
   sp_present <- model_output$community
-  sp_degree <- apply(model_output$B>0, 1, sum)
+  sp_degree_initial <- apply(model_output$B>0, 1, sum)
   sp_names <- rownames(C)
   
   res <- tibble()
@@ -159,7 +159,7 @@ estimate_CB_overtime <- function(model_output){
   my_sp <- sp_present[i,] %>% select(where(~sum(.) ==1)) %>% names()
   
   sp_names <- sp_names[sp_names %in% my_sp]
-  sp_degree <- sp_degree[my_sp]
+  sp_degree_initial <- sp_degree_initial[my_sp]
   # Update costs_p by zeroing the costs
   new_Cp <- cp[my_sp]
   
@@ -168,12 +168,14 @@ estimate_CB_overtime <- function(model_output){
   
   newB <- B[my_sp, my_sp]
   
+  sp_degree <- apply(newB>0, 1, sum)
   # Estimate CB ratio
   CB_ratio <- get_fitness_ratio(newC, new_Cp, newB)  
   
   tmp <- tibble(time_step = i,
                 sp_id = sp_names,
-                sp_k = sp_degree,
+                sp_k_initial = sp_degree_initial,
+                sp_k_curr = sp_degree,
                 ratio = CB_ratio)
   
   res <- rbind(res, tmp)
