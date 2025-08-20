@@ -1,0 +1,20 @@
+---
+title: "Beta distribution"
+author: "Bruno Melati"
+date: "2025-08-20"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+To set the costs and benefits parameters we chosed a **beta distribution**. This distribution was chosed for some reasons:
+
+  - The values are all positive. As do not exist negative cost or negative benefit, it fit to our data;
+  - The values are defined on the inverval [0,1]. It could be used as the percentage of costs and benefits;
+  - As the values are bounded between 0 and 1, we know the maximum value of benefits for one species, that is $B \le k_{i}$, where *k* is the degree of *i*;
+  - The shape of the curve assume diffent forms as a function of the paramters. In nature we really do not know the shape of the distribuitions of costs and benefits;
+  - It have a solution for ou case, which the other option of distribution (lognormal) do not.
+  
+

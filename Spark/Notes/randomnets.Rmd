@@ -40,7 +40,7 @@ where $\Phi$ is the cumulative distribution function of $N(0,1)$.
 
 Now let's consider an example: if species benefits have the distribution $B \sim N(1.2,2)$ and costs are distributed as $C \sim N(2,1.5)$, the distribution describing these values is:
 
-```{r functions, echo=FALSE, out.width="50%", fig.cap="Example of cost-benefit functions"}
+```{r functions, echo=FALSE, out.width="50%", fig.cap="Example of cost-benefit functions following a normal distribution"}
 # Define the means and standard deviations for costs and benefits
 mean_benefit <- 1.2
 sd_benefit <- 2
@@ -81,7 +81,7 @@ diff_probs <- diff_probs %>% mutate(probs = pnorm(0, mean=diff_values))
 
 ggplot(diff_probs, aes(x = diff_values, y=probs)) +
   geom_line(lwd =1) +
-  labs(x = "Difference between benefits and costs (B-C = D)",
+  labs(x = "Difference between benefits and costs (C-B = D)",
        y = "Probabiliy of all species persisting P(D>0)",
        color = "Curve") +
   theme_bw()
