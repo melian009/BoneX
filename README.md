@@ -5,9 +5,6 @@
 
 # Manuscript (ms folder)
 
-Summary of the discussions
-- All summary of the dicussions are available at [Overleaf](https://overleaf.ifisc.uib-csic.es/6116321349smynngdcnqdw#3f3ec5)
-
 # Codes (src folder) 
 
 
@@ -22,10 +19,9 @@ Description of the data
 Summary of questions 
 
 ## 📚 References
-- All reference studies (PDFs) are available at [Switchdrive](https://drive.switch.ch/index.php/s/ugTzvLiNUEnUsil)
+- All reference studies (PDFs) are available at [Switchdrive](https://drive.switch.ch/index.php/s/apCByjrrGlCPINT)
 
 ## 🧾 Data
-- All empirical data are available at [Switchdrive](https://drive.switch.ch/index.php/s/lSkaJI2bSeHuzMc)
 
 ## 🧑‍💻 Code
 - **Basic analysis**: Data cleaning and preliminary exploration ideally implemented in *Jupyter Notebook*
