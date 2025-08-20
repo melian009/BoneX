@@ -126,4 +126,16 @@ $$
 * **Next steps** Challenges on allowing species to come back to the network, there is a problem of the arbitrary choice of species order when estimating CB function; another challenge is to establish when to stop simulations if species keep changing. Regarding the second challenge we discussed including species "life cycles", which arise naturally when thinking about the fluctuating environments in the $\alpha$ parameter (e.g., follow5 complete cycles) and another way would be to establish an extinction threshold in which we create a vector $v$ and species can persist in the network even when they are not interacting/have negative benefits for a certain number of Boolean iterations (which would be akin to a "cycle")
 
 
+## Meeting 18/08/2025
+Bruno, Carlos, Paulinha @ Eawag
+
+* Discussion around the chose of beta distribution as the distribution to set costs and benefits parameters. This distribution was chosen for some reasons:
+
+  - The values are all positive. As do not exist negative cost or negative benefit, it fit to our data;
+  - The values are defined on the interval [0,1]. It could be used as the percentage of costs and benefits;
+  - As the values are bounded between 0 and 1, we know the maximum value of benefits for one species, that is $B \le k_{i}$, where *k* is the degree of *i*;
+  - The shape of the curve assume different forms as a function of the parameters. In nature we really do not know the shape of the distributions of costs and benefits;
+  - It have a solution for our case, which the other option of distribution (log normal) do not.
+
+
 ### References
