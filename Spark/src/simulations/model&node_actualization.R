@@ -31,13 +31,15 @@ simulation <- function(A, B_vec, Ce_vec, Cp_vec, zi, theta, n_steps = 100){
     }
     
     # Especialization: benefits saturation
-    sum_b <- rowSums(B_mat)
-    B_max <- max(B_vec)
-    B_final <- ifelse(sum_b > B_max, B_max, sum_b)
+    #sum_b <- rowSums(B_mat)
+    #B_max <- max(B_vec)
+    #B_final <- ifelse(sum_b > B_max, B_max, sum_b)
     
     # Calculating netbenefits NB: benefits - (ecological costs + B4hysiological costs)
     C_total <- rowSums(C_mat) + physio_all[t, ]
-    nb <- B_final - C_total
+    B_total <- rowSums(B_mat)
+    #nb <- B_final - C_total
+    nb <- B_total - C_total
     
     # State actualization: species turns active if NB > 0
     new_state <- ifelse(nb > 0, 1, 0)
@@ -72,11 +74,14 @@ set.seed(123)
 A <- network(50, 0.3)
 diag(A) <- 0
 n <- nrow(A)
-B_vec <- rlnorm(n, 10, 5)
-Ce_vec <- rlnorm(n, 10, 5)
-Cp_vec <- rlnorm(n, 1.5, 1) 
-zi <- rnorm(n, 0, 1)
-theta <- environment(0.01, 0.1, 0.01, 0.1, t_max = 100)
+B_vec <- rbeta(n,0:1,0:1)
+Ce_vec <- rbeta(n,0:1,0:1)
+Cp_vec <- rbeta(n,0:1,0:1)*0.2 
+zi <- runif(n, 1, 10)
+theta <- environment(1, 10, 1, 5, t_max = 100)
+
+alpha <- abs(theta[1] - zi)
+Cp_vec/alpha
 
 resultado <- simulation(A, B_vec, Ce_vec, Cp_vec, zi, theta, n_steps = 100)
 resultado

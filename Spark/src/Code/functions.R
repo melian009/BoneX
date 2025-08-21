@@ -23,6 +23,8 @@ build_random_graph <- function(nodes_i, nodes_j, connectance, return_adjacency=T
 }
 
 
+## Create the Cost/Benefit matrix given an adjacency matrix with choice of 
+  # statistical distribution defining the values
 create_CB_matrix <- function(Aij, is.bipartite=FALSE, distribution="lognormal", ...){
   #if it's not binary, make it binary
   matrix_A <- Aij
@@ -56,14 +58,25 @@ create_CB_matrix <- function(Aij, is.bipartite=FALSE, distribution="lognormal", 
   return(CB_mt)
 }
 
-# Provided a matrix of benefits and one of costs plus 
-  # a vector of physiological costs, estimate fitness
+
+# Estimate the fitness given a matrix of benefits, costs and a vector of 
+  # physiological costs
 define_fitness <- function(eco_costs, physio_costs, tot_benefits){
   fitness <- apply(tot_benefits, 1, sum) - (apply(eco_costs, 1, sum) + physio_costs)
   return(fitness)
 }
 
+# Get ratio between costs and benefits
+get_fitness_ratio <- function(eco_costs, physio_costs, tot_benefits){
+  fitness_ratio <- apply(tot_benefits, 1, sum)/(apply(eco_costs, 1, sum) + physio_costs)
+  return(fitness_ratio)
+}
+
+
 ## Running the model
+ # Input: Number of species in each category of a bipartite system
+ #        Expected connectance of the system
+ #        Statistical distribution of benefits, costs and physiological cost
 boolean_model <- function(Ni, Nj, connectance, 
                           dist_B = "lognormal", dist_C = "lognormal", 
                           dist_Cp = "lognormal",...){
@@ -96,12 +109,12 @@ boolean_model <- function(Ni, Nj, connectance,
     # Check if it's the same
     changing <- sum(tail(community, 1) != presence)
     
-    # Update A
+    # Update A by adding zero to extinct species
     newA <- A
     newA[extinct_sp,] <- 0
     newA[,extinct_sp] <- 0
     
-    # Update costs_p
+    # Update costs_p by zeroing the costs
     new_Cp <- costs_p
     new_Cp[extinct_sp] <- 0
     
@@ -114,7 +127,7 @@ boolean_model <- function(Ni, Nj, connectance,
     newB[extinct_sp,] <- 0
     newB[,extinct_sp] <- 0
     
-    (community <- community %>% rbind(presence))
+    community <- community %>% rbind(presence)
     
     # Define new fitness
     fitness <- define_fitness(newC, new_Cp, newB)  
@@ -123,6 +136,52 @@ boolean_model <- function(Ni, Nj, connectance,
   res <- list(community = community, 
               A = A, B = B, C=C, 
               costs_p = costs_p)
+  
   return(res)
   
 }
+
+
+## Estimating how costs and benefits change over time 
+ # Input of the function is the output of boolean_model
+estimate_CB_overtime <- function(model_output){
+  
+  B <- model_output$B
+  C <- model_output$C
+  cp <- model_output$costs_p
+  sp_present <- model_output$community
+  sp_degree_initial <- apply(model_output$B>0, 1, sum)
+  sp_names <- rownames(C)
+  
+  res <- tibble()
+  
+  for (i in 1:nrow(sp_present)) {
+  my_sp <- sp_present[i,] %>% select(where(~sum(.) ==1)) %>% names()
+  
+  sp_names <- sp_names[sp_names %in% my_sp]
+  sp_degree_initial <- sp_degree_initial[my_sp]
+  # Update costs_p by zeroing the costs
+  new_Cp <- cp[my_sp]
+  
+  # Update matrix of costs and benefits
+  newC <- C[my_sp, my_sp]
+  
+  newB <- B[my_sp, my_sp]
+  
+  sp_degree <- apply(newB>0, 1, sum)
+  # Estimate CB ratio
+  CB_ratio <- get_fitness_ratio(newC, new_Cp, newB)  
+  
+  tmp <- tibble(time_step = i,
+                sp_id = sp_names,
+                sp_k_initial = sp_degree_initial,
+                sp_k_curr = sp_degree,
+                ratio = CB_ratio)
+  
+  res <- rbind(res, tmp)
+  
+  }
+  return(res)
+}
+
+
