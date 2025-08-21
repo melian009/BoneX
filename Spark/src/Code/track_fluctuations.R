@@ -3,7 +3,7 @@ library(tidyverse)
 #----------------------------------------
 #extract environmental fluctuation (theta) 
 environ <- data.frame(theta)
-environ <- env %>%
+environ <- environ %>%
   mutate(t = 1:nrow(.))
 
 #------------------------------------------
@@ -50,6 +50,6 @@ envir <- ggplot(data = environ, aes(y = theta, x = t)) +
 
 # arrange in one figure
 library(patchwork)
-env /p_alpha / p_cf
-
+envir / p_alpha / p_cf
+  
 
