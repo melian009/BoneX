@@ -24,6 +24,9 @@ Summary of questions
 ## 📚 References
 - All reference studies (PDFs) are available at [Switchdrive](https://drive.switch.ch/index.php/s/ugTzvLiNUEnUsil)
 
+## Extended literature
+- All additional reference studies available at [Switchdrive](https://drive.switch.ch/index.php/s/HqAVT5vOfb4LDzb)
+
 ## 🧾 Data
 - All empirical data are available at [Switchdrive](https://drive.switch.ch/index.php/s/lSkaJI2bSeHuzMc)
 
