@@ -39,7 +39,7 @@ simulation <- function(A, B_vec, Ce_vec, Cp_vec, zi, theta, n_steps = 100){
     outcome <- rowSums(delta)
     
     # Calculating netbenefits NB: benefits - (ecological costs + physiological costs)
-    nb <- outcome + physio_all[t, ]
+    nb <- outcome - physio_all[t, ]
    
     # State actualization: species turns active if NB > 0
     new_state <- ifelse(nb > 0, 1, 0)
@@ -74,14 +74,13 @@ set.seed(123)
 A <- network(50, 0.3)
 diag(A) <- 0
 n <- nrow(A)
-B_vec <- rbeta(n,0:1,0:1)
-Ce_vec <- rbeta(n,0:1,0:1)
-Cp_vec <- rbeta(n,0:1,0:1)*0.2 
+B_vec <- rbeta(n,5,5)
+Ce_vec <- rbeta(n,5,5)
+Cp_vec <- rbeta(n,5,5)*0.2 
 zi <- runif(n, 1, 10)
 theta <- environment(1, 10, 1, 5, t_max = 100)
 
-alpha <- abs(theta[1] - zi)
-Cp_vec/alpha
+
 
 resultado <- simulation(A, B_vec, Ce_vec, Cp_vec, zi, theta, n_steps = 100)
 resultado
