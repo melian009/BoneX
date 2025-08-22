@@ -35,12 +35,12 @@ simulation <- function(A, B_vec, Ce_vec, Cp_vec, zi, theta, n_steps = 100){
     #B_max <- max(B_vec)
     #B_final <- ifelse(sum_b > B_max, B_max, sum_b)
     
-    # Calculating netbenefits NB: benefits - (ecological costs + B4hysiological costs)
-    C_total <- rowSums(C_mat) + physio_all[t, ]
-    B_total <- rowSums(B_mat)
-    #nb <- B_final - C_total
-    nb <- B_total - C_total
+    delta <- B_mat - C_mat
+    outcome <- rowSums(delta)
     
+    # Calculating netbenefits NB: benefits - (ecological costs + physiological costs)
+    nb <- outcome + physio_all[t, ]
+   
     # State actualization: species turns active if NB > 0
     new_state <- ifelse(nb > 0, 1, 0)
     
