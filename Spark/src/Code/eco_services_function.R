@@ -30,9 +30,9 @@ ecosystem <- function(object, P_matrix) {
 #Implementation exemple
 set.seed(123)
 #exemple matrix of the size of the iterations time steps and species number in the main model
-P_matrix <- matrix(runif(5*50, 0, 1), nrow = 5)
+E_matrix <- matrix(runif(5*50, 0, 1), nrow = 5)
 # Calcular serviços ecossistêmicos
-services <- ecosystem(resultado, P_matrix) #caling the above functions
+services <- ecosystem(resultado, E_matrix) #caling the above functions
 
 # Looking at the changes of ecosystem services along the time
 print(services$services_history)
