@@ -16,17 +16,17 @@ knitr::opts_chunk$set(echo = TRUE)
 Each species *i* can contribute to the existence of a *j* ecosystem service. Therefore, we can map the relation species / ecosystem services as follows: 
 
 
-$$ E = \mathbf{P}\vec{x}$$
- where, $\mathbf{P}$ is a matrix of $k \times s$ dimension, in which $k$ is the ecosystem services vector and $s$ is the species vector. The vector $\vec{x}$ is related to the state of species (present, absent, abundance...). Each entry $P_{ij}$ depicts the effect of one individual species $j$ on each ecosystem service $i$. The $P_{ij}$ value could be the raw value or the relative value of each species $i$ contribution to the ecosystem service. For our purpose, 
+$$ S = \mathbf{E}\vec{x}$$
+ where, $\mathbf{E}$ is a matrix of $k \times s$ dimension, in which $k$ is the ecosystem services vector and $s$ is the species vector and it describes the effects of one individuals species to ecossystem service. For our pourpose, we can deal with the efect of species *i* on ecosystem services *k*. The vector $\vec{x}$ is related to the state of species (present, absent, abundance...). Each entry $E_{ij}$ depicts the effect of one individual species $j$ on each ecosystem service $i$. The $E_{ij}$ value could be the raw value or the relative value of each species $i$ contribution to the ecosystem service. For our purpose, 
  
  $$
- E_{ij} = 
+ S_{ij} = 
  \begin{cases}
- P_{ij}, & \text{if } x_i = 1\\
+ E_{ij}, & \text{if } x_i = 1\\
  0, & \text{if } x_i = 0
  \end{cases}
  $$
-Therefore, the effects of species loss could be investigated as $\Delta{E} = E^{(t_0)} - E^{(t_n)}$. 
+Therefore, the effects of species loss could be investigated as $\Delta{S} = S^{(t_0)} - S^{(t_n)}$. 
 
 ## Running an example
 
@@ -37,24 +37,24 @@ set.seed(12)
 
 ```{r}
 
-#P matrix
+#E matrix
 #species state
 
 
-s <- 10 #n species
+sp <- 10 #n species
 state = rbinom(10, 0:1, prob = 0.5) #species state (0,1)
 k <- 3 #n ecosystem services
-P <- matrix(runif(k*s, 0, 1), nrow = s, ncol = k) 
-P
+E <- matrix(runif(k*sp, 0, 1), nrow = sp, ncol = k) 
+E
 ```
 
 ```{r}
 #Ecosystem services status
 
-E <- P*state
-E
+S <- E*state
+S
 #We can see the value of each ecosystem service
-status <- colSums(E) 
+status <- colSums(S) 
 status
 ```
 
@@ -64,14 +64,11 @@ status
 
 (state_t0 = rbinom(10, 0:1, prob = 0.8)) #species state (0,1)
 (state_tn = rbinom(10, 0:1, prob = 0.3))#species state (0,1)
-(P0 <- P*state_t0)
-(Pn <- P*state_tn) 
+(P0 <- E*state_t0)
+(Pn <- E*state_tn) 
 colSums(P0)
 colSums(Pn)
 
-delta <- P0 - Pn
-delta
-colSums(delta)
 ```
 
 

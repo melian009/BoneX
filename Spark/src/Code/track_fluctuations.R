@@ -48,6 +48,15 @@ envir <- ggplot(data = environ, aes(y = theta, x = t)) +
   theme(legend.position = "none")
 
 
+
+#---------------------------------------
+
+#track results
+
+#environmental services
+serv_long <- as.data.frame(services$services_history) %>%
+  mutate(t = 1:nrow(.)) %>%
+  pivot_longer(cols = starts_with("V"), names_to = "service", values_to = "amount")
 # arrange in one figure
 library(patchwork)
 envir / p_alpha / p_cf

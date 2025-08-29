@@ -138,4 +138,21 @@ Bruno, Carlos, Paulinha @ Eawag
   - It have a solution for our case, which the other option of distribution (log normal) do not.
 
 
+## Meeting 22/08/2025
+Bruno, Carlos, Paulinha @ Eawag
+
+* The discussion move around the theoretical expectations of beta distribution. We can obtain it by the PDF of the difference of two *beta* distributions, $\theta_{d} = \theta_{1} - \theta_{2}$ and can be derived using the Appell Hypergeometric function ($F_{1}). 
+
+* During the discussion, we figure out that to find the theoretical expectations of species extinction, we need to identify the expectations for all species or to individual species. If we want the expectations for all species if is dependent of the number of species at the network. Therefore, the expectation for all species being extinct or be maintained at the networks follows:  
+
+$$E(x) \sim beta(\alpha, \beta)^N$$
+where, N is the number of species. 
+
+* During the conversation, to reach the theoretical expectations we identified that we need a little change at the model, as it could be impossible to find the expectations. In the original version of the model, we are summing rows of costs and benefits and subtracted than. Now, we subtracted the benefits by the ecological costs. It allows us to find the theoretical expectations and make the model more elegant, since we can now segregate between a biotic and an abiotic component. The biotic ones comprehends the benefits and the ecological costs. The abiotic component comprehends the physiological costs and the alpha value, which is related with environemtnal fluctuations. Therefore, 
+
+$$ w_i = \sum_j(B_{ij} - C^e_{ij}) - C^p\alpha$$
+where $w$ is the fitness of species *i*. $C^e$ is the ecological cost and $C^p$ is the physiological cost.
+
+* We also pass through an idea of adaptive landscape driven by mutualistic interactions and environmental fluctuations where mutualistic interactions favor species to disperse to less favorable environments. The presence of species in less favorable environments depend on the correlations of presence of partner species and how distant a species are from their environmental optima.  
+
 ### References
