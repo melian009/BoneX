@@ -23,7 +23,7 @@ end
 function get_perturbation_prob(t::Int)
     # The `abs()` ensures the probability is always non-negative.
     # The 0.1 and 0.05 are just example parameters.
-    return 0.1 + 0.05 * sin(t)
+    return 0.5 + 0.05 * sin(t)
 end
 
 # Calculates the probability of transitioning from a deterministic_next_state
@@ -105,7 +105,7 @@ rule_node1(state) = !state[2]
 rule_node2(state) = !state[2]
 rule_node3(state) = !state[2]
 rule_node4(state) = !state[2]
-rule_node5(state) = !state[2]
+#rule_node5(state) = !state[2]
 
 # Create a BooleanNetwork instance
 num_nodes = 4
@@ -117,4 +117,4 @@ num_states = 2^num_nodes
 initial_probability_distribution = ones(num_states) / num_states
 
 # Run the simulation for 10 time steps
-final_pi = run_time_dependent_simulation(my_network, initial_probability_distribution, 100)
+final_pi = run_time_dependent_simulation(my_network, initial_probability_distribution, 1000)
