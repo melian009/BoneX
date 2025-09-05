@@ -16,7 +16,7 @@ This model represents a **time-inhomogeneous Markov chain** because the transiti
 
 ### Julia Implementation
 
-The code reuses core components introduces a function for the time-dependent probability and modifies the main simulation loop to handle a variable TPM.
+The code introduces a function for the time-dependent probability and modifies the main simulation loop to handle a variable TPM.
 
 #### 1\. Core Structures and Rules
 
