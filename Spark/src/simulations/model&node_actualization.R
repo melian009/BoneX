@@ -40,6 +40,7 @@ simulation <- function(A, B_vec, Ce_vec, Cp_vec, zi, theta, n_steps = 100){
       C_mat[i, partners] <- Ce_vec[partners]
     }
 
+    # transforming B & C matrix into squared ones
     b1 <- nrow(B_mat)
     b2 <- ncol(B_mat)
     m1 <- cbind(matrix(0, b1, b1), B_mat)
