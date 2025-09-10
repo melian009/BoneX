@@ -3,6 +3,16 @@ simulation <- function(A, B_vec, Ce_vec, Cp_vec, zi, theta, n_steps = 100){
   
   n <- nrow(A)
   t_max <- length(theta)
+
+  # square matrix  
+  group_1 <- nrow(A)
+  group_2 <- ncol(A)
+  rownames(A_raw) <- paste("1", 1:group_1, sep = "")
+  colnames(A_raw) <- paste("2", 1:group_2, sep = "")
+  m1 <- cbind(matrix(0, group_1, group_1), A)
+  m2 <- cbind(t(A), matrix(0, group_2, group_2))
+  A <- rbind(m1, m2)
+  diag(A) <- 0
   
   # Alpha and physiological costs pre-calculated for all times t
   alpha <- alpha_fun(theta, zi)
@@ -21,7 +31,7 @@ simulation <- function(A, B_vec, Ce_vec, Cp_vec, zi, theta, n_steps = 100){
     # Filtering A Matriz for just active species (1) 
     active_species <- which(state == 1)
     
-    # Actualizating costs and benefit matrices (C_mat & B_mat) considering just existing interactions  with active species 
+    # Actualizating costs and benefit matrices (C_mat & B_mat) considering just existing interactions with active species 
     B_mat <- matrix(0, n, n)
     C_mat <- matrix(0, n, n)
     for (i in active_species) {
@@ -29,6 +39,21 @@ simulation <- function(A, B_vec, Ce_vec, Cp_vec, zi, theta, n_steps = 100){
       B_mat[i, partners] <- B_vec[partners]
       C_mat[i, partners] <- Ce_vec[partners]
     }
+
+    b1 <- nrow(B_mat)
+    b2 <- ncol(B_mat)
+    m1 <- cbind(matrix(0, b1, b1), B_mat)
+    m2 <- cbind(t(B_mat), matrix(0, b2, b2))
+    B_mat <- rbind(m1, m2)
+    diag(B_mat) <- 0
+
+    c1 <- nrow(B_mat)
+    c2 <- ncol(B_mat)
+    m1 <- cbind(matrix(0, c1, c1), C_mat)
+    m2 <- cbind(t(C_mat), matrix(0, c2, c2))
+    C_mat <- rbind(m1, m2)
+    diag(C_mat) <- 0
+    
     
     # Especialization: benefits saturation
     #sum_b <- rowSums(B_mat)
