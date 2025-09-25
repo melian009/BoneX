@@ -19,7 +19,8 @@ Summary of the discussions
 Description of the data
 
 ## ❓ Research Questions
-Summary of questions 
+- What cost and benefit functions lead to the emergence of networks that resemble the structure of empirical networks?
+- How ecosystem services respond to environmental changes? 
 
 ## 📚 References
 - All reference studies (PDFs) are available at [Switchdrive](https://drive.switch.ch/index.php/s/ugTzvLiNUEnUsil)
