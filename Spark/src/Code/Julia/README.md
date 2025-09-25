@@ -16,11 +16,11 @@ This model represents a **time-inhomogeneous Markov chain** because the transiti
 
 ### Julia Implementation
 
-The code reuses core components from the previous examples but introduces a function for the time-dependent probability and modifies the main simulation loop to handle a variable TPM.
+The code introduces a function for the time-dependent probability and modifies the main simulation loop to handle a variable TPM.
 
 #### 1\. Core Structures and Rules
 
-The `BooleanNetwork` struct and the state-to-index mapping functions remain the same.
+The `BooleanNetwork` struct and the state-to-index mapping functions
 
 ```julia
 using LinearAlgebra # Needed for `vec` and matrix operations
@@ -47,7 +47,7 @@ end
 
 #### 2\. Time-Dependent Perturbation and TPM
 
-Here's the new part. We define a function for `p(t)` and then a function that builds the TPM for a specific time `t`.
+We define a function for `p(t)` and then a function that builds the TPM for a specific time `t`.
 
 ```julia
 # Defines the time-dependent perturbation probability p(t)
@@ -108,7 +108,7 @@ end
 
 #### 3\. Simulation Loop
 
-The `run_markov_simulation` function now takes the perturbation probability function as an argument and builds the TPM inside the loop at each step.
+The `run_markov_simulation` function takes the perturbation probability function as an argument and builds the TPM inside the loop at each step.
 
 ```julia
 # Calculates the next state probability vector using the Markov chain equation
@@ -158,4 +158,4 @@ initial_probability_distribution = ones(num_states) / num_states
 final_pi = run_time_dependent_simulation(my_network, initial_probability_distribution, 10)
 ```
 
-The output of this code will show how the probability distribution evolves. Unlike a standard Markov chain, the distribution may not converge to a single steady state, but instead might oscillate or follow a complex trajectory due to the changing transition probabilities.
+The output is how the probability distribution evolves. Unlike a standard Markov chain, the distribution may not converge to a single steady state, but instead might oscillate or follow a complex trajectory due to the changing transition probabilities.
