@@ -20,7 +20,7 @@ Costs and benefits can be describe as functions with a giving underlying distrib
 
 
 ### Boundary conditions for costs and benefits and the persistence/extinction of species
-What are the boundary conditions for having all species present ($benefits > costs$) and for having all species extinct of the system (i.e., when $benefits < costs$)? In other words, we want to know what is the probability of having the benefits surpass the costs, resulting in all species present in the network, and alternatively, what is the probability of having all species removed from the network if the costs of interaction surpass their benefits.
+What are the boundary conditions for the expectation of having all species present ($benefits > costs$) and for having all species extinct of the system (i.e., when $benefits < costs$)? In other words, we want to know what is the probability of having the benefits surpass the costs, resulting in all species present in the network, and alternatively, what is the probability of having all species removed from the network if the costs of interaction surpass their benefits.
 
 
 ### Normal distribution
@@ -64,8 +64,8 @@ toplot<- data.frame(x = rep(x, 2),
 
 # Plot the curves
 ggplot(toplot, aes(x = x, y = y, color = group)) +
-  geom_line(lwd =1) +
-  scale_color_manual(values = c("Benefit" = "purple", "Cost" = "red")) +
+  geom_line(lwd =1.5) +
+  scale_color_manual(values = c("Benefit" = "orchid4", "Cost" = "goldenrod")) +
   labs(x = "Value",
        y = "Density",
        color = "Curve") +
@@ -77,15 +77,15 @@ Using the derived expression, the resulting probability of having all species pr
 In more general terms, we can explore how the difference between benefits and costs influences the probability of all species coexisting. Assuming a standard deviation of $\sigma^2 = 1$ we explore the effect of the mean difference between costs and benefits in species' probability of persistence, deriving the probability according to equation \ref{eq:probs}.
 
 
-```{r coexistence, echo=FALSE, out.width="50%", fig.cap="Probability of species' persistence given the difference in benefits and costs"}
+```{r coexistence, echo=FALSE, out.width="50%", fig.cap="Expected proportion of species' persistence given the difference in benefits and costs"}
 # Creating the data with values for the difference and estimating prob of persistence
 diff_probs <- tibble(diff_values = seq(-3.5,3.8, by = 0.01))
 diff_probs <- diff_probs %>% mutate(probs = pnorm(0, mean=diff_values))
 
 ggplot(diff_probs, aes(x = diff_values, y=probs)) +
-  geom_line(lwd =1) +
+  geom_line(lwd =1, color = "gray30") +
   labs(x = "Difference between benefits and costs (C-B = D)",
-       y = "Probabiliy of all species persisting P(D>0)",
+       y = "Expected proportion of surviving species",
        color = "Curve") +
   theme_bw()
 
@@ -95,7 +95,9 @@ ggplot(diff_probs, aes(x = diff_values, y=probs)) +
 ### Lognormal distribution
 
 As costs and benefits should, in principle, have the same sign, it is more appropriate to use a distribution defined for positive values.
-The derivation for the lognormal distribution is not as straight forward as the one for the normal distribution, given we are interested in the difference between two i.i.d. random variables drawn from a lognormal distribution. One solution to find the probability that all species are present is through integration and another solution is proposed by ADD REF
+The derivation for the lognormal distribution is not as straight forward as the one for the normal distribution, given we are interested in the difference between two i.i.d. random variables drawn from a lognormal distribution. One solution to find the probability that all species are present is through numerical integration assuming both values are drawn from $lnN(0,1)$.
+
+Alternatively, [@parham2023difference] proposes a solution describing the Difference-of-Log-Normals (DLN), characterizing its PDF, CDF, moments and parameter estimators. 
 
 ```{r lognormal, echo=FALSE, out.width="50%", fig.cap="Costs and benefits drawn from a lognormal distribution"}
 # Plotting the lognormal curve  
@@ -113,8 +115,8 @@ toplot<- data.frame(x = rep(x, 2),
 
 # Plot the curves
 ggplot(toplot, aes(x = x, y = y, color = group)) +
-  geom_line(lwd =1) +
-  scale_color_manual(values = c("Benefit" = "purple", "Cost" = "red")) +
+  geom_line(lwd =1.5) +
+  scale_color_manual(values = c("Benefit" = "orchid4", "Cost" = "goldenrod")) +
   labs(x = "Value",
        y = "Density",
        color = "Curve") +
@@ -124,3 +126,14 @@ ggplot(toplot, aes(x = x, y = y, color = group)) +
 
 
 ### Beta distribution
+
+
+
+```{r beta}
+  ggplot() +
+  stat_function(fun = dbeta, args = list(shape1 = 0.5, shape2 = 1), aes(color = "Benefit"), lwd=1.5) +
+  stat_function(fun = dbeta, args = list(shape1 = 5, shape2 = 5), aes(color = "Cost"), lwd=1.5) +
+  scale_color_manual("Curve", values = c("Benefit" = "orchid4", "Cost" = "goldenrod")) +
+  theme_minimal()
+```
+
