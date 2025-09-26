@@ -62,7 +62,7 @@ create_CB_matrix <- function(Aij, is.bipartite=FALSE, distribution="lognormal", 
 # Estimate the fitness given a matrix of benefits, costs and a vector of 
   # physiological costs
 define_fitness <- function(eco_costs, physio_costs, tot_benefits){
-  fitness <- apply(tot_benefits, 1, sum) - (apply(eco_costs, 1, sum) + physio_costs)
+  fitness <- apply(tot_benefits, 1, sum - apply(eco_costs, 1, sum)) - physio_costs
   return(fitness)
 }
 

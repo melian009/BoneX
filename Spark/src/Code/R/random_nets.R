@@ -1,14 +1,18 @@
-## Random nets
+## Random networks -- Example code 
 rm(list=ls())
+library(tidyverse)
  # Code to run random Boolean networks analysis
- # code where the functions are write
-source("functions.R")
-# Number of Species
+  # load the functions
+source("functions.R") 
+# Number of Species of each set
 nspi <- 50
 nspj <- 65
+# Expected connectance
 connect <- .65
+# Number of simulations
 nsim <- 250
 
+# Create tibbles to store the results
 res <- tibble()
 ratio <- tibble()
 # B=C
@@ -27,8 +31,11 @@ for (i in 1:nsim) {
   print(i)
 }
 
+# Object with the results
 res
 
+# Distribution (boxplot) of the proportion of species left in each time step 
+  # of the simulation
 ggplot(res, aes(x =time_steps, y = prop_sp, group=c(time_steps))) +
   geom_boxplot() + 
   theme_bw()
@@ -38,7 +45,6 @@ ggplot(res, aes(x =time_steps, y = prop_sp, group=c(time_steps))) +
 res %>% group_by(iteration)%>% tally()  %>% ggplot(aes(x=n)) + 
   geom_histogram() + labs(title = "Number of iterations")
 
-res
 
 ## Testing CB ratio
 test <- estimate_CB_overtime(model_res)
