@@ -1,94 +1,96 @@
 # Simulating dinamics
 simulation <- function(A, B_vec, Ce_vec, Cp_vec, zi, theta, n_steps = 100){
   
-  n <- nrow(A)
-  t_max <- length(theta)
-
-  # square matrix  
+  # Dimensões originais (número de espécies)
+  n <- nrow(A)  # número de espécies originais
   group_1 <- nrow(A)
   group_2 <- ncol(A)
+  t_max <- length(theta)
+  
+  # Transformar A em matriz quadrada para cálculos
   rownames(A) <- paste("1", 1:group_1, sep = "")
   colnames(A) <- paste("2", 1:group_2, sep = "")
-  A <- rbind(
+  A_square <- rbind(
     cbind(matrix(0, group_1, group_1), A),
     cbind(t(A), matrix(0, group_2, group_2))
   )
-  diag(A) <- 0
+  diag(A_square) <- 0
   
-  # Alpha and physiological costs pre-calculated for all times t
+  # Dimensão da matriz quadrada
+  n_total <- nrow(A_square)
+  
+  # Alpha and physiological costs (baseados nas espécies originais)
   alpha <- alpha_fun(theta, zi)
   physio_all <- Cf(alpha, Cp_vec)
   
-  # Inicial state: all species present
-  state <- rep(1, n) 
+  # Estado inicial: todas as espécies originais presentes
+  state <- rep(1, n)  # apenas para as espécies originais
   
-  # Matrix to store history of states (states changes trhough time)
+  # Criar estado expandido para a matriz quadrada (duplicar estado)
+  state_expanded <- c(state, state[1:group_2])
+  
+  # Matrix to store history of states (apenas espécies originais)
   max_steps <- min(n_steps, t_max)
   state_history <- matrix(NA, nrow = max_steps, ncol = n)
   colnames(state_history) <- paste0("sp", 1:n)
   
   state_history[1, ] <- state
+  
   for (t in 2:max_steps) {
     
-  # Filtering A Matriz for just active species (1) 
-  active_species <- which(state == 1)
+    # Atualizar estado expandido
+    state_expanded <- c(state, state[1:group_2])
     
-  # Actualizating costs and benefit matrices (C_mat & B_mat) considering just existing interactions with active species 
-  B_mat <- matrix(0, n, n)
-  C_mat <- matrix(0, n, n)
-  if(length(active_species) > 0) {# verification for security
-    for (i in active_species) {
-      partners <- which(A[i, ] == 1 & state == 1)
-      if(length(partners) > 0) {# verification for security 
-      B_mat[i, partners] <- B_vec[partners]
-      C_mat[i, partners] <- Ce_vec[partners]
+    # Filtering matrix for just active species
+    active_species <- which(state_expanded == 1)
+    
+    # Initialize benefit and cost matrices (tamanho da matriz quadrada)
+    B_mat <- matrix(0, n_total, n_total)
+    C_mat <- matrix(0, n_total, n_total)
+    
+    if(length(active_species) > 0) {
+      for (i in active_species) {
+        partners <- which(A_square[i, ] == 1 & state_expanded == 1)
+        if(length(partners) > 0) {
+          # Mapear benefits/costs das espécies originais
+          if(i <= n) {  # se é uma espécie original
+            B_mat[i, partners] <- B_vec[pmin(partners, n)]  # usar valores das espécies originais
+            C_mat[i, partners] <- Ce_vec[pmin(partners, n)]
+          } else {  # se é uma espécie "duplicada" 
+            original_i <- i - n  # mapear para espécie original
+            B_mat[i, partners] <- B_vec[pmin(partners, n)]
+            C_mat[i, partners] <- Ce_vec[pmin(partners, n)]
+          }
+        }
+      }
+      
+      # Calcular delta usando a matriz quadrada completa
+      delta <- B_mat - C_mat
+      outcome <- rowSums(delta)
+      
+      # Calculating netbenefits apenas para as espécies originais
+      nb <- outcome[1:n] - physio_all[t, ]  # pegar apenas os primeiros n valores
+      
+      # State actualization: species turns active if NB > 0
+      new_state <- as.numeric(nb > 0) 
+      
+      # Store the history of species states
+      state_history[t, ] <- new_state
+      
+      # Stop iteration condition
+      if (identical(new_state, state)) break
+      
+      state <- new_state
     }
-
-    # transforming B & C matrix into squared ones
-    b1 <- nrow(B_mat)
-    b2 <- ncol(B_mat)
-    m1 <- cbind(matrix(0, b1, b1), B_mat)
-    m2 <- cbind(t(B_mat), matrix(0, b2, b2))
-    B_mat <- rbind(m1, m2)
-    diag(B_mat) <- 0
-
-    c1 <- nrow(C_mat)
-    c2 <- ncol(C_mat)
-    m1 <- cbind(matrix(0, c1, c1), C_mat)
-    m2 <- cbind(t(C_mat), matrix(0, c2, c2))
-    C_mat <- rbind(m1, m2)
-    diag(C_mat) <- 0
-    
-    
-    # Especialization: benefits saturation
-    #sum_b <- rowSums(B_mat)
-    #B_max <- max(B_vec)
-    #B_final <- ifelse(sum_b > B_max, B_max, sum_b)
-    
-    delta <- B_mat - C_mat
-    outcome <- rowSums(delta)
-    
-    # Calculating netbenefits NB: benefits - (ecological costs + physiological costs)
-    nb <- outcome - physio_all[t, ]
-   
-    # State actualization: species turns active if NB > 0
-    new_state <- as.numeric(nb > 0) 
-    
-    # **Store the hystory of species states on the matrix**
-    state_history[t, ] <- new_state
-    
-    # Stop itaration condition: stable state when species stop to change state
-    if (identical(new_state == state)) break
-    
-    state <- new_state
   }
   
-  # FInal active interactions 
-  A_active <- A * (state %o% state) #outer product of states in A_ij 
+  # Final active interactions (usando estado das espécies originais)
+  final_state_expanded <- c(state, state[1:group_2])
+  A_active <- A_square * (final_state_expanded %o% final_state_expanded)
   
   # Final Metrics
-  prop_active_species <- mean(state)#because the boolean values,mean here will generate the same values as the proportion.
-  prop_remaining_interactions <- sum(A_active) / sum(A)
+  prop_active_species <- mean(state)
+  prop_remaining_interactions <- sum(A_active) / sum(A_square)
   
   return(list(
     state_history = state_history[1:t, , drop = FALSE],
