@@ -58,17 +58,21 @@ create_CB_matrix <- function(Aij, is.bipartite=FALSE, distribution="lognormal", 
   return(CB_mt)
 }
 
+# Environmental effect - can be a single number of a fluctuating function
+define_alpha <- function(){
+  
+}
 
-# Estimate the fitness given a matrix of benefits, costs and a vector of 
-  # physiological costs
+# Estimate the biotic and abiotic fitness components separatelu  given a
+  # matrix of benefits, costs (biotic) and a vector of physiological costs
 define_fitness <- function(eco_costs, physio_costs, tot_benefits){
-  fitness <- apply(tot_benefits, 1, sum - apply(eco_costs, 1, sum)) - physio_costs
+  fitness <- rowSums(tot_benefits - eco_costs) - physio_costs
   return(fitness)
 }
 
 # Get ratio between costs and benefits
 get_fitness_ratio <- function(eco_costs, physio_costs, tot_benefits){
-  fitness_ratio <- apply(tot_benefits, 1, sum)/(apply(eco_costs, 1, sum) + physio_costs)
+  fitness_ratio <- rowSums(tot_benefits - eco_costs) - physio_costs
   return(fitness_ratio)
 }
 
@@ -167,8 +171,10 @@ estimate_CB_overtime <- function(model_output){
   newC <- C[my_sp, my_sp]
   
   newB <- B[my_sp, my_sp]
+   
+  if(dim(newB)[1] == 0 & dim(newB)[2] == 0) sp_degree <- rep(0, ncol(newB))
+    else sp_degree <- apply(newB>0, 1, sum)
   
-  sp_degree <- apply(newB>0, 1, sum)
   # Estimate CB ratio
   CB_ratio <- get_fitness_ratio(newC, new_Cp, newB)  
   

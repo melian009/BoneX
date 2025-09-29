@@ -12,12 +12,15 @@ connect <- .65
 # Number of simulations
 nsim <- 250
 
+
 # Create tibbles to store the results
 res <- tibble()
 ratio <- tibble()
 # B=C
 for (i in 1:nsim) {
-  model_res <- boolean_model(nspi, nspj, connect)
+  model_res <- boolean_model(nspi, nspj, connect, 
+                             dist_B = "beta", dist_C = "beta", dist_Cp = "beta", 
+                             shape1 = 5, shape2 = 5)
   
   toplot <-  tibble(time_steps=1:nrow(model_res$community), 
                     sp_persistent=apply(model_res$community, 1, sum), 
@@ -48,13 +51,30 @@ res %>% group_by(iteration)%>% tally()  %>% ggplot(aes(x=n)) +
 
 ## Testing CB ratio
 test <- estimate_CB_overtime(model_res)
-test <- ratio %>% filter(iteration == 7)
+test <- ratio %>% filter(iteration == 54)
 
 ggplot(test, aes(x = time_step, y = ratio, group = sp_id, color = sp_k_initial)) +
   geom_line() +
   geom_hline(yintercept = 1, lty = 2) +
+  #scale_y_log10() +
   scale_color_viridis_c() +
   theme_bw()
 
 
-test %>% filter(sp_id == "sp25")
+# Final distribution of surviving species for all simulations
+ # Filtering the last time step of each iteration
+tmp <- res %>% group_by(iteration) %>% filter(time_steps == max(time_steps))
+# Plot
+ggplot(tmp, aes(prop_sp)) + geom_histogram() + theme_bw()
+
+
+
+## Alternatively we can think of the proportion not in relation to the initial 
+  # pool but after the first species were removed 
+
+
+## What is the relationship between initial degree and "probability of extinction"
+# For probability of extinction we are using a proxy that is number of time steps 
+ # a species survived
+
+res %>% group_by(iteration) %>% filter(time_steps == max(time_steps))
