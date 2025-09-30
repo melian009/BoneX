@@ -1,74 +1,118 @@
 # =============================================================================
-# FUNCTIONS TO CREAT DIFFERENT NETWROK STRUCTURES
+# MASTER FUNCTION: CREAT INTERACTIONS NETWORKS
 # =============================================================================
 
-# 1.1 Random Networks
-
-rnet = function(sp_n, connectance = 0.3) {
-  A = matrix(rbinom(n = sp_n^2, size = 1,prob = connectance),
-             nrow = sp_n, ncol = sp_n)
-  diag(A) = 0
+interaction_networks = function(sp_n,
+                                type = "random",
+                                connectance = 0.3, center = 1,
+                                n_modules = 3,
+                                internal_connectance = 0.8, 
+                                external_connectance = 0.05,
+                                nested_degree = 0.8,
+                                nested_min_connectance = 0.1,
+                                nested_max_connectance = 0.9){
+  A = switch (type,
+              "random" = {
+                
+                A = matrix(rbinom(n = sp_n^2, size = 1,prob = connectance),
+                           nrow = sp_n, ncol = sp_n)
+                diag(A) = 0
+                A
+              },
+              
+              "star" = {
+                
+                A = matrix(0, nrow = sp_n, ncol = sp_n)
+                #connect species to central node
+                A[center, -center] = 1 #center -> others
+                A[-center, center] = 1 #others -> center
+                
+                diag(A) = 0
+                A
+              },
+              
+              "modular" = {
+                A = matrix(0, nrow = sp_n, ncol = sp_n)
+                
+                #dividing in modules size
+                module_size = floor(sp_n / n_modules)
+                modules = rep(1:n_modules, each = module_size)
+                if (length(modules) < sp_n) {
+                  modules <- c(modules, rep(n_modules, sp_n - length(modules))) #if we have species without modules, integrate than to the last module
+                }
+                
+                #creat conennections
+                for (i in 1:sp_n) {
+                  for(j in 1:sp_n){
+                    if(i != j) {
+                      if(modules[i] == modules[j]){
+                        if (runif(1) < internal_connectance) A[i,j] = 1
+                      } else { 
+                        if (runif(1) < external_connectance) A[i,j] = 1}
+                    }
+                  }
+                }
+                attr(A, "modules") = modules
+                attr(A, "type") = "modular"
+                A
+              },
+              
+              "path" = {
+                A = matrix(0, nrow = sp_n, ncol = sp_n)
+                
+                #creating sequencial connections
+                for (i in 1:(sp_n - 1)) {
+                  A[i, i + 1] = 1
+                  A[1 + 1, i] = 1
+                }
+                A
+              },
+              
+              "nested" = {
+                A <- matrix(0, nrow = sp_n, ncol = sp_n)
+                
+                for(i in 1:sp_n) {
+                  # Conectivity probability reduces with species index
+                  base_prob_i = nested_max_connectance - 
+                    ((i - 1) / sp_n) * (nested_max_connectance - nested_min_connectance) * nested_degree
+                  
+                  for(j in 1:sp_n) {
+                    if(i != j) {
+                      base_prob_j = nested_max_connectance - 
+                        ((j - 1) / sp_n) * (nested_max_connectance - nested_min_connectance) * nested_degree
+                      
+                      # Probabilidade combinada (quanto menor o índice, mais conectado)
+                      conect_prob = base_prob_i * base_prob_j
+                      
+                      if(runif(1) < conect_prob) {
+                        A[i, j] = 1
+                      }
+                    }
+                  }
+                }
+                
+                attr(A, "nested_degree") = nested_degree
+                A
+              }
+              
+  )
+  
   rownames(A) = paste0("sp", 1:sp_n)
   colnames(A) = paste0("sp", 1:sp_n)
-  return(A)
-            
-}
-
-# 1.2 Star net
-
-star_net = function(sp_n, center = 1){
-  A = matrix(0, nrow = sp_n, ncol = sp_n)
-  #connect species to central node
-  A[center, -center] = 1 #center -> others
-  A[-center, center] = 1 #others -> center
+  attr(A, "type") = type
   
-  diag(A) = 0
-  rownames(A) = paste0("sp", 1:sp_n)
-  colnames(A) = paste0("sp", 1:sp_n)
   return(A)
 }
 
 
-# 1.3 Modular net
+#==============================================================================
+#Examples
 
-modular_net = function(sp_n, n_modules = 3, internal_connectance = 0.8, external_connectance = 0.05){
-  
-  A = matrix(0, nrow = sp_n, ncol = sp_n)
-  
-  #dividing in modules size
-  module_size = floor(sp_n / n_modules)
-  modules = rep(1:n_modules, each = module_size)
-  if (length(modules) < sp_n) {
-    modules <- c(modules, rep(n_modules, sp_n - length(modules))) #if we have species without modules, integrate than to the last module
-  }
-  
-  #creat conennections
-  for (i in 1:sp_n) {
-    for(j in 1:sp_n){
-      if(i != j) {
-        if(modules[i] == modules[j]){
-          if (runif(1) < internal_connectance) A[i,j] = 1
-          } else { 
-          if (runif(1) < external_connectance) A[i,j] = 1}
-        }
-      }
-    }
-    
-  rownames(A) = paste0("sp", 1:sp_n)
-  colnames(A) = paste0("sp", 1:sp_n)
-  
-  #add modules information
-  attr(A, "modules") = modules
-  attr(A, "type") = "modular"
-  return(A)
-}
+set.seed(123)
+sp_n = 20
 
-#==================================================
-random = rnet(20)
-random  
-
-star = star_net(20)
-star
-
-modular = modular_net(20)
-modular
+random = interaction_networks(sp_n = 20,type = "random")
+star = interaction_networks(sp_n = 5, type = "star")
+modular = interaction_networks(sp_n = 20,type = "modular")
+nested = interaction_networks(sp_n = 20,type = "nested")
+path = interaction_networks(sp_n = 20, type = "path")

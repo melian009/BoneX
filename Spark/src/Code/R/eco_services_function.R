@@ -1,6 +1,6 @@
 #Ecosystem services function
 
-ecosystem <- function(object, P_matrix) {
+ecosystem <- function(object, ES_matrix) {
   # Species History states
   state_history <- object$state_history #bringing the simulation time steps from the iteration of costs-benefits
   #this one has t in rows and species status in colums
@@ -30,7 +30,7 @@ ecosystem <- function(object, P_matrix) {
 #Implementation exemple
 set.seed(123)
 #exemple matrix of the size of the iterations time steps and species number in the main model
-E_matrix <- matrix(runif(5*50, 0, 1), nrow = 5)
+ES_matrix <- matrix(runif(5*50, 0, 1), nrow = 5)
 # Calcular serviços ecossistêmicos
 services <- ecosystem(resultado, E_matrix) #caling the above functions
 
