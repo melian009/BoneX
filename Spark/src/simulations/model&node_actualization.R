@@ -103,7 +103,8 @@ simulation <- function(A, B_vec, Ce_vec, Cp_vec, zi, theta, n_steps = 100){
 #----------------------
 # Simulation example
 set.seed(123)
-A <- network(50, 0.3)
+A <- star_net(20)
+A <- rnet(20)
 diag(A) <- 0
 n <- nrow(A)
 B_vec <- rbeta(n,5,5)
