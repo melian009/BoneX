@@ -3,18 +3,21 @@ simulation <- function(A, B_vec, Ce_vec, Cp_vec, zi, theta, n_steps = 100){
   
   # Dimensões originais (número de espécies)
   n <- nrow(A)  # número de espécies originais
-  group_1 <- nrow(A)
-  group_2 <- ncol(A)
-  t_max <- length(theta)
   
-  # Transformar A em matriz quadrada para cálculos
-  rownames(A) <- paste("1", 1:group_1, sep = "")
-  colnames(A) <- paste("2", 1:group_2, sep = "")
-  A_square <- rbind(
-    cbind(matrix(0, group_1, group_1), A),
-    cbind(t(A), matrix(0, group_2, group_2))
-  )
-  diag(A_square) <- 0
+  if(nrow(A) != ncol(A)) {
+    group_1 <- nrow(A)
+    group_2 <- ncol(A)
+    t_max <- length(theta)
+  
+    # Transformar A em matriz quadrada para cálculos
+    rownames(A) <- paste("1", 1:group_1, sep = "")
+    colnames(A) <- paste("2", 1:group_2, sep = "")
+    A_square <- rbind(
+      cbind(matrix(0, group_1, group_1), A),
+      cbind(t(A), matrix(0, group_2, group_2))
+    )
+    diag(A_square) <- 0
+  }
   
   # Dimensão da matriz quadrada
   n_total <- nrow(A_square)
