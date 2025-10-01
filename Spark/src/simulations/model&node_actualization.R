@@ -1,77 +1,45 @@
-simulation <- function(A, B_vec, Ce_vec, Cp_vec, zi, theta, n_steps = 100){
+simulation <- function(A, B_vec, Ce_vec, Cp_vec, zi, theta){
   
   n <- nrow(A)               # número de espécies originais
-  t_max <- length(theta)      # tempo total
-  state <- rep(1, n)          # estado inicial das espécies
+  state <- rep(1, n)         # estado inicial das espécies
   alpha <- alpha_fun(theta, zi)
   physio_all <- Cf(alpha, Cp_vec)
   
-  max_steps <- min(n_steps, t_max)
-  state_history <- matrix(NA, nrow = max_steps, ncol = n)
+  state_history <- matrix(state, nrow = 1, ncol = n)  # inicializar com a primeira linha
   colnames(state_history) <- paste0("sp", 1:n)
-  state_history[1, ] <- state
   
-  last_step = 1 
-  
-  for (t in 2:max_steps){
-    
+  t <- 2
+  repeat {
     active_species <- which(state == 1)
+    
+    if(length(active_species) == 0) break  # se não há espécies ativas, parar
     
     # Inicializar B_mat e C_mat quadradas
     B_mat <- matrix(0, n, n)
     C_mat <- matrix(0, n, n)
     
-    if(length(active_species) > 0){
-      for (i in active_species){
-        partners <- which(A[i, ] == 1 & state == 1)
-        if(length(partners) > 0){
-          B_mat[i, partners] <- B_vec[partners]
-          C_mat[i, partners] <- Ce_vec[partners]
-simulation <- function(A, B_vec, Ce_vec, Cp_vec, zi, theta, n_steps = 100){
-  
-  n <- nrow(A)               # número de espécies originais
-  t_max <- length(theta)      # tempo total
-  state <- rep(1, n)          # estado inicial das espécies
-  alpha <- alpha_fun(theta, zi)
-  physio_all <- Cf(alpha, Cp_vec)
-  
-  max_steps <- min(n_steps, t_max)
-  state_history <- matrix(NA, nrow = max_steps, ncol = n)
-  colnames(state_history) <- paste0("sp", 1:n)
-  state_history[1, ] <- state
-  
-  last_step = 1 
-  
-  for (t in 2:max_steps){
-    
-    active_species <- which(state == 1)
-    
-    # Inicializar B_mat e C_mat quadradas
-    B_mat <- matrix(0, n, n)
-    C_mat <- matrix(0, n, n)
-    
-    if(length(active_species) > 0){
-      for (i in active_species){
-        partners <- which(A[i, ] == 1 & state == 1)
-        if(length(partners) > 0){
-          B_mat[i, partners] <- B_vec[partners]
-          C_mat[i, partners] <- Ce_vec[partners]
-        }
+    for(i in active_species){
+      partners <- which(A[i, ] == 1 & state == 1)
+      if(length(partners) > 0){
+        B_mat[i, partners] <- B_vec[partners]
+        C_mat[i, partners] <- Ce_vec[partners]
       }
-      
-      delta <- B_mat - C_mat
-      outcome <- rowSums(delta)
-      
-      nb <- outcome - physio_all[t, ]  # apenas espécies originais
-      new_state <- as.numeric(nb > 0)
-      state_history[t, ] <- new_state
-      last_step = t
-      
-      if(identical(new_state, state)) break
-      state <- new_state
     }
+    
+    delta <- B_mat - C_mat
+    outcome <- rowSums(delta)
+    
+    # Apenas espécies originais
+    nb <- outcome - physio_all[t, ]
+    new_state <- as.numeric(nb > 0)
+    
+    # Checa se mudou; se não mudou, para
+    if(identical(new_state, state)) break
+    
+    state <- new_state
+    state_history <- rbind(state_history, state)  # adiciona nova linha dinamicamente
+    t <- t + 1
   }
-  
   
   # Matriz de interações ativas finais
   A_active <- A * (state %o% state)
@@ -79,10 +47,8 @@ simulation <- function(A, B_vec, Ce_vec, Cp_vec, zi, theta, n_steps = 100){
   prop_active_species <- mean(state)
   prop_remaining_interactions <- sum(A_active) / sum(A)
   
-  
-  
   return(list(
-    state_history = state_history[1:t, , drop = FALSE],
+    state_history = state_history,
     final_state = state,
     prop_active_species = prop_active_species,
     prop_remaining_interactions = prop_remaining_interactions
@@ -104,6 +70,6 @@ theta <- environment(1, 10, 1, 5, t_max = 100)
 
   
 
-resultado <- simulation(modular, B_vec, Ce_vec, Cp_vec, zi, theta, n_steps = 100)
+resultado <- simulation(modular, B_vec, Ce_vec, Cp_vec, zi, theta)
 resultado
   

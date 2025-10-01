@@ -7,7 +7,7 @@ ecosystem <- function(object, ES_matrix) {
   n <- nrow(state_history)
   
   # Calculate services in each time t: multiply the transpose P by state_history
-  services_history <- state_history %*% t(P_matrix) #P needs the ecosystem services on the rows
+  services_history <- state_history %*% (ES_matrix) #P needs the ecosystem services on the rows
   
   # Selecting the first and last time steps
   E_initial <- services_history[1, ]
@@ -32,7 +32,7 @@ set.seed(123)
 #exemple matrix of the size of the iterations time steps and species number in the main model
 ES_matrix <- matrix(runif(5*50, 0, 1), nrow = 5)
 # Calcular serviços ecossistêmicos
-services <- ecosystem(resultado, E_matrix) #caling the above functions
+services <- ecosystem(resultado, services) #caling the above functions
 
 # Looking at the changes of ecosystem services along the time
 print(services$services_history)
