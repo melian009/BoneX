@@ -47,18 +47,26 @@ envir <- ggplot(data = environ, aes(y = theta, x = t)) +
        x = "Time (t)", y = expression(theta)) +
   theme(legend.position = "none")
 
-
+#---------------------------------------
+library(patchwork)
+envir / p_alpha / p_cf
 
 #---------------------------------------
 
 #track results
 
 #environmental services
-serv_long <- as.data.frame(services$services_history) %>%
+serv_long <- as.data.frame(services_dinamics$services_history) %>%
   mutate(t = 1:nrow(.)) %>%
-  pivot_longer(cols = starts_with("V"), names_to = "service", values_to = "amount")
+  pivot_longer(cols = starts_with("service"), names_to = "service", values_to = "amount")
 # arrange in one figure
-library(patchwork)
-envir / p_alpha / p_cf
+summary(serv_long)
+es <- ggplot(data = serv_long, aes(y = amount, x = t, col = service))+
+  geom_line(linewidth = 1)+
+  theme_classic()+
+  labs(title = "ecosystem services dynamics", 
+       x = "Time (t)", y = "Ecosystem service Value")
+
+es
   
 
