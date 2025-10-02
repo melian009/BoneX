@@ -61,10 +61,10 @@ simulation <- function(A, B_vec, Ce_vec, Cp_vec, zi, theta){
 #----------------------
 # Simulation example
 set.seed(123)
-n <- nrow(modular)
-B_vec <- rbeta(n,5,5)
-Ce_vec <- rbeta(n,5,5)
-Cp_vec <- rbeta(n,5,5)*0.2 
+n <- nrow(random)
+B_vec <- rbeta(n,.5,.5)
+Ce_vec <- rbeta(n,.5,.5)
+Cp_vec <- rbeta(n,.5,.5)*0.2 
 zi <- runif(n, 1, 10)
 theta <- environment(1, 10, 1, 5, t_max = 100)
 

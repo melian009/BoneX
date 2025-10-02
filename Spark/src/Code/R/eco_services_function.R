@@ -44,8 +44,9 @@ ecosystem <- function(object, ES_matrix) {
 services_dinamics <- ecosystem(resultado, services) #caling the above functions
 services_dinamics
 # Looking at the changes of ecosystem services along the time
-print(services$services_history)
+print(services_dinamics$services_history)
 
 # the diference at the first to the last time steps
-print(services$delta_E)
+print(services_dinamics$delta_E)
 
+library(ggplot2)

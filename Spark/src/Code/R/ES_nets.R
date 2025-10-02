@@ -200,5 +200,5 @@ ecosystem_services_network = function(sp_n,
 #=========================================================================
 #Exemples
 
-services = ecosystem_services_network(sp_n = 20,services_n = 5,type = "modular", distribution = "lognormal",n_modules = 3,
+services = ecosystem_services_network(sp_n = 20,services_n = 5,type = "random", distribution = "lognormal",n_modules = 3,
                                         internal_connectance = 0.8, external_connectance = 0.03)
