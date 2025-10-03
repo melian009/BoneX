@@ -49,4 +49,4 @@ print(services_dinamics$services_history)
 # the diference at the first to the last time steps
 print(services_dinamics$delta_E)
 
-library(ggplot2)
+

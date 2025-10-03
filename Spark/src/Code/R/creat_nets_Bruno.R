@@ -109,7 +109,7 @@ interaction_networks = function(sp_n,
 #Examples
 
 set.seed(123)
-sp_n = 20
+
 
 random = interaction_networks(sp_n = 20,type = "random")
 star = interaction_networks(sp_n = 5, type = "star")
