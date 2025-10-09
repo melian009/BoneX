@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Calculating ecosystem services
 
-Each species *i* can contribute to the existence of a *j* ecosystem service. Therefore, we can map the relation species / ecosystem services as follows: 
+Each species *i* can contribute to the existence of a *j* ecosystem service. Therefore, we can map the relation species $\times$ ecosystem services as follows: 
 
 
 $$ S = \mathbf{E}\vec{x}$$
