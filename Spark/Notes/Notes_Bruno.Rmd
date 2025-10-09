@@ -17,7 +17,7 @@ Each species *i* can contribute to the existence of a *j* ecosystem service. The
 
 
 $$ S = \mathbf{E}\vec{x}$$
- where, $\mathbf{E}$ is a matrix of $k \times s$ dimension, in which $k$ is the ecosystem services vector and $s$ is the species vector and it describes the effects of one individuals species to ecossystem service. For our pourpose, we can deal with the efect of species *i* on ecosystem services *k*. The vector $\vec{x}$ is related to the state of species (present, absent, abundance...). Each entry $E_{ij}$ depicts the effect of one individual species $j$ on each ecosystem service $i$. The $E_{ij}$ value could be the raw value or the relative value of each species $i$ contribution to the ecosystem service. For our purpose, 
+where, $\mathbf{E}$ is a matrix of $k \times s$ dimension, in which $k$ is the ecosystem services vector and $s$ is the species vector and it describes the effects of one individuals species to ecossystem service. For our purpose, we can deal with the effect of species *i* on ecosystem services *k*. The vector $\vec{x}$ is related to the state of species (present or absent, abundance...). Each entry $E_{ij}$ depicts the effect of one individual species $j$ on each ecosystem service $i$. The $E_{ij}$ value could be the raw value or the relative value of each species $i$ contribution to the ecosystem service. For our purpose, 
  
  $$
  S_{ij} = 
@@ -26,7 +26,12 @@ $$ S = \mathbf{E}\vec{x}$$
  0, & \text{if } x_i = 0
  \end{cases}
  $$
-Therefore, the effects of species loss could be investigated as $\Delta{S} = S^{(t_0)} - S^{(t_n)}$. 
+Therefore, the ecosystem services values are depicted as:
+
+$$
+E_i^{(t)} = \sum_{i = 1}^{S}x_j^{(t)}e_{ij}
+$$
+the effects of species loss could be investigated as $\Delta{S} = S^{(t_0)} - S^{(t_n)}$. 
 
 ## Running an example
 
