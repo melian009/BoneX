@@ -1,4 +1,5 @@
 library(tidyverse)
+library(ggplot2)
 #Tracking alpha and physiological costs
 #----------------------------------------
 #extract environmental fluctuation (theta) 
@@ -34,16 +35,16 @@ p_alpha <- ggplot(alpha_df, aes(x = t, y = alpha, color = especie)) +
 
 # Plot do custo fisiológico
 p_cf <- ggplot(cf_df, aes(x = t, y = cf, color = especie)) +
-  geom_line(size = 1) +
+  geom_line(linewidth = 1) +
   theme_classic() +
-  labs(title = "Custo fisiológico Cf",
+  labs(title = bquote("Custo fisiológico Cf (" *alpha* "Cp) ~" * beta * "(0.5,0.5)*0.2"),
        x = "Time (t)", y = "Cf") +
   theme(legend.position = "none")
 
 envir <- ggplot(data = environ, aes(y = theta, x = t)) +
   geom_line(linewidth = 1)+
   theme_classic() +
-  labs(title = expression(theta),
+  labs(title = expression(paste(theta, ,"(A_min = 1, A_max = 10, w_min = 1, w_max = 5, t_max = 100)")),
        x = "Time (t)", y = expression(theta)) +
   theme(legend.position = "none")
 
@@ -64,9 +65,52 @@ summary(serv_long)
 es <- ggplot(data = serv_long, aes(y = amount, x = t, col = service))+
   geom_line(linewidth = 1)+
   theme_classic()+
-  labs(title = "ecosystem services dynamics", 
+  labs(title = "ES dynamics (A is modular, Es is nested", 
        x = "Time (t)", y = "Ecosystem service Value")
 
 es
-  
 
+
+states_long = data.frame(
+  t = 1:nrow(resultado$state_history),
+  resultado$state_history, 
+  prop_interactions = resultado$prop_interactions_history, 
+  prop_species = resultado$prop_species_history
+) %>%
+  pivot_longer(
+    cols = starts_with("sp"),
+    names_to = "species",
+    values_to = "state"
+  )
+
+# Ver resultado
+head(df_long)
+
+state = ggplot(states_long, aes(y = state, x = t, colour = species))+
+  geom_jitter()+
+  theme_classic()+
+  labs(title = bquote("Species states  (B and C ~" * beta * "(0.5,0.5)"),
+       x = "Time (t)", y = "Species state")
+state
+
+
+species = ggplot(states_long)+
+  geom_line(aes(y = prop_species, x = t), linewidth = 1, linetype = 1)+
+  geom_line(aes(y = prop_interactions, x = t), linewidth = 1, linetype = 2)+
+  theme_classic()+
+  annotate("segment", x = max(states_long$t) * 0.9, xend = max(states_long$t), 
+           y = 0.8, yend = 0.8, linewidth = 1, linetype = 1) +
+  annotate("text", x = max(states_long$t) * 0.9, y = 0.82, 
+           label = "Species", hjust = 0, size = 4) +
+  annotate("segment", x = max(states_long$t) * 0.9, xend = max(states_long$t), 
+           y = 0.7, yend = 0.7, linewidth = 1, linetype = 2) +
+  annotate("text", x = max(states_long$t) * 0.9, y = 0.72, 
+           label = "Interactions", hjust = 0, size = 4) 
+  labs(title = "Proportion")
+species
+
+interactions = ggplot(states_long, aes(y = prop_interactions, x = t, colour = species))+
+  geom_line(linewidth = 1)+
+  theme_classic()+
+  labs(title = bquote("Species states  (B and C ~" * beta * "(0.5,0.5)"))
+interactions
