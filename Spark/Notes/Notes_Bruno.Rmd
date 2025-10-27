@@ -17,7 +17,11 @@ Each species *i* can contribute to the existence of a *j* ecosystem service. The
 
 
 $$ S = \mathbf{E}\vec{x}$$
-where, $\mathbf{E}$ is a matrix of $k \times s$ dimension, in which $k$ is the ecosystem services vector and $s$ is the species vector and it describes the effects of one individuals species to ecossystem service. For our purpose, we can deal with the effect of species *i* on ecosystem services *k*. The vector $\vec{x}$ is related to the state of species (present or absent, abundance...). Each entry $E_{ij}$ depicts the effect of one individual species $j$ on each ecosystem service $i$. The $E_{ij}$ value could be the raw value or the relative value of each species $i$ contribution to the ecosystem service. For our purpose, 
+where, $\mathbf{s}$ is a matrix of $K \times S$ dimension, in which $K$ is the ecosystem services vector and $S$ is the species vector and it describes the effects of one individuals species to ecossystem service. For our purpose, we can deal with the effect of species *j* on ecosystem services *i*. The vector $\vec{x}$ is related to the state of species (present or absent, abundance...). Each entry $E_{ij}$ depicts the effect of one individual species $j$ on each ecosystem service $i$. The $E_{ij}$ value could be the raw value or the relative value of each species $i$ contribution to the ecosystem service. For our purpose, 
+
+$$
+E_{i} = \sum_{i \neq j}^k k_i(s_jx_j)
+$$
  
  $$
  S_{ij} = 
