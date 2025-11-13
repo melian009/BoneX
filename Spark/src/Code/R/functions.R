@@ -25,7 +25,7 @@ build_random_graph <- function(nodes_i, nodes_j, connectance, return_adjacency=T
 
 ## Create the Cost/Benefit matrix given an adjacency matrix with choice of 
   # statistical distribution defining the values
-create_CB_matrix <- function(Aij, is.bipartite=FALSE, distribution="lognormal", ...){
+create_CB_matrix <- function(Aij, is.bipartite=FALSE, distribution="beta", ...){
   #if it's not binary, make it binary
   matrix_A <- Aij
   matrix_A <- as.matrix((matrix_A > 0) + 0)
