@@ -148,11 +148,76 @@ Bruno, Carlos, Paulinha @ Eawag
 $$E(x) \sim beta(\alpha, \beta)^N$$
 where, N is the number of species. 
 
-* During the conversation, to reach the theoretical expectations we identified that we need a little change at the model, as it could be impossible to find the expectations. In the original version of the model, we are summing rows of costs and benefits and subtracted than. Now, we subtracted the benefits by the ecological costs. It allows us to find the theoretical expectations and make the model more elegant, since we can now segregate between a biotic and an abiotic component. The biotic ones comprehends the benefits and the ecological costs. The abiotic component comprehends the physiological costs and the alpha value, which is related with environemtnal fluctuations. Therefore, 
+* During the conversation, to reach the theoretical expectations we identified that we need a little change at the model, as it could be impossible to find the expectations. In the original version of the model, we are summing rows of costs and benefits and subtracted than. Now, we subtracted the benefits by the ecological costs. It allows us to find the theoretical expectations and make the model more elegant, since we can now segregate between a biotic and an abiotic component. The biotic ones comprehends the benefits and the ecological costs. The abiotic component comprehends the physiological costs and the alpha value, which is related with environmental fluctuations. Therefore, 
 
 $$ w_i = \sum_j(B_{ij} - C^e_{ij}) - C^p\alpha$$
 where $w$ is the fitness of species *i*. $C^e$ is the ecological cost and $C^p$ is the physiological cost.
 
 * We also pass through an idea of adaptive landscape driven by mutualistic interactions and environmental fluctuations where mutualistic interactions favor species to disperse to less favorable environments. The presence of species in less favorable environments depend on the correlations of presence of partner species and how distant a species are from their environmental optima.  
 
+## Meeting 08/12/2025
+Bruno, Carlos, Paulinha and Marcelo @ Puxadinho IB - USP
+
+ Robustness Challenge Discussion
+ * Recap of the model considering the single framework and the two routes being taken by Paulinha and Bruno, identifying the main challenge which is **How robust is our framework to parameter choice**. We need to address this issue and be confident of the robustness of our model/paramemter choices. 
+ 
+ * Paulinha is leading the route considering how processes encoded in our model framework lead to the emergence of empirical patterns, whereas Bruninho is leading the route that considers empirical patterns as a starting point and explores the consequences of our framework to these patterns.
+ 
+ * How will the inference be done? -- in Paulinha's case, where we start from a random expectation with all possible interactions and use to model to "prune" interactions as a framework to understand processes shaping ecological systems. One route for inference would be the reproducibility of networks properties. In this case, we could do a PCA of the network metrics (initial ones and the output ones comparing with the empirical distribution) and see how parameter combinations (i.e, symmetry and shape of cost benefit functions) lead to properties that are similar to the ones observed in empirical systems. An expectation would be a PCA where empirical networks cluster together with respect to their properties, whereas random (initial) networks would cluster separately and the networks emerging from model output would cluster together with the empirical ones. Alternatively, we might not see a signal in there (see below an example of a PCA with simulated data to show how this analysis would look like)
+ 
+
+```{r, PCA_example, echo=FALSE, out.width="85%"}
+library(ggplot2)
+set.seed(42)
+# Cluster A points
+cluster_a <- matrix(rnorm(40, mean = 5, sd = 0.8), ncol = 2)
+# Cluster B points
+cluster_b <- matrix(rnorm(40, mean = -4.5, sd = 2), ncol = 2)
+# Undefined points (noise spread across the center)
+undefined_points <- matrix(rnorm(20, mean = 0, sd = 4), ncol = 2)
+
+# Combine into a single data frame
+my_data <- as.data.frame(rbind(cluster_a, cluster_b, undefined_points))
+colnames(my_data) <- c("Var1", "Var2")
+
+# Create a grouping variable 
+group_labels <- c(rep("Random", 20), rep("Empirical", 20), rep("Model Out", 10))
+my_data$Group <- as.factor(group_labels)
+
+# 2. Perform PCA
+pca_result <- prcomp(my_data[, c("Var1", "Var2")], scale. = TRUE)
+
+# 3. Prepare data frame for ggplot
+pca_data <- as.data.frame(pca_result$x) # Extract PC scores
+pca_data$Group <- my_data$Group         # Add the grouping variable
+
+# 4. Plot the PCA 
+ggplot(pca_data, aes(x = PC1, y = PC2, color = Group)) +
+  geom_point(size = 3) + # Add points and color by the 'Group' variable
+  # Manually set colors: defined groups get distinct colors, undefined gets grey
+  scale_color_manual(values = c("Random" = "orchid4", # Blue color
+                                "Empirical" = "goldenrod", # Gold color
+                                "Model Out" = "grey50")) +
+  labs(x = paste0("PC1 (", round(summary(pca_result)$importance[2, 1] * 100, 2), "%)"),
+       y = paste0("PC2 (", round(summary(pca_result)$importance[2, 2] * 100, 2), "%)"),
+       color = "Group") +
+  theme_bw() +
+  theme(legend.position = "bottom") +
+  # Optional: Add concentration ellipses to highlight the main areas
+  stat_ellipse(data = subset(pca_data, Group %in% c("Random", "Empirical")), aes(color = Group), type = "norm", level = 0.6)
+
+```
+
+ * The real challenge here is to explore the parameter space of the cost/benefit functions, it is huge! One possible solution is to derive the Markinho and analytical approximations. Ideally we can develop a generalized cost function allowing us to incorporate different types of noise
+  
+ * Developing a neutral Markov Chain/Process that would allow to deal with exploration of model parameters and sensitivity to initial conditions and choice of parameter values; we also discussed writing a descent gradient function (it could start linear and go to non-linear as well)
+
+ * Thinking about the route Bruninho is taking, studying the structure of the Ecosystem Service Network (Services by Species, which are influenced by the cost benefit functions that are a result of the adjacency matrix, defining species interactions), each of these networks can be seen as a layer (Adjacency matrix *A*, Cost and Benefit matrices *C* and *B*, and Ecosystem Service matrix *E*) and the transition matrices connecting the layers can be described as a Markov Process. But importantly considering the connection between layers and the framework: **What is the general equation in matrix form?** Writing this down will help us understand the robustness of the framework, will also allow us to quantify the number of absorbing states with the Markov Chain. One simplification we could do is to start with a single service, derive the predictions, compare with the results of the model (if we're doing thigs right, they should match)
+ 
+ * To move forward we talked about two main things that need to be done (early January): 
+   1. A Road Map of the project (common aspects between both routes and specific goals/questions for each one); 
+   2. README files for each route with input/output of the algorithm and a detailed explanation of the algorithm -- this will facilitate the development of Markinho
+
+
+\newpage
 ### References
