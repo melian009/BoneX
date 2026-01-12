@@ -12,30 +12,23 @@ library(tidyverse)
 
 # Overview
 
-Costs and benefits are inherent aspects of species interactions. Costs associated with mutualistic interactions, such as pollination and seed dispersal, involve production of nectar and fruit from a plant perspective and from an animal perspective there are costs associated with finding and acquiring nectar as well as digesting and processing fruits. The benefits are associated with the provision of resources to the animals and the reproduction to plants. Beyond the importance of the mutualistic interactions to the persistence of interacting species, these interactions  also provide ecosystem services, such as production of crops and landscape connectivity. The costs and benefits associated with species interactions are not fixed and are subjected to changes due to environmental conditions, which scale up affecting the provision of ecosystem services.
+Costs and benefits are inherent aspects of species interactions. Costs associated with mutualistic interactions, such as pollination and seed dispersal, involve production of nectar and fruit from a plant perspective and from an animal perspective there are costs associated with finding and acquiring nectar as well as digesting and processing fruits. The benefits are associated with the provision of resources to the animals and the reproduction to plants. Beyond the importance of the mutualistic interactions to the persistence of interacting species, these interactions also provide ecosystem services, such as production of crops and landscape connectivity. The costs and benefits associated with species interactions are not fixed and are subjected to changes due to environmental conditions, which scale up affecting the provision of ecosystem services.
 
-We developed a framework to explore how costs and benefits associated with species interactions, and hence ecosystem services, determine the persistence of species and the robustness of service provision under environmental changes. Our modeling framework combines cost-benefit analysis defining a fitness functions that determines the outcome of a Boolean process. Our model allows us understanding transition phases in mutualisms based on increasing costs of interactions, parameterized using empirical networks and sampled cost/benefit functions. 
+We developed a framework to explore how costs and benefits associated with species interactions, and hence ecosystem services, determine the persistence of species and the robustness of service provision under environmental changes. Our modeling framework combines cost-benefit analysis defining a fitness functions that determines the outcome of a Boolean process. The Boolean process establishes which species are present in the community given the costs and benefit associated with interactions between species. Our model allows us understanding transition phases in mutualisms based on increasing costs of interactions, parameterized using empirical networks and sampled cost/benefit functions.
 
-Given the broad nature of the modeling framework we took two complementary approaches. Within the first approach we are interested in defining hoe the processes incorporated in the model lead to network structures that resemble empirical ones. The second approach takes empirical networks as a starting point and explores the consequences of the processes incorporated in the model to the persistence of mutualisms and ecosystem services. These two approaches are explored concomitantly and attack (i) how processes lead to patterns and (ii) the consequences of processes in the patterns.
-
+Given the broad nature of the modeling framework we took two complementary approaches. Within the first approach we are interested in defining how the processes incorporated in the model lead to network structures that resemble empirical ones. The second approach takes empirical networks as a starting point and explores the consequences of the processes incorporated in the model to the persistence of mutualisms and ecosystem services. These two approaches are explored concomitantly and attack (i) how processes lead to patterns and (ii) the consequences of processes in the patterns.
 
 ## Interaction networks
 
+We use our modeling framework as a benchmark to understand what distributions of costs and benefits associated with the interactions leads to networks whose structure resemble empirical networks. Starting from a pool of potential interacting species from two groups (i.e., a bipartite structure of plants and pollinators, for example), we assume all species can potentially interact, given a certain connectance and a random structure to define which species interact. \textit{This is a first approximation, we can also use other models to define potential interactions that take into account realistic degree distributions} Once interactions are established, we define the costs and benefits associated with each interaction for each partner.
 
 ## Cost and benefit functions
-Costs and benefits can be described as functions with a giving underlying distribution. 
 
-
-### Boundary conditions for costs and benefits and the persistence/extinction of species
-What are the boundary conditions for the expectation of having all species present ($benefits > costs$) and for having all species extinct of the system (i.e., when $benefits < costs$)? In other words, we want to know what is the probability of having the benefits surpass the costs, resulting in all species present in the network, and alternatively, what is the probability of having all species removed from the network if the costs of interaction surpass their benefits.
-
-
-
+Costs and benefits can be described as functions with a giving underlying distribution.
 
 ### Beta distribution
 
-Continuous probability distribution defined on the interval $[0,1]$ in terms of two positive parameters $\alpha$ and $\beta$. 
-It is suitable distribution for modeling the costs and benefits as they are defined only in the positive realm, and they provide a limit to the maximum benefit (cost) a species can have. The upper limit in this case is $k$ (the degree of the species, assuming it receives the maximum benefit from all its partners and benefits are an additive function). The beta distribution has been used to model interactions costss/benefits before. 
+Continuous probability distribution defined on the interval $[0,1]$ in terms of two positive parameters $\alpha$ and $\beta$. It is suitable distribution for modeling the costs and benefits as they are defined only in the positive realm, and they provide a limit to the maximum benefit (cost) a species can have. The upper limit in this case is $k$ (the degree of the species, assuming it receives the maximum benefit from all its partners and benefits are an additive function). The beta distribution has been used to model interactions in food web models before [@williams2000simple, @cattin2004phylogenetic, @dunne2008compilation, @stouffer2005quantitative].
 
 ```{r beta, echo=FALSE, out.width="50%", fig.cap="Costs and benefits drawn from a beta distribution"}
   ggplot() +
@@ -45,29 +38,27 @@ It is suitable distribution for modeling the costs and benefits as they are defi
   theme_minimal()
 ```
 
+### Boundary conditions for costs and benefits and the persistence/extinction of species
 
+What are the boundary conditions for the expectation of having all species present ($benefits > costs$) and for having all species extinct of the system (i.e., when $benefits < costs$)? In other words, we want to know what is the probability of having the benefits surpass the costs, resulting in all species present in the network, and alternatively, what is the probability of having all species removed from the network if the costs of interaction surpass their benefits.
 
 ## The Ecosystem-Services Matrix
 
 The matrix describing the ecosystem services is composed of services on the rows and species contributing to the services as its columns. This view of multiple species contributing to an ecosystem service recognizes that services are built through species acting as providers of the service per se and species playing a supporting role in the service [@keyes2021ecological]. The structure of the ecosystem service matrix can be explored from a theoretical point of view as well as using specific case studies. For instance, we can connect the structure of the empirical network of interactions with the structure of the ecosystem services matrix, where species that play a central role in the matrix are associated with certain services whereas species in the periphery of the network are associated with other services. In this example we further explore how these services differ in their robustness to species' loss or to environmental changes.
 
-
 ### Follow-up questions
 
 How is the robustness of food webs related to the ecosystem services they provide? [@keyes2021ecological] explored the consequences of secondary extinctions to the maintenance of services in a food web system. They found that food web and service robustness are highly correlated but service robustness is dependent on trophic level. Additionally, they also found that species providing services **do not** necessarily play a critical role in stabilizing food webs and that species that play supporting roles in service are the critical ones to robustness (of food webs and services). How dependent are these results to the underlying system providing the service? In their case, services are provided through a food web, should we expect different results for pollination or seed dispersal systems? In other words *how does the nature of the underlying ecological system influences the robustness of ecosystem services they provide?*
 
-
-
 ### Other potential distributions
-The choice of the beta distribution is supported by biological arguments but it is still an arbitrary choice. Other distributions of costs and benefits include:
 
+The choice of the beta distribution is supported by biological arguments but it is still an arbitrary choice. Other distributions of costs and benefits include:
 
 #### Lognormal distribution
 
-As costs and benefits should, in principle, have the same sign, it is more appropriate to use a distribution defined for positive values.
-The derivation for the lognormal distribution is not as straight forward as the one for the normal distribution, given we are interested in the difference between two i.i.d. random variables drawn from a lognormal distribution. One solution to find the probability that all species are present is through numerical integration assuming both values are drawn from $lnN(0,1)$.
+As costs and benefits should, in principle, have the same sign, it is more appropriate to use a distribution defined for positive values. The derivation for the lognormal distribution is not as straight forward as the one for the normal distribution, given we are interested in the difference between two i.i.d. random variables drawn from a lognormal distribution. One solution to find the probability that all species are present is through numerical integration assuming both values are drawn from $lnN(0,1)$.
 
-Alternatively, [@parham2023difference] proposes a solution describing the Difference-of-Log-Normals (DLN), characterizing its PDF, CDF, moments and parameter estimators. 
+Alternatively, [@parham2023difference] proposes a solution describing the Difference-of-Log-Normals (DLN), characterizing its PDF, CDF, moments and parameter estimators.
 
 ```{r lognormal, echo=FALSE, out.width="50%", fig.cap="Costs and benefits drawn from a lognormal distribution"}
 # Plotting the lognormal curve  
@@ -94,25 +85,23 @@ ggplot(toplot, aes(x = x, y = y, color = group)) +
 
 ```
 
-
-
 #### Normal distribution
 
-Assuming normally and independently distributed costs $C \sim N(\mu_c, \sigma^2_c)$ and benefits $B \sim  N(\mu_{b}, \sigma^2_b)$, we want first to know $P(B>C)$. 
+Assuming normally and independently distributed costs $C \sim N(\mu_c, \sigma^2_c)$ and benefits $B \sim  N(\mu_{b}, \sigma^2_b)$, we want first to know $P(B>C)$.
 
 $$
 \begin{aligned}
 P(B>C) = P(B-C > 0) \\
        = 1 - P(B-C \le 0) \\
 \end{aligned}
-$$
-If $B$ and $C$ are independent and normally distributed so is their difference, with the expectation of their mean as $\mathbb{E}(B -C) = \mathbb{E} (B) - \mathbb{E}(C) = \mu_b - \mu_c = \mu$ and of their variance as $Var(B-C) = \sigma^2_b + \sigma^2_c = \sigma$. Now we subtract the mean and divide by the variance so that our difference is normally distributed with $\mu = 0$ and $\sigma^2 = 1)$ such that $\frac{B-C-\mu}{\sigma} \sim N(0,1)$. And so: 
+$$ If $B$ and $C$ are independent and normally distributed so is their difference, with the expectation of their mean as $\mathbb{E}(B -C) = \mathbb{E} (B) - \mathbb{E}(C) = \mu_b - \mu_c = \mu$ and of their variance as $Var(B-C) = \sigma^2_b + \sigma^2_c = \sigma$. Now we subtract the mean and divide by the variance so that our difference is normally distributed with $\mu = 0$ and $\sigma^2 = 1)$ such that $\frac{B-C-\mu}{\sigma} \sim N(0,1)$. And so:
 
+```{=tex}
 \begin{equation} \label{eq:probs}
  P(B>C) = 1- \Phi \left(\frac{-\mu}{\sigma} \right)
 \end{equation}
-
-where $\Phi$ is the cumulative distribution function of $N(0,1)$. 
+```
+where $\Phi$ is the cumulative distribution function of $N(0,1)$.
 
 Now let's consider an example: if species benefits have the distribution $B \sim N(1.2,2)$ and costs are distributed as $C \sim N(2,1.5)$, the distribution describing these values is:
 
@@ -149,7 +138,6 @@ Using the derived expression, the resulting probability of having all species pr
 
 In more general terms, we can explore how the difference between benefits and costs influences the probability of all species coexisting. Assuming a standard deviation of $\sigma^2 = 1$ we explore the effect of the mean difference between costs and benefits in species' probability of persistence, deriving the probability according to equation \ref{eq:probs}.
 
-
 ```{r coexistence, echo=FALSE, out.width="50%", fig.cap="Expected proportion of species' persistence given the difference in benefits and costs"}
 # Creating the data with values for the difference and estimating prob of persistence
 diff_probs <- tibble(diff_values = seq(-3.5,3.8, by = 0.01))
@@ -163,7 +151,3 @@ ggplot(diff_probs, aes(x = diff_values, y=probs)) +
   theme_bw()
 
 ```
-
-
-
-
