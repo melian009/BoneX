@@ -1,5 +1,7 @@
 ## Supportive and main function
 
+# Create a unit vector
+unit_vector <- function(x) {x/sum(sqrt(x^2))}
 
 # Function to build a random graph
 build_random_graph <- function(nodes_i, nodes_j, connectance, return_adjacency=TRUE){
@@ -58,15 +60,17 @@ create_CB_matrix <- function(Aij, is.bipartite=FALSE, distribution="beta", ...){
   return(CB_mt)
 }
 
-# Environmental effect - can be a single number of a fluctuating function
-define_alpha <- function(){
-  
+# Fixed Environmental effect
+define_alpha <- function(zi){
+    theta <- runif(1)
+    alpha <- abs(there - zi)
+    return(alpha)
 }
 
-# Estimate the biotic and abiotic fitness components separatelu  given a
+# Estimate the biotic and abiotic fitness components separately  given a
   # matrix of benefits, costs (biotic) and a vector of physiological costs
-define_fitness <- function(eco_costs, physio_costs, tot_benefits){
-  fitness <- rowSums(tot_benefits - eco_costs) - physio_costs
+define_fitness <- function(eco_costs, physio_costs, tot_benefits, alpha){
+  fitness <- rowSums(tot_benefits - eco_costs) - alpha*physio_costs
   return(fitness)
 }
 
@@ -76,14 +80,31 @@ get_fitness_ratio <- function(eco_costs, physio_costs, tot_benefits){
   return(fitness_ratio)
 }
 
+# Random Ecosystem Service Matrix
+ # A given proportion of species contribute to each service
+ # Species contribution is drawn from a uniform distribution and
+  # normalized to sum to one 
+create_ES_random_matrix <- function(n_sp, n_services, prop_contributing_sp){
+  ES <- matrix(0, nrow = n_services, ncol = n_sp)
+  for (i in 1:n_services) {
+    # select species to contribute to the service
+    selected_sp <- sample(n_sp, ceiling(prop_contributing_sp*n_sp))
+    # define the contribution -- sums to one
+    contribution <- unit_vector(runif(ceiling(prop_contributing_sp*n_sp)))
+    # Assign contribution to each species in the matrix
+    ES[i,selected_sp] <- contribution
+  }
+  return(ES)
+}
 
-## Running the model
+
+## Running the boolean model
  # Input: Number of species in each category of a bipartite system
  #        Expected connectance of the system
  #        Statistical distribution of benefits, costs and physiological cost
 boolean_model <- function(Ni, Nj, connectance, 
-                          dist_B = "lognormal", dist_C = "lognormal", 
-                          dist_Cp = "lognormal",...){
+                          dist_B = "beta", dist_C = "beta", 
+                          dist_Cp = "beta",...){
   # Building the matrix of interactions
   A <- build_random_graph(Ni, Nj, connectance)
   
