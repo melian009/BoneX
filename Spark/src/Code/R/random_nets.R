@@ -4,6 +4,7 @@ library(tidyverse)
  # Code to run random Boolean networks analysis
   # load the functions
 source("functions.R") 
+set.seed(1234)
 # Number of Species of each set
 nspi <- 50
 nspj <- 65
@@ -34,7 +35,7 @@ for (i in 1:nsim) {
   print(i)
 }
 
-# Object with the results
+# Object with the results to plot
 res
 
 # Distribution (boxplot) of the proportion of species left in each time step 
