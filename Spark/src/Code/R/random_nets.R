@@ -3,7 +3,7 @@ rm(list=ls())
 library(tidyverse)
  # Code to run random Boolean networks analysis
   # load the functions
-source("functions.R") 
+source("functions_betaD.R") 
 set.seed(1234)
 # Number of Species of each set
 nspi <- 50
@@ -11,7 +11,7 @@ nspj <- 65
 # Expected connectance
 connect <- .65
 # Number of simulations
-nsim <- 250
+nsim <- 100
 
 
 # Create tibbles to store the results
@@ -20,8 +20,9 @@ ratio <- tibble()
 # B=C
 for (i in 1:nsim) {
   model_res <- boolean_model(nspi, nspj, connect, 
-                             dist_B = "beta", dist_C = "beta", dist_Cp = "beta", 
-                             shape1 = 5, shape2 = 5)
+                             shape1C = 2, shape2C = 5, 
+                             shape1B = 2, shape2B = 5,
+                             shape1Cp = 2, shape2Cp = 2)
   
   toplot <-  tibble(time_steps=1:nrow(model_res$community), 
                     sp_persistent=apply(model_res$community, 1, sum), 
