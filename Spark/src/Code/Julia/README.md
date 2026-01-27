@@ -159,3 +159,23 @@ final_pi = run_time_dependent_simulation(my_network, initial_probability_distrib
 ```
 
 The output is how the probability distribution evolves. Unlike a standard Markov chain, the distribution may not converge to a single steady state, but instead might oscillate or follow a complex trajectory due to the changing transition probabilities.
+
+
+# 26 Jan 2026
+(Coming from Paulinha summary)-------------------------------------
+ * The real challenge here is to explore the parameter space of the cost/benefit functions, it is huge! One possible solution is to derive the Markinho and analytical approximations. Ideally we can develop a generalized cost function allowing us to incorporate different types of noise
+  
+ * Developing a neutral Markov Chain/Process that would allow to deal with exploration of model parameters and sensitivity to initial conditions and choice of parameter values; we also discussed writing a descent gradient function (it could start linear and go to non-linear as well)
+
+ * Thinking about the route Bruninho is taking, studying the structure of the Ecosystem Service Network (Services by Species, which are influenced by the cost benefit functions that are a result of the adjacency matrix, defining species interactions), each of these networks can be seen as a layer (Adjacency matrix *A*, Cost and Benefit matrices *C* and *B*, and Ecosystem Service matrix *E*) and the transition matrices connecting the layers can be described as a Markov Process. But importantly considering the connection between layers and the framework: **What is the general equation in matrix form?** Writing this down will help us understand the robustness of the framework, will also allow us to quantify the number of absorbing states with the Markov Chain. One simplification we could do is to start with a single service, derive the predictions, compare with the results of the model (if we're doing thigs right, they should match)
+ 
+ * To move forward we talked about two main things that need to be done (early January): 
+   1. A Road Map of the project (common aspects between both routes and specific goals/questions for each one); 
+   2. README files for each route with input/output of the algorithm and a detailed explanation of the algorithm -- this will facilitate the development of Markinho
+
+* Work out a Markov Chain with explicit Services on it -- check 6 DEC pics from the Brainstorm folder 
+What is the general equation form to explore robustness - accounting explicitly by ecosystem services?
+-----------------------------------------------------------------
+
+
+
