@@ -129,9 +129,9 @@ resultados <- run_replicas(
   
   # B e Ce fixos em 0.5
   B_shape1 = 0.5,
-  B_shape2 = 1,
-  Ce_shape1 = 0.2,
-  Ce_shape2 = 0.6
+  B_shape2 = 0.5,
+  Ce_shape1 = 0.5,
+  Ce_shape2 = 0.5
 )
 
 # Ver resultados
@@ -139,8 +139,8 @@ head(resultados)
 summary(resultados$prop_species_maintained)
 
 # Salvar
-write.csv(resultados, "resultados_10000_replicas.csv", row.names = FALSE)
-saveRDS(resultados, "resultados_10000_replicas.rds")
+write.csv(resultados, "resultados_10000_replicas_bc0.5.csv", row.names = FALSE)
+saveRDS(resultados, "resultados_10000_replicasbc0.5.rds")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -195,15 +195,15 @@ cat(sprintf("Mediana: %.3f\n",
 # ─────────────────────────────────────────────────────────────────────────────
 # 2. Histograma
 # ─────────────────────────────────────────────────────────────────────────────
-tiff("Proportion of species left distribution.tiff", w = 2000, h = 2000, res = 300)
+tiff("Proportion of species left distribution 2.tiff", w = 2000, h = 2000, res = 300)
 ggplot(resultados, aes(x = prop_species_maintained)) +
   geom_histogram(bins = 30, fill = "steelblue", color = "white", alpha = 0.7) +
   geom_vline(aes(xintercept = mean(prop_species_maintained)), 
              color = "red", linetype = "dashed", size = 1) +
   labs(
     title = "Proportion of species left distribution",
-    subtitle = sprintf("10000 replicates | B = (alpha 1 = 0.5, alpha 2 = 1), 
-    Ce = (alpha 1 = 0.2, alpha 2 = 0.6),  Cp=0 | Mean=%.3f | N sp = 30 | 
+    subtitle = sprintf("10000 replicates | B = (alpha 1 = 0.5, alpha 2 = 0.5), 
+    Ce = (alpha 1 = 0.5, alpha 2 = 0.5),  Cp=0 | Mean=%.3f | N sp = 30 | 
     internal connectance = 0.65 | external connectance = 0.15 | N modules = 3" ,
                        mean(resultados$prop_species_maintained)),
     x = "Porportion of species left",
