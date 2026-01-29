@@ -2,6 +2,9 @@
 title: "Notes on Spark Project"
 author: "Paulinha"
 output: pdf_document
+header-includes:
+ - \usepackage{amsmath}
+bibliography: refs_Spark.bib
 ---
 
 ```{r setup, include=FALSE}
@@ -28,19 +31,48 @@ Costs and benefits can be described as functions with a giving underlying distri
 
 ### Beta distribution
 
-Continuous probability distribution defined on the interval $[0,1]$ in terms of two positive parameters $\alpha$ and $\beta$. It is suitable distribution for modeling the costs and benefits as they are defined only in the positive realm, and they provide a limit to the maximum benefit (cost) a species can have. The upper limit in this case is $k$ (the degree of the species, assuming it receives the maximum benefit from all its partners and benefits are an additive function). The beta distribution has been used to model interactions in food web models before [@williams2000simple, @cattin2004phylogenetic, @dunne2008compilation, @stouffer2005quantitative].
+Continuous probability distribution defined on the interval $[0,1]$ in terms of two positive parameters $\alpha$ and $\beta$. It is a suitable distribution for modeling the costs and benefits as they are defined only in the positive realm, and can take diverse shapes. Additionally, it provides a limit to the maximum benefit (cost) a species can have. The upper limit in this case is $k$ (the degree of the species, assuming it receives the maximum benefit from all its partners and benefits are an additive function). The beta distribution has been used to model interactions in food web models before [@williams2000simple, @cattin2004phylogenetic, @dunne2008compilation, @stouffer2005quantitative].
 
 ```{r beta, echo=FALSE, out.width="50%", fig.cap="Costs and benefits drawn from a beta distribution"}
   ggplot() +
-  stat_function(fun = dbeta, args = list(shape1 = 2, shape2 = 5), aes(color = "Benefit"), lwd=1.5) +
-  stat_function(fun = dbeta, args = list(shape1 = 2, shape2 = 2), aes(color = "Cost"), lwd=1.5) +
+  stat_function(fun = dbeta, args = list(shape1 = .5, shape2 = .5), aes(color = "Benefit"), lwd=1.5) +
+  stat_function(fun = dbeta, args = list(shape1 = 2, shape2 = 5), aes(color = "Cost"), lwd=1.5) +
   scale_color_manual("Curve", values = c("Benefit" = "orchid4", "Cost" = "goldenrod")) +
   theme_minimal()
 ```
 
 ### Boundary conditions for costs and benefits and the persistence/extinction of species
 
-What are the boundary conditions for the expectation of having all species present ($benefits > costs$) and for having all species extinct of the system (i.e., when $benefits < costs$)? In other words, we want to know what is the probability of having the benefits surpass the costs, resulting in all species present in the network, and alternatively, what is the probability of having all species removed from the network if the costs of interaction surpass their benefits.
+What are the boundary conditions for the expectation of having all species present ($benefits > costs$) and for having all species extinct of the system (i.e., when $benefits < costs$)? In other words, we want to know what is the probability of having the benefits surpass the costs, resulting in all species present in the network, and alternatively, what is the probability of having all species removed from the network if the costs of interaction surpass their benefits. The solution to this problem, considering costs and benefits distributed following independent beta distributions, relies on Appell F1 Hypergeometric function and was derived by @pham1993bayesian. Since the Boolean function determining whether a species will be present is given by a positive fitness, this can be achieved by a species having greater benefits than costs for its interactions (i.e. $\theta_b > \theta_c$), with $\theta_b = X_1 \sim Beta(\alpha_1, \beta_1)$ and $\theta_c = X_2 \sim Beta(\alpha_2, \beta_2)$. We want to determine the distribution of the difference $\theta_d = \theta_b - \theta_c$. This difference is piece wise and given by ([@pham1993bayesian]):
+
+Considering $A = Beta(\alpha1, \beta_1) \cdot Beta(\alpha_2, \beta_2)$ and $\cdot$ a product.
+
+For $-1 \leq \theta_d < 0$, meaning costs are greater than benefits, we have:
+$$
+p(\theta_d) = Beta(\alpha_2, \beta_1)\theta_d^{\beta1+\beta2-1}(1-\theta_d)^{\alpha_2+\beta_1-1} \cdot \\
+                F_1(\beta_1, \alpha_1+\beta_1+\alpha_2+\beta_2-2, 1-\alpha_1; \beta_1+\alpha_2; 1-\theta_d, 1-\theta_d^2)/A
+$$
+For $0 < \theta_d \leq 1$, with benefits greater than costs, we have:
+$$
+p(\theta_d) = Beta(\alpha_1, \beta_2)\theta_d^{\beta_1+\beta_2-1}(1-\theta_d)^{\alpha_1\beta_2-1} \cdot \\
+                F_1(\beta_2, 1-\alpha_2, \alpha_1+\beta_1+\alpha_2+\beta+2-2; \alpha_1+\beta_2; 1-\theta_d^2, 1+\theta_d)/A
+$$
+
+And finally, when the difference between the distribution of benefits and costs is zero $\theta_d = 0$ with $\alpha_1 + \alpha_2 >1$ and $\beta_1 + \beta_2 >1$ we have:
+
+$$
+  p(\theta_d) = \frac{Beta(\alpha_1 + \alpha+2 -1, \beta_1+\beta_2-1)}{A}
+$$
+$F_1$ is the \textit{Appell $F_1$ Hypergeometric Function} with the following form:
+
+$$
+F_1(a, b_1, b_2; c;x,y) = \sum_{m-n=0}^\infty \frac{(a)_{m+n}(b_1)_m(b_2)n}{(c)_{m+n} m!n!}x^my^n
+$$
+with $(q)_m$ representing the Pochhammer symbol, indicating the rising factor.
+Substituting the parameters, for the negative case ($-1 \leq \theta_d < 0$) the parameters are $a=\beta_1$, $b_1 = \alpha_1+\beta_1+\alpha2+\beta_2-2$, $b_2 = 1-\alpha_1$; $c = \beta_1+\alpha_2$; $x=1-\theta_2$, $y= 1-\theta_d^2$.
+For the negative case ($0 < \theta_d \leq 1$) the parameters are $a=\beta_2$, $b_1 = 1-\alpha_2$, $b_2 = \alpha_1+\beta_1+\alpha2+\beta_2-2$, ; $c = \alpha_1+\beta_2$; $x=1-\theta_2^2$, $y= 1+\theta_d$.
+
+
 
 ## The Ecosystem-Services Matrix
 
@@ -52,7 +84,7 @@ How is the robustness of food webs related to the ecosystem services they provid
 
 ### Other potential distributions
 
-The choice of the beta distribution is supported by biological arguments but it is still an arbitrary choice. Other distributions of costs and benefits include:
+The choice of the beta distribution is supported by biological arguments but it is still an arbitrary choice. Other possible distributions of costs and benefits include:
 
 #### Lognormal distribution
 
@@ -145,9 +177,12 @@ diff_probs <- diff_probs %>% mutate(probs = pnorm(0, mean=diff_values))
 
 ggplot(diff_probs, aes(x = diff_values, y=probs)) +
   geom_line(lwd =1, color = "gray30") +
-  labs(x = "Difference between benefits and costs (C-B = D)",
-       y = "Expected proportion of surviving species",
-       color = "Curve") +
+  labs(x = "Difference between benefits and costs (B-C = D)",
+       y = "Expected proportion of surviving species") +
   theme_bw()
 
 ```
+
+
+\newpage
+## References

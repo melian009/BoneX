@@ -67,7 +67,7 @@ ggplot(test, aes(x = time_step, y = ratio, group = sp_id, color = sp_k_initial))
  # Filtering the last time step of each iteration
 tmp <- res %>% group_by(iteration) %>% filter(time_steps == max(time_steps))
 # Plot
-ggplot(tmp, aes(prop_sp)) + geom_histogram() + theme_bw()
+ggplot(tmp, aes(sp_persistent)) + geom_histogram() + theme_bw()
 
 
 

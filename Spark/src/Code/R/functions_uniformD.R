@@ -1,4 +1,4 @@
-## Supportive and main function - Beta distribution
+## Supportive and main function - Uniform distribution
 
 # Create a unit vector
 unit_vector <- function(x) {x/sum(sqrt(x^2))}
@@ -26,8 +26,8 @@ build_random_graph <- function(nodes_i, nodes_j, connectance, return_adjacency=T
 
 
 ## Create the Cost/Benefit matrix given an adjacency matrix 
-# Beta distribution
-create_CB_beta <- function(Aij, is.bipartite=FALSE, shape1, shape2,...){
+# Uniform distribution
+create_CB_uniform <- function(Aij, is.bipartite=FALSE, nmin=0, nmax=1){
   #if it's not binary, make it binary
   matrix_A <- Aij
   matrix_A <- as.matrix((matrix_A > 0) + 0)
@@ -38,13 +38,14 @@ create_CB_beta <- function(Aij, is.bipartite=FALSE, shape1, shape2,...){
   }
   # number of samples and values
   nsamples <- sum(matrix_A)
-  values <- rbeta(nsamples, shape1=shape1, shape2=shape2)
+  values <- runif(nsamples, min = nmin, max= nmax)
   
   # Make the cost/benefit matrix
   CB_mt <- matrix_A
   CB_mt[CB_mt>0] <- values
   return(CB_mt)
 }
+
 
 # Fixed Environmental effect
 define_alpha <- function(zi){
@@ -90,9 +91,9 @@ create_ES_random_matrix <- function(n_sp, n_services, prop_contributing_sp){
 #        Alpha - environmental cost
 #        Statistical distribution of benefits, costs and physiological cost
 boolean_model <- function(Ni, Nj, connectance, alpha=0.0001,
-                          shape1C = 5, shape2C = 5, # Shape pars for costs
-                          shape1B = 5, shape2B = 5, # Shape pars for benefits
-                          shape1Cp = 5, shape2Cp = 5){ # Shape for physio costs
+                          minC = 0, maxC = 1, # min and max values for costs
+                          minB = 0, maxB = 1, # min and max for benefits
+                          minCp = 0, maxCp = 1){ # min and max for physio costs
   # Building the matrix of interactions
   A <- build_random_graph(Ni, Nj, connectance)
   
@@ -103,12 +104,12 @@ boolean_model <- function(Ni, Nj, connectance, alpha=0.0001,
   community <- as_tibble(t(all_present))
   
   #Creating benefits and costs under Beta distribution
-  B <- create_CB_beta(A, shape1=shape1B, shape2=shape2B)
-  C <- create_CB_beta(A, shape1=shape1C, shape2=shape2C)
+  B <- create_CB_uniform(A, nmin=minB, nmax=maxB)
+  C <- create_CB_uniform(A, nmin=minC, nmax=maxC)
   
   # Adding a small physiological cost
-  costs_p <- c(create_CB_beta(c(1:(Ni+Nj)), shape1=shape1Cp, shape2=shape2Cp)*0.1)
-
+  costs_p <- c(create_CB_uniform(c(1:(Ni+Nj)), nmin=minCp, nmax=maxCp)*0.1)
+  
   #costs_p <- c(create_CB_matrix(c(1:(Ni+Nj)), distribution = dist_Cp,...)*0.1)
   names(costs_p) <- rownames(A)
   

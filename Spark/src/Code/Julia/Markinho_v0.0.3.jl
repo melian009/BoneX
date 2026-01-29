@@ -89,6 +89,7 @@ num_states = 2^num_nodes # This will now be 16
 #2-Nodes
 # Node 1: Always stays ON
 #rule1(state) = true
+
 # Node 2: Always flips its own state
 #rule2(state) = !state[2]
 
@@ -200,5 +201,46 @@ for i in 1:num_states
 end
 
 
+# Now you can substitute a numerical value for `p` to get the numerical result
+p_numerical = 0.05
+numerical_solution = Symbolics.substitute.(analytical_solution, (Dict(p_val => p_numerical),))
+println("\nNumerical Steady-State Probabilities with p = $p_numerical:")
+println("π₁ = ", numerical_solution[1])
+println("π₂ = ", numerical_solution[2])
+println("π₃ = ", numerical_solution[3])
+println("π₄ = ", numerical_solution[4])
+println("π5 = ", numerical_solution[5])
+println("π6 = ", numerical_solution[6])
+println("π7 = ", numerical_solution[7])
+println("π8 = ", numerical_solution[8])
+println("π9 = ", numerical_solution[9])
+println("π10 = ", numerical_solution[10])
+println("π11 = ", numerical_solution[11])
+println("π12 = ", numerical_solution[12])
+println("π13 = ", numerical_solution[13])
+println("π14 = ", numerical_solution[14])
+println("π15 = ", numerical_solution[15])
+println("π16 = ", numerical_solution[16])
 
 
+
+# Adding Ecosystem services
+
+# 1. Define services for each species (e.g., Species 1 provides 10 units, Species 2 provides 5)
+#2-Nodes network
+#species_services = [10.0, 5.0] 
+
+#4-Nodes network
+species_services = [10.0, 5.0, 2.0, 8.0] 
+
+# 2. Map those services to each of the 16 states
+state_services = zeros(num_states)
+for i in 1:num_states
+    state_vec = index_to_state(i, num_nodes) # Uses your existing mapping logic [cite: 1]
+    # Sum services of active species in this state
+    state_services[i] = sum(state_vec .* species_services)
+end
+
+# 3. Calculate the Expected Ecosystem Service (EES)
+# EES = Σ (Probability of State i * Service of State i)
+expected_service = sum(numerical_solution .* state_services)
