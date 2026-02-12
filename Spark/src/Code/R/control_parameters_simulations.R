@@ -125,13 +125,13 @@ resultados <- run_replicas(
   # Rede fixa
   sp_n = 30,
   internal_connectance = 0.65,
-  external_connectance = 0.15,
+  external_connectance = 0.12,
   
   # B e Ce fixos em 0.5
   B_shape1 = 0.5,
-  B_shape2 = 0.5,
-  Ce_shape1 = 0.5,
-  Ce_shape2 = 0.5
+  B_shape2 = 0.9,
+  Ce_shape1 = 0.2,
+  Ce_shape2 = 0.6
 )
 
 # Ver resultados
@@ -139,8 +139,8 @@ head(resultados)
 summary(resultados$prop_species_maintained)
 
 # Salvar
-write.csv(resultados, "resultados_10000_replicas_bc0.5.csv", row.names = FALSE)
-saveRDS(resultados, "resultados_10000_replicasbc0.5.rds")
+write.csv(resultados, "resultados_10000_replicas_bc0.5_5.csv", row.names = FALSE)
+saveRDS(resultados, "resultados_10000_replicasbc0.5_5rds")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -195,16 +195,17 @@ cat(sprintf("Mediana: %.3f\n",
 # ─────────────────────────────────────────────────────────────────────────────
 # 2. Histograma
 # ─────────────────────────────────────────────────────────────────────────────
-tiff("Proportion of species left distribution 2.tiff", w = 2000, h = 2000, res = 300)
+tiff("Proportion of species left distribution 5.tiff", w = 2000, h = 2000, res = 300)
 ggplot(resultados, aes(x = prop_species_maintained)) +
   geom_histogram(bins = 30, fill = "steelblue", color = "white", alpha = 0.7) +
   geom_vline(aes(xintercept = mean(prop_species_maintained)), 
              color = "red", linetype = "dashed", size = 1) +
   labs(
     title = "Proportion of species left distribution",
-    subtitle = sprintf("10000 replicates | B = (alpha 1 = 0.5, alpha 2 = 0.5), 
-    Ce = (alpha 1 = 0.5, alpha 2 = 0.5),  Cp=0 | Mean=%.3f | N sp = 30 | 
-    internal connectance = 0.65 | external connectance = 0.15 | N modules = 3" ,
+    subtitle = sprintf("10000 replicates | B = (alpha 1 = 0.5, alpha 2 = 0.9), 
+    Ce = (alpha 1 = 0.2, alpha 2 = 0.6),  Cp=0 | Mean=%.3f | N sp = 30 | 
+    internal connectance = 0.65 | external connectance = 0.12 | N modules = 3 |
+                       NODF = 27.23 | Q = 0.37 | C = 0.26" ,
                        mean(resultados$prop_species_maintained)),
     x = "Porportion of species left",
     y = "Frequency"
@@ -217,3 +218,4 @@ ggplot(resultados, aes(x = prop_species_maintained)) +
 dev.off()
 
 # ───────────────────────────────────────────────────────────────────────
+getwd()
