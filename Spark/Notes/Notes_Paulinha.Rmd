@@ -35,8 +35,8 @@ Continuous probability distribution defined on the interval $[0,1]$ in terms of 
 
 ```{r beta, echo=FALSE, out.width="50%", fig.cap="Costs and benefits drawn from a beta distribution"}
   ggplot() +
-  stat_function(fun = dbeta, args = list(shape1 = .5, shape2 = .5), aes(color = "Benefit"), lwd=1.5) +
-  stat_function(fun = dbeta, args = list(shape1 = 2, shape2 = 5), aes(color = "Cost"), lwd=1.5) +
+  stat_function(fun = dbeta, args = list(shape1 = 5, shape2 = 2.5), aes(color = "Benefit"), lwd=1.5) +
+  stat_function(fun = dbeta, args = list(shape1 = 2.5, shape2 = 3), aes(color = "Cost"), lwd=1.5) +
   scale_color_manual("Curve", values = c("Benefit" = "orchid4", "Cost" = "goldenrod")) +
   theme_minimal()
 ```
