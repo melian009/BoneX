@@ -265,34 +265,3 @@ barplot(resultado_dinamica$degree_history[nrow(resultado_dinamica$degree_history
 par(mfrow = c(1, 1))
 
 print("=== WORKFLOW COMPLETO ===")
-```
-
----
-  
-  ## 📝 RESUMO DO WORKFLOW
-  ```
-1. mutualistic_network_bipartite()
-↓ (cria rede bipartida 10×15)
-
-2. identify_core_periphery_bipartite()
-↓ (identifica core/periphery)
-
-3. bipartite_to_square()
-↓ (converte para 25×25)
-
-4. ecosystem_services_network_v2()
-↓ (decide quem provê serviços: all/core/periphery)
-
-5. Definir parâmetros (B_vec, Ce_vec, Cp_vec, zi)
-↓
-
-6. environment()
-↓ (cria condições ambientais)
-
-7. simulation()
-↓ (roda dinâmica - SUA FUNÇÃO ANTIGA)
-
-8. ecosystem()
-↓ (calcula serviços - SUA FUNÇÃO ANTIGA)
-
-9. Visualizar resultados
