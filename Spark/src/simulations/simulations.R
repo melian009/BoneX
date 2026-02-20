@@ -25,7 +25,7 @@ results <- explore_parameters_v3(
   t_max = 100,
   
   # REPLICATAS
-  n_replicates = 10,
+  n_replicates = 1000,
   seed = 123
 )
 
