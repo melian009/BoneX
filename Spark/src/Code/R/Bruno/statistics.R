@@ -8,7 +8,7 @@ library(ggpubr)
 # Teste 1: Core vs Periphery vs Random - qual provedor é melhor?
 # -----------------------------------------------------------------------------
 # ANOVA para testar diferenças entre os 3 grupos
-anova_persistence <- aov(persistence_species ~ service_providers * mut_structure, 
+anova_persistence <- aov(services_loss_relative ~ service_providers * mut_structure, 
                          data = results)
 print("=== ANOVA: Persistência ===")
 print(summary(anova_persistence))
