@@ -1,8 +1,24 @@
 # =============================================================================
 # TESTES ESTATÍSTICOS
 # =============================================================================
-
+getwd()
 library(ggpubr)
+library(tidyverse)
+if(!require(readr)) install.packages("readr")
+library(readr)
+
+results <- read_csv("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/results_mutualistic_networks_SIM2.csv")
+if(!require(readr)) install.packages("readr")
+library(readr)
+
+results <- read_csv("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/results_mutualistic_networks_SIM1.csv")
+
+
+# Para conferir se agora temos colunas de verdade:
+head(results[, 1:5])
+results
+summary(results)
+
 
 # -----------------------------------------------------------------------------
 # Teste 1: Core vs Periphery vs Random - qual provedor é melhor?
@@ -10,14 +26,20 @@ library(ggpubr)
 # ANOVA para testar diferenças entre os 3 grupos
 anova_persistence <- aov(services_loss_relative ~ service_providers * mut_structure, 
                          data = results)
+anova_persistence1 <- aov(services_loss_relative ~ service_providers + mut_structure, 
+                         data = results)
+anova_persistence2 <- aov(services_loss_relative ~ service_providers, 
+                          data = results)
+
+anova(anova_persistence, anova_persistence1, test = "Chisq")
 print("=== ANOVA: Persistência ===")
 print(summary(anova_persistence))
 
 # Post-hoc: quais grupos diferem?
-tukey_persistence <- TukeyHSD(anova_persistence)
+tukey_persistence <- TukeyHSD(anova_persistence2)
 print(tukey_persistence)
 
-# -----------------------------------------------------------------------------
+  # -----------------------------------------------------------------------------
 # Teste 2: Persistência de Core vs Periphery DENTRO de cada rede
 # -----------------------------------------------------------------------------
 # Teste t pareado comparando core_persistence vs periphery_persistence
