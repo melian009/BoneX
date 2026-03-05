@@ -95,5 +95,6 @@ identify_core_periphery_bipartite <- function(B, threshold_percentile = 0.5) {
     periphery_group2 = which(class_a == "periphery")
   ))
 }
-
+# APELIDO PARA COMPATIBILIDADE
+identify_core_periphery <- identify_core_periphery_bipartite
 

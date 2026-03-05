@@ -25,10 +25,10 @@ results <- explore_parameters_v3(
   t_max = 1000,
   
   # Cost/benefit parameters (can be vectors)
-  B_shape1 = 0.5,
-  B_shape2 = 0.5,
-  Ce_shape1 = 0.5,
-  Ce_shape2 = 0.5,
+  B_shape1 = 0.4,
+  B_shape2 = 0.8,
+  Ce_shape1 = 0.3,
+  Ce_shape2 = 0.7,
   Cp_shape1 = 1,
   Cp_shape2 = 1,
   Cp_multiplier = 0.0,
@@ -43,8 +43,9 @@ results <- explore_parameters_v3(
 )
 
 # Salvar resultados
-write.csv(results, "C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/results_mutualistic_networks_SIM1.csv", row.names = FALSE)
-saveRDS(results, "C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/results_mutualistic_networks_SIM1.rds")
+write.csv(results, "C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/results_mutualistic_networks_SIM3.csv", row.names = FALSE)
+saveRDS(results, "C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/results_mutualistic_networks_SIM3.rds")
 
 print("Resultados salvos!")
 summary(results)
+results2 <- read_rds("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/results_mutualistic_networks_SIM3.rds")
