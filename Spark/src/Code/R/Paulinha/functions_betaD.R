@@ -23,8 +23,37 @@ build_random_graph <- function(nodes_i, nodes_j, connectance, return_adjacency=T
   
   return(A)
 }
+ 
+#____________________________________________________________________________#
+# Ref: Nawa V, Nadarajah S. Exact Expressions for Kullback-Leibler Divergence 
+# for Univariate Distributions. Entropy (Basel). 2024 Nov 7;26(11):959. 
+# doi: 10.3390/e26110959. PMID: 39593904; PMCID: PMC11592849.
 
+# KL Divergence between Beta(a1, b1) and Beta(a2, b2)
+kl_beta <- function(a1, b1, a2, b2) {
+  # Log ratio of Beta functions
+  log_beta_ratio <- lbeta(a2, b2) - lbeta(a1, b1)
+  
+  # Digamma terms
+  term1 <- (a1 - a2) * psigamma(a1, 0)
+  term2 <- (b1 - b2) * psigamma(b1, 0)
+  term3 <- (a2 - a1 + b2 - b1) * psigamma(a1 + b1, 0)
+  
+  return(log_beta_ratio + term1 + term2 + term3)
+}
 
+## Difference between the means 
+mean_beta <- function(a1, b1){
+  ex <- a1/(a1+b1)
+  return(ex)
+}
+
+diff_mean_beta <- function(a1, b1, a2, b2){
+  res_diff <- mean_beta(a1,b1) - mean_beta(a2,b2)
+  return(res_diff)
+}
+
+#____________________________________________________________________________#
 ## Create the Cost/Benefit matrix given an adjacency matrix 
 # Beta distribution
 create_CB_beta <- function(Aij, is.bipartite=FALSE, shape1, shape2,...){
@@ -83,7 +112,7 @@ create_ES_random_matrix <- function(n_sp, n_services, prop_contributing_sp){
   return(ES)
 }
 
-
+#____________________________________________________________________________#
 ## Running the boolean model
 # Input: Number of species in each category of a bipartite system
 #        Expected connectance of the system
@@ -173,18 +202,29 @@ estimate_CB_overtime <- function(model_output){
   for (i in 1:nrow(sp_present)) {
     my_sp <- sp_present[i,] %>% select(where(~sum(.) ==1)) %>% names()
     
+    if(is_empty(my_sp)){
+      print("all sp went extinct")
+      break
+    }
+    
     sp_names <- sp_names[sp_names %in% my_sp]
     sp_degree_initial <- sp_degree_initial[my_sp]
     # Update costs_p by zeroing the costs
     new_Cp <- cp[my_sp]
     
     # Update matrix of costs and benefits
-    newC <- C[my_sp, my_sp]
+    newC <- as.matrix(C[my_sp, my_sp])
     
-    newB <- B[my_sp, my_sp]
+    newB <- as.matrix(B[my_sp, my_sp])
     
-    if(dim(newB)[1] == 0 & dim(newB)[2] == 0) sp_degree <- rep(0, ncol(newB))
-    else sp_degree <- apply(newB>0, 1, sum)
+    if(dim(newB)[1] == 0 & dim(newB)[2] == 0) { # no sp is left
+      previous_sp <- sp_present[c(i-1),] %>% 
+        select(where(~sum(.) ==1)) %>% names()
+      newB <- as.matrix(B[previous_sp, previous_sp])
+      newC <- as.matrix(C[previous_sp, previous_sp])
+      new_Cp <- cp[previous_sp]
+      sp_degree <- rep(0, 1)
+      } else {sp_degree <- apply(newB>0, 1, sum)}
     
     # Estimate CB ratio
     CB_ratio <- get_fitness_ratio(newC, new_Cp, newB)  
