@@ -21,8 +21,9 @@ betas <- expand_grid(b1 = seq(1.1, 5, by = 0.2),
                      b2 = seq(1.1, 5, by = 0.2)) 
 
 # Adding the estimated divergence/difference
-setup <- betas %>% mutate(kl = kl_beta(5, b1, 5, b2),  # KL divergence
-                          diff = diff_mean_beta(5, b1, 5, b2))  # difference between means
+# b2 - b1 so that B - C 
+setup <- betas %>% mutate(kl = kl_beta(5, b2, 5, b1),  # KL divergence
+                          diff = diff_mean_beta(5, b2, 5, b1))  # difference between means
 
 
 # how is divergence and difference related?
@@ -93,7 +94,7 @@ for(j in 1:nrow(setup)){
 p_main <- res %>% group_by(setup, iteration) %>% 
   filter(time_steps == max(time_steps)) %>% 
   ggplot(., aes(x = diff_distr, y=prop_sp, group = setup)) + geom_point(alpha = 0.5) +
-  theme_bw() + labs(x = "E[Costs] - E[Benefits]", y = "Proportion of surviving species")
+  theme_bw() + labs(x = "E[Benefits] - E[Costs]", y = "Proportion of surviving species")
 
 
 ## Inset showing the beta distribution with parameter b=1
@@ -130,6 +131,6 @@ p_inset <- ggplot(beta_dist_long, aes(x = x, y = Density, color = Parameters)) +
 
 ggdraw() +
   draw_plot(p_main) +
-  draw_plot(p_inset, x = 0.57, y = 0.55, width = 0.4, height = 0.4)
+  draw_plot(p_inset, x = 0.1, y = 0.55, width = 0.4, height = 0.4)
 
 ggsave("./figures/beta3.pdf", width = 7)

@@ -21,8 +21,9 @@ alphas <- expand_grid(a1 = seq(0.01, 0.99, by = 0.05),
                       a2 = seq(0.01, 0.99, by = 0.05)) 
 
 # Adding the estimated divergence/difference
-setup <- alphas %>% mutate(kl = kl_beta(a1, 1, a2, 1),  # KL divergence
-                  diff = diff_mean_beta(a1, 1, a2, 1))  # Mean difference
+# 2 is benefit and 1 is cost
+setup <- alphas %>% mutate(kl = kl_beta(a2, 1, a1, 1),  # KL divergence
+                  diff = diff_mean_beta(a2, 1, a1, 1))  # Mean difference
 
 
 # how is divergence and difference related?
@@ -59,7 +60,7 @@ ggplot() +
 nspi <- 50
 nspj <- 65
 # Expected connectance
-connect <- .65
+connect <- .3
 # Number of simulations
 nsim <- 10
 
@@ -102,7 +103,7 @@ for(j in 1:nrow(setup)){
 p_main <- res %>% group_by(setup, iteration) %>% 
   filter(time_steps == max(time_steps)) %>% 
   ggplot(., aes(x = diff_distr, y=prop_sp, group = setup)) + geom_point(alpha = 0.5) +
-  theme_bw() + labs(x = "E[Costs] - E[Benefits]", y = "Proportion of surviving species")
+  theme_bw() + labs(x = "E[Benefits] - E[Costs]", y = "Proportion of surviving species")
 
 
 ## Inset showing the beta distribution with parameter b=1
@@ -139,6 +140,6 @@ p_inset <- ggplot(beta_dist_long, aes(x = x, y = Density, color = Parameters)) +
 
 ggdraw() +
   draw_plot(p_main) +
-  draw_plot(p_inset, x = 0.57, y = 0.55, width = 0.4, height = 0.4)
+  draw_plot(p_inset, x = 0.1, y = 0.55, width = 0.4, height = 0.4)
 
-ggsave("./figures/beta1.pdf", width = 7)
+ggsave("./figures/beta1_c03.pdf", width = 7)
