@@ -4,7 +4,9 @@ library(tidyverse)
 library(reshape2)
 library(RColorBrewer)
 library(cowplot)
+source("functions.R")
 source("functions_betaD.R")
+
 
 ## Simulations to estimate how the difference/distance between costs and benefits
 # influences the persistence of species in a community
