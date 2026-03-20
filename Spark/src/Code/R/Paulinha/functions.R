@@ -38,12 +38,6 @@ define_fitness <- function(eco_costs, physio_costs, tot_benefits, alpha){
   return(fitness)
 }
 
-# Get ratio between costs and benefits
-get_fitness_ratio <- function(eco_costs, physio_costs, tot_benefits){
-  fitness_ratio <- rowSums(tot_benefits - eco_costs) - physio_costs
-  return(fitness_ratio)
-}
-
 # Random Ecosystem Service Matrix
 # A given proportion of species contribute to each service
 # Species contribution is drawn from a uniform distribution and
@@ -61,6 +55,11 @@ create_ES_random_matrix <- function(n_sp, n_services, prop_contributing_sp){
   return(ES)
 }
 
+# Get ratio between costs and benefits
+get_fitness_ratio <- function(eco_costs, physio_costs, tot_benefits){
+  fitness_ratio <- rowSums(tot_benefits - eco_costs) - physio_costs
+  return(fitness_ratio)
+}
 
 
 ## Estimating how costs and benefits change over time 

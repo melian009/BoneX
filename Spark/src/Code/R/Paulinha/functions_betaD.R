@@ -57,7 +57,8 @@ create_CB_beta <- function(Aij, is.bipartite=FALSE, shape1, shape2,...){
 # Input: Number of species in each category of a bipartite system
 #        Expected connectance of the system
 #        Alpha - environmental cost
-#        Statistical distribution of benefits, costs and physiological cost
+#        Parameters of beta distribution for benefits, costs and 
+#         physiological cost
 boolean_model <- function(Ni, Nj, connectance, alpha=0.0001,
                           shape1C = 5, shape2C = 5, # Shape pars for costs
                           shape1B = 5, shape2B = 5, # Shape pars for benefits
