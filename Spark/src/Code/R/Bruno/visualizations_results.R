@@ -26,7 +26,7 @@ summary_general <- results %>%
 
 print("=== RESUMO GERAL ===")
 print(summary_general)
-write.xlsx(summary_general,"C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/sumary_general_sim2.xlsx")
+write.xlsx(summary_general,"C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/sumary_general_sim1.xlsx")
 # -----------------------------------------------------------------------------
 # TABELA: Comparação Core vs Periphery
 # -----------------------------------------------------------------------------
@@ -43,7 +43,7 @@ comparison_table <- results %>%
 
 print("=== COMPARAÇÃO CORE VS PERIPHERY ===")
 print(comparison_table)
-write.xlsx(comparison_table, "C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/comparison_table_sim2.xlsx")
+write.xlsx(comparison_table, "C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/comparison_table_sim1.xlsx")
 # -----------------------------------------------------------------------------
 # GRÁFICO 1: Persistência por Estrutura e Provedor
 # -----------------------------------------------------------------------------
@@ -59,7 +59,7 @@ p1 <- ggplot(results, aes(x = service_providers, y = persistence_species,
   theme(legend.position = "bottom")
 
 print(p1)
-ggsave("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/persistence_by_structure_provider_sim2.png", p1, width = 10, height = 6)
+ggsave("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/persistence_by_structure_provider_sim1.png", p1, width = 10, height = 6)
 
 # -----------------------------------------------------------------------------
 # GRÁFICO 2: Perda de Serviços
@@ -76,7 +76,7 @@ p2 <- ggplot(results, aes(x = service_providers, y = services_loss_relative,
   theme(legend.position = "bottom")
 
 print(p2)
-ggsave("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/services_loss_by_structure_provider_sim2.png", p2, width = 10, height = 6)
+ggsave("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/services_loss_by_structure_provider_sim1.png", p2, width = 10, height = 6)
 
 # -----------------------------------------------------------------------------
 # GRÁFICO 3: Core vs Periphery Persistence
@@ -102,7 +102,7 @@ p3 <- ggplot(results_long, aes(x = group_type, y = persistence,
   theme(legend.position = "bottom")
 
 print(p3)
-ggsave("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/core_vs_periphery_persistence_sim2.png", p3, width = 12, height = 8)
+ggsave("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/core_vs_periphery_persistence_sim1.png", p3, width = 12, height = 8)
 
 # -----------------------------------------------------------------------------
 # GRÁFICO 4: Persistência vs Serviços
@@ -120,4 +120,5 @@ p4 <- ggplot(results, aes(x = persistence_species, y = services_final,
   theme(legend.position = "right")
 
 print(p4)
-ggsave("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/persistence_vs_services_sim2.png", p4, width = 10, height = 6)
+ggsave("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/persistence_vs_services_sim1.png", p4, width = 10, height = 6)
+
