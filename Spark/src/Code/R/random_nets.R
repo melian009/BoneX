@@ -11,13 +11,13 @@ nspj <- 65
 # Expected connectance
 connect <- .65
 # Number of simulations
-nsim <- 100
+nsim <- 200
 
 
 ## Ploting the shape of the functions
 ggplot() +
   stat_function(fun = dbeta, args = list(shape1 = 2.5, shape2 = 5), aes(color = "Cost"), lwd=1.5) +
-  stat_function(fun = dbeta, args = list(shape1 = 3, shape2 = 5), aes(color = "Benefit"), lwd=2.5) +
+  stat_function(fun = dbeta, args = list(shape1 = 2.4, shape2 = 5), aes(color = "Benefit"), lwd=2.5) +
   #stat_function(fun = dbeta, args = list(shape1 = 2, shape2 = 2), aes(color = "Cp"), lwd=1.5) +
   scale_color_manual("Curve", values = c("Benefit" = "orchid4", "Cost" = "goldenrod", "Cp" = "darkgreen")) +
   theme_minimal()
@@ -72,7 +72,7 @@ test <- ratio %>% filter(iteration == 54)
 
 ggplot(test, aes(x = time_step, y = ratio, group = sp_id, color = sp_k_initial)) +
   geom_line() +
-  geom_hline(yintercept = 1, lty = 2) +
+  geom_hline(yintercept = 1, lty = 2, lwd = 1.5) +
   #scale_y_log10() +
   scale_color_viridis_c() +
   theme_bw()
@@ -103,7 +103,7 @@ ggplot(degrees , aes(x = degree, group = presence, fill = presence)) +
 
 ## How degree distribution changes as species get prunned
 ## Choose one iteration to see the result (1-100) - they all look similar
-ggplot(ratio %>% filter(iteration == 45), aes(x=time_step, y=sp_k_curr, group = time_step)) + 
+ggplot(ratio %>% filter(iteration == 100), aes(x=time_step, y=sp_k_curr, group = time_step)) + 
   geom_violin() +geom_jitter(alpha = 0.5) + theme(legend.position = "none") + theme_bw()
 
 # Another way to look at this data

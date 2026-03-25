@@ -1,38 +1,32 @@
-## Supportive functions - Beta distribution
+## Supportive functions Lognormal distribution
 
 #____________________________________________________________________________#
-# Ref: Nawa V, Nadarajah S. Exact Expressions for Kullback-Leibler Divergence 
-# for Univariate Distributions. Entropy (Basel). 2024 Nov 7;26(11):959. 
-# doi: 10.3390/e26110959. PMID: 39593904; PMCID: PMC11592849.
 
-# KL Divergence between Beta(a1, b1) and Beta(a2, b2)
-kl_beta <- function(a1, b1, a2, b2) {
-  # Log ratio of Beta functions
-  log_beta_ratio <- lbeta(a2, b2) - lbeta(a1, b1)
+# KL Divergence between LogNorm(mu1, sigma1) and LogNorm(mu2, sigma2)
+kl_lognorm <- function(mu1, sigma1, mu2, sigma2) {
   
-  # Digamma terms
-  term1 <- (a1 - a2) * psigamma(a1, 0)
-  term2 <- (b1 - b2) * psigamma(b1, 0)
-  term3 <- (a2 - a1 + b2 - b1) * psigamma(a1 + b1, 0)
+  DKL <- 0.5 * (log(abs(sigma2/sigma1)) + 
+                  (sigma1^2 + (mu1 - mu2)^2)/(2*sigma2^2) - 1/2)
   
-  return(log_beta_ratio + term1 + term2 + term3)
+  return(DKL)
 }
 
 ## Difference between the means 
-mean_beta <- function(a1, b1){
-  ex <- a1/(a1+b1)
+mean_lognorm <- function(mu, sigma){
+  ex <- exp(mu + (sigma^2)/2)
   return(ex)
 }
 
-diff_mean_beta <- function(a1, b1, a2, b2){
-  res_diff <- mean_beta(a1,b1) - mean_beta(a2,b2)
+diff_mean_lognorm <- function(mu1, sigma1, mu2, sigma2){
+  res_diff <- mean_lognorm(mu1,sigma1) - mean_lognorm(mu2,sigma2)
   return(res_diff)
 }
 
 #____________________________________________________________________________#
+
 ## Create the Cost/Benefit matrix given an adjacency matrix 
-# Beta distribution
-create_CB_beta <- function(Aij, is.bipartite=FALSE, shape1, shape2,...){
+# Lognormal distribution
+create_CB_lognorm <- function(Aij, is.bipartite=FALSE, mu=0, sigma=1){
   #if it's not binary, make it binary
   matrix_A <- Aij
   matrix_A <- as.matrix((matrix_A > 0) + 0)
@@ -43,7 +37,7 @@ create_CB_beta <- function(Aij, is.bipartite=FALSE, shape1, shape2,...){
   }
   # number of samples and values
   nsamples <- sum(matrix_A)
-  values <- rbeta(nsamples, shape1=shape1, shape2=shape2)
+  values <- rlnorm(nsamples, meanlog = mu, sdlog = sigma)
   
   # Make the cost/benefit matrix
   CB_mt <- matrix_A
@@ -51,18 +45,16 @@ create_CB_beta <- function(Aij, is.bipartite=FALSE, shape1, shape2,...){
   return(CB_mt)
 }
 
-
 #____________________________________________________________________________#
 ## Running the boolean model
 # Input: Number of species in each category of a bipartite system
 #        Expected connectance of the system
 #        Alpha - environmental cost
-#        Parameters of beta distribution for benefits, costs and 
-#         physiological cost
+#        Statistical distribution of benefits, costs and physiological cost
 boolean_model <- function(Ni, Nj, connectance, alpha=0.0001,
-                          shape1C = 5, shape2C = 5, # Shape pars for costs
-                          shape1B = 5, shape2B = 5, # Shape pars for benefits
-                          shape1Cp = 5, shape2Cp = 5){ # Shape for physio costs
+                          muC = 0, sigmaC = 1, # pars for costs
+                          muB = 0, sigmaB = 1, # pars for benefits
+                          muCp = 0, sigmaCp = 1){ # pars for physio costs
   # Building the matrix of interactions
   A <- build_random_graph(Ni, Nj, connectance)
   
@@ -73,12 +65,12 @@ boolean_model <- function(Ni, Nj, connectance, alpha=0.0001,
   community <- as_tibble(t(all_present))
   
   #Creating benefits and costs under Beta distribution
-  B <- create_CB_beta(A, shape1=shape1B, shape2=shape2B)
-  C <- create_CB_beta(A, shape1=shape1C, shape2=shape2C)
+  B <- create_CB_lognorm(A, mu=muB, sigma=sigmaB)
+  C <- create_CB_lognorm(A, mu=muC, sigma=sigmaC)
   
   # Adding a small physiological cost
-  costs_p <- c(create_CB_beta(c(1:(Ni+Nj)), shape1=shape1Cp, shape2=shape2Cp)*0.1)
-
+  costs_p <- c(create_CB_lognorm(c(1:(Ni+Nj)), mu=muCp, sigma=sigmaCp)*0.1)
+  
   #costs_p <- c(create_CB_matrix(c(1:(Ni+Nj)), distribution = dist_Cp,...)*0.1)
   names(costs_p) <- rownames(A)
   

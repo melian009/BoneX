@@ -3,22 +3,27 @@ rm(list=ls())
 library(tidyverse)
  # Code to run random Boolean networks analysis
   # load the functions
+source("functions.R")
 source("functions_betaD.R") 
-set.seed(1234)
+set.seed(123)
 # Number of Species of each set
 nspi <- 50
 nspj <- 65
 # Expected connectance
 connect <- .65
 # Number of simulations
-nsim <- 100
+nsim <- 1000
 
+alphaC <- 3
+betaC <- 5
+alphaB <- 3.4
+betaB <- 5
 
 ## Ploting the shape of the functions
 ggplot() +
-  stat_function(fun = dbeta, args = list(shape1 = 2.5, shape2 = 5), aes(color = "Cost"), lwd=1.5) +
-  stat_function(fun = dbeta, args = list(shape1 = 3, shape2 = 5), aes(color = "Benefit"), lwd=2.5) +
-  #stat_function(fun = dbeta, args = list(shape1 = 2, shape2 = 2), aes(color = "Cp"), lwd=1.5) +
+  stat_function(fun = dbeta, args = list(shape1 = alphaC, shape2 = betaC), aes(color = "Cost"), lwd=2.5) +
+  stat_function(fun = dbeta, args = list(shape1 = alphaB, shape2 = betaB), aes(color = "Benefit"), lwd=1.5) +
+  stat_function(fun = dbeta, args = list(shape1 = 1, shape2 = 1), aes(color = "Cp"), lwd=1.5) +
   scale_color_manual("Curve", values = c("Benefit" = "orchid4", "Cost" = "goldenrod", "Cp" = "darkgreen")) +
   theme_minimal()
 
@@ -29,9 +34,9 @@ degrees <- tibble()
 # Choose values for each distribution
 for (i in 1:nsim) {
   model_res <- boolean_model(nspi, nspj, connect, 
-                             shape1C = 2.5, shape2C = 5, 
-                             shape1B = 3, shape2B = 5,
-                             shape1Cp = 2, shape2Cp = 2)
+                             shape1C = alphaC, shape2C = betaC, 
+                             shape1B = alphaB, shape2B = betaB,
+                             shape1Cp = 1, shape2Cp = 1)
   
   toplot <-  tibble(time_steps=1:nrow(model_res$community), 
                     sp_persistent=apply(model_res$community, 1, sum), 
@@ -99,11 +104,12 @@ ggplot(tmp2, aes(prop_sp_t2)) + geom_histogram() + theme_bw()
 # For probability of extinction we are using a proxy that is number of time steps 
  # a species survived
 ggplot(degrees , aes(x = degree, group = presence, fill = presence)) + 
-  geom_histogram()
+  geom_histogram(position = "dodge", bins = 18) +
+  scale_fill_brewer(palette = "Set2") + theme_bw() 
 
 ## How degree distribution changes as species get prunned
 ## Choose one iteration to see the result (1-100) - they all look similar
-ggplot(ratio %>% filter(iteration == 45), aes(x=time_step, y=sp_k_curr, group = time_step)) + 
+ggplot(ratio %>% filter(iteration == 15), aes(x=time_step, y=sp_k_curr, group = time_step)) + 
   geom_violin() +geom_jitter(alpha = 0.5) + theme(legend.position = "none") + theme_bw()
 
 # Another way to look at this data
