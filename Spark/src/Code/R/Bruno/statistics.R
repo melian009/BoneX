@@ -2,9 +2,10 @@
 # TESTES ESTATÍSTICOS
 # =============================================================================
 getwd()
+library(lme4)
 library(ggpubr)
 library(tidyverse)
-if(!require(readr)) install.packages("readr")
+#if(!require(readr)) install.packages("readr")
 library(readr)
 results1 <- read_csv("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/results_mutualistic_networks_SIM1.csv")
 
@@ -17,26 +18,32 @@ results4 <- read_csv("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data
 
 
 # Para conferir se agora temos colunas de verdade:
-head(results[, 1:5])
+head(results3[, 1:5])
 results
-summary(results)
+summary(results3)
 str(results2)
+results3 <- results3 %>%
+  mutate(costs = "high")
+results4 <- results4 %>%
+  mutate(costs = "low")
+res = bind_rows(results3, results4)
+summary(res)
 
+providers = lmer(persistence_species ~ costs + (1|mut_structure), res)
+plot(fitted(providers), residuals(providers))
+nulo <- lmer(persistence_species ~ 1 + (1|mut_structure), res)
+anova(providers, nulo, test = "Chisq")
+summary(providers)
 
-loss <- function(res1, res2){
-  res1  = res1 %>%
-    mutate(costs = "low")
-  res2 = res2 %>%
-    mutate(costs = "high")
-  res = bind_rows(res1, res2)
-  
-  providers = lm(persistence_species ~ costs + service_providers + costs : service_providers, res)
-  
-  print(anova(providers))
-  print(summary(providers))
-  
-}
-
+tiff("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/persistenceXcosts_sim3_Xsim4.tiff")
+pdf("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/persistenceXcosts_sim3_Xsim4.pdf",
+    width = 7, height = 5)
+ggplot(res, aes(x = costs, y = persistence_species, fill = service_providers))+
+  geom_boxplot()+
+  theme_classic()+
+  theme(aspect.ratio = 1)+
+  labs(x = "Costs", y = "Species persistence", fill = "Species position")
+dev.off()
 loss(results4, results3)
 # -----------------------------------------------------------------------------
 # Teste 1: Core vs Periphery vs Random - qual provedor é melhor?
@@ -118,6 +125,20 @@ for(structure in c("nested", "modular", "random")) {
   
   print(summary(anova_subset))
 }
+
+
+# -----------------------------------------------------------------------------
+# Teste 4: Persistencia por posição
+# -----------------------------------------------------------------------------
+
+teste = lmer(persistence_species ~ mut_structure + (1|service_providers), data = results)
+null = lmer(persistence_species ~ 1 +(1|service_providers), data = results)
+anova(teste, null, test = "Chisq")
+summary(teste)
+teste = lm(persistence_species ~ service_providers * mut_structure , data = results3)
+anova(teste)
+
+summary(teste)
 ```
 
 ---

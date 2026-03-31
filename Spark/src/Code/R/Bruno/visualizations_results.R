@@ -81,6 +81,9 @@ ggsave("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bru
 # -----------------------------------------------------------------------------
 # GRÁFICO 3: Core vs Periphery Persistence
 # -----------------------------------------------------------------------------
+results <- read_csv("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/results_mutualistic_networks_SIM4.csv")
+
+
 results_long <- results %>%
   select(sim_id, mut_structure, service_providers, 
          core_persistence, periphery_persistence) %>%
@@ -95,14 +98,15 @@ p3 <- ggplot(results_long, aes(x = group_type, y = persistence,
   geom_boxplot() +
   facet_grid(mut_structure ~ service_providers) +
   theme_minimal() +
-  labs(title = "Persistência: Espécies Core vs Periphery",
-       subtitle = "Por estrutura de rede mutualista e provedor de serviços",
-       x = "Tipo de Espécie",
-       y = "Proporção que Sobreviveu") +
+  labs(#title = "Persistência: Espécies Core vs Periphery",
+       #subtitle = "Por estrutura de rede mutualista e provedor de serviços",
+       x = "Species position",
+       y = "Proportion of species persistence",
+       fill = "Species position") +
   theme(legend.position = "bottom")
 
 print(p3)
-ggsave("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/core_vs_periphery_persistence_sim1.png", p3, width = 12, height = 8)
+ggsave("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/core_vs_periphery_persistence_sim4.png", p3, width = 12, height = 8)
 
 # -----------------------------------------------------------------------------
 # GRÁFICO 4: Persistência vs Serviços
@@ -122,3 +126,16 @@ p4 <- ggplot(results, aes(x = persistence_species, y = services_final,
 print(p4)
 ggsave("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/persistence_vs_services_sim1.png", p4, width = 10, height = 6)
 
+
+# -----------------------------------------------------------------------------
+# GRÁFICO 5: Persistência vs Espécie
+# -----------------------------------------------------------------------------
+
+p5 = ggplot(results, aes(y = persistence_species, x = mut_structure, fill = service_providers))+
+  geom_boxplot()+
+  theme_classic()+
+  theme(aspect.ratio = 1)+
+  labs(y = "Species persistence", x = "Network structure", fill = "Species position")
+p5  
+
+ggsave("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/persistence_structure_sim4.png", p5, width = 10, height = 6)
