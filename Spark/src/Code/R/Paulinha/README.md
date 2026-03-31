@@ -98,19 +98,34 @@ A report of the work in progress is available at
         interaction matrix, which can be bipartite or not, shape1 is the
         alpha of the beta distribution and shape2 is the beta parameter
 
-    -   *boolean_model()* runs the model, takes as input the number of 
+    -   *boolean_model()* runs the model, takes as input the number of
         species in each category of a bipartite system; the expected
         connectance; alpha (environmental cost); and the parameters of
         the beta distribution associated with costs, benefits and the
-        physiological (abiotic) cost; the output is a list with 
+        physiological (abiotic) cost; the output is a list with
+
         (i) the community matrix where rows represent time steps and
-        columns are species, 1 represents presence of species, 0 absence;
-        (ii) A matrix of interactions (square); (iii) B matrix of benefits;
-        (iv) C matrix of costs; and (v) costs_p physiological costs for
-        each species.
+            columns are species, 1 represents presence of species, 0
+            absence;
+        (ii) A matrix of interactions (square); (iii) B matrix of
+             benefits;
+        (iii) C matrix of costs; and (v) costs_p physiological costs for
+              each species.
 
 ### **Basic analysis**
 
+-   **diff_beta.R** simulates the model given different parameterizations of 
+    the beta distribution and computes the proportion of surviving species 
+    given differences between the distribution of costs and benefits. The 
+    difference between the distributions is given by the difference between
+    the first moment of the distribution (mean expected value)
+    
+-   **diff_lognorm.R** simulates the model given different parameterizations of 
+    the beta distribution and computes the proportion of surviving species 
+    given differences between the distribution of costs and benefits.
+    
+    
+    
 ### **Advanced analysis**: Null models, dynamic simulations, and pattern
 
 ```         

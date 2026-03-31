@@ -1,6 +1,9 @@
 ## Random networks -- Example code 
 rm(list=ls())
 library(tidyverse)
+library(paletteer)
+my_colors <- c("#C3A016FF", "#C3D878FF", "#58A787FF", 
+               "#8EBACDFF", "#246893FF", "#163274FF", "#0C1F4BFF")
  # Code to run random Boolean networks analysis
   # load the functions
 source("functions.R")
@@ -12,19 +15,23 @@ nspj <- 65
 # Expected connectance
 connect <- .65
 # Number of simulations
-nsim <- 1000
+nsim <- 100
 
-alphaC <- 3
-betaC <- 5
-alphaB <- 3.4
-betaB <- 5
+alphaC <- 5
+betaC <- 3.5
+alphaB <- 5
+betaB <- 3
 
 ## Ploting the shape of the functions
 ggplot() +
   stat_function(fun = dbeta, args = list(shape1 = alphaC, shape2 = betaC), aes(color = "Cost"), lwd=2.5) +
   stat_function(fun = dbeta, args = list(shape1 = alphaB, shape2 = betaB), aes(color = "Benefit"), lwd=1.5) +
-  stat_function(fun = dbeta, args = list(shape1 = 1, shape2 = 1), aes(color = "Cp"), lwd=1.5) +
-  scale_color_manual("Curve", values = c("Benefit" = "orchid4", "Cost" = "goldenrod", "Cp" = "darkgreen")) +
+  #stat_function(fun = dbeta, args = list(shape1 = 1, shape2 = 1), aes(color = "Cp"), lwd=1.5) +
+  scale_color_paletteer_d("lisa::FridaKahlo") +
+  #scale_colour_paletteer_d("rcartocolor::Prism") +
+  #scale_colour_paletteer_d("lisa::GretchenAlbrecht") +
+  #scale_colour_paletteer_d("lisa::EdvardMunch")+
+  #scale_color_manual("Curve", values = c("Benefit" = my_colors[3], "Cost" = my_colors[6], "Cp" = my_colors[1])) +
   theme_minimal()
 
 # Create tibbles to store the results
