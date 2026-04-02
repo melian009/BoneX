@@ -56,7 +56,7 @@ for(k in 1:length(alphaC)){
     tmp_final <- res %>% group_by(connect) %>% 
       summarise(mean_time = mean(time_steps), sd_time = sd(time_steps),
                 mean_sp = mean(sp_persistent), sd_sp = sd(sp_persistent),
-                mean_prop = mean(prop_sp), ds_prop = sd(prop_sp),
+                mean_prop = mean(prop_sp), sd_prop = sd(prop_sp),
                 pars_beta = pars_combination)
     
     final_res <-  rbind(final_res, tmp_final)
@@ -93,10 +93,24 @@ pl_sp <- ggplot(final_res, aes(x = connect, y = mean_sp, color = pars_beta)) +
 
 pl_sp
 
+#Mean number of species
+pl_prop <- ggplot(final_res, aes(x = connect, y = mean_prop, color = pars_beta)) + 
+  geom_point(size=2) +
+  geom_errorbar(aes(ymin=mean_prop-sd_prop, ymax = mean_prop+sd_prop), width=0.02) +
+  labs(x = "Connectance", y="Mean proportion of surviving species") +
+  theme_bw() +
+  facet_wrap(~pars_beta) +
+  scale_colour_paletteer_d("NatParksPalettes::IguazuFalls") +
+  #scale_colour_paletteer_d("MoMAColors::Dali") +
+  theme(legend.position = "none")
+
+pl_prop
+
 ggsave("./figures/mean_time.pdf", pl_time, width = 6, height = 4, device = cairo_pdf)
 
 ggsave("./figures/mean_spp.pdf", pl_sp, width = 6, height = 4, device = cairo_pdf)
 
+ggsave("./figures/mean_prop_spp.pdf", pl_prop, width = 6, height = 4, device = cairo_pdf)
 
 ## Ploting the shape of the functions
 beta_data <- tibble()
