@@ -26,8 +26,8 @@ betaB <- c(3.5, 5, 1, 3, 5, 1)
 setup_connect <- seq(0.1, 1, by = 0.05)
 
 # Create the objects that will store the results
-
 final_res <- tibble()
+final_res2 <- tibble()
 # Choose values for each distribution
 for(k in 1:length(alphaC)){
   pars_combination <- paste0("C~(\u03b1=", alphaC[k], ", \u03b2=", betaC[k], ") ",
@@ -47,24 +47,35 @@ for(k in 1:length(alphaC)){
                            sp_persistent=apply(model_output$community, 1, sum), 
                            prop_sp=sp_persistent/ncol(model_output$community),
                            iteration = i,
-                           connect = connect)
+                           connect = connect, pars_beta =pars_combination)
       
       res <- rbind(res,res_timesp)
       
       print(i)
     }
-    tmp_final <- res %>% group_by(connect) %>% 
+    tmp_final <- res %>% group_by(connect) %>%
       summarise(mean_time = mean(time_steps), sd_time = sd(time_steps),
                 mean_sp = mean(sp_persistent), sd_sp = sd(sp_persistent),
-                mean_prop = mean(prop_sp), sd_prop = sd(prop_sp),
-                pars_beta = pars_combination)
-    
+              mean_prop = mean(prop_sp), sd_prop = sd(prop_sp),
+               pars_beta = pars_combination)
+
     final_res <-  rbind(final_res, tmp_final)
-    
+    final_res2 <- rbind(final_res2, res)
   }
 }
-# Redordering the pars
-final_res <- final_res %>% mutate(pars_beta = factor(pars_beta, levels = unique(pars_beta)))
+
+# Re-ordering the pars
+final_res <- final_res %>% 
+  mutate(pars_beta = factor(pars_beta, levels = unique(pars_beta)))
+final_res2 <- final_res2 %>% 
+  mutate(pars_beta = factor(pars_beta, levels = unique(pars_beta)))
+
+
+
+
+
+
+
 
 ## Mean time doesn't change that much
 pl_time <- ggplot(final_res, aes(x = connect, y = mean_time, color = pars_beta)) + 
@@ -80,6 +91,18 @@ pl_time <- ggplot(final_res, aes(x = connect, y = mean_time, color = pars_beta))
 
 pl_time
 
+## Violing plot with boxplot inside
+pl_time2 <- ggplot(final_res2, aes(x = connect, y = time_steps, fill = pars_beta,
+                       group = connect, color = pars_beta)) +
+  geom_violin(trim=FALSE) +
+  geom_boxplot(color = "black", alpha = 0.3) +
+  facet_wrap(~pars_beta) +
+  scale_colour_paletteer_d("NatParksPalettes::IguazuFalls") +
+  scale_fill_paletteer_d("NatParksPalettes::IguazuFalls") +
+  theme(legend.position = "none")
+
+pl_time2
+
 #Mean number of species
 pl_sp <- ggplot(final_res, aes(x = connect, y = mean_sp, color = pars_beta)) + 
   geom_point(size=2) +
@@ -92,6 +115,19 @@ pl_sp <- ggplot(final_res, aes(x = connect, y = mean_sp, color = pars_beta)) +
   theme(legend.position = "none")
 
 pl_sp
+
+# Distribution of the number of species persistent
+pl_sp2 <- ggplot(final_res2 %>% group_by(pars_beta, connect, iteration) %>% filter(time_steps == max(time_steps)), 
+                 aes(x = connect, y = sp_persistent, fill = pars_beta,
+                                   group = connect, color = pars_beta)) +
+  geom_violin(trim=FALSE) +
+  geom_boxplot(color = "black", alpha = 0.3) +
+  facet_wrap(~pars_beta) +
+  scale_colour_paletteer_d("NatParksPalettes::IguazuFalls") +
+  scale_fill_paletteer_d("NatParksPalettes::IguazuFalls") +
+  theme(legend.position = "none")
+
+pl_sp2
 
 #Mean number of species
 pl_prop <- ggplot(final_res, aes(x = connect, y = mean_prop, color = pars_beta)) + 
