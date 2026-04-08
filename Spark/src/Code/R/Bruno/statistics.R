@@ -110,7 +110,7 @@ res_long <- res %>%
     cols = c(core_survived, periphery_survived,
              n_core_total, n_periphery_total),
     names_to = c("type", ".value"),
-    names_pattern = "(core|periphery_(.*)"
+    names_pattern = "(core|periphery_(.*))"
   )
 
 res_low = res_long %>%
@@ -256,7 +256,7 @@ res_long <- res %>%
     cols = c(core_survived, periphery_survived,
              n_core_total, n_periphery_total),
     names_to = c("type", ".value"),
-    names_pattern = "(core|periphery_(.*)"
+    names_pattern = "(core|periphery_(.*))"
   )
 
 res_low = res_long %>%
@@ -357,3 +357,119 @@ ggplot(plot_df,
   theme_classic()
 
 dev.off()
+
+# -----------------------------------------------------------------------------
+# Teste 3: Service vs species persistence
+# -----------------------------------------------------------------------------
+str(res)
+
+persist_sp = lm(services_loss_relative ~ persistence_species, data = results4)
+persist_int = lm(services_loss_relative ~ persistence_species, data = results4)
+providers = lm(services_loss_relative ~ service_providers, data = results4)
+structure = lm(services_loss_relative ~ mut_structure, data = results4)
+mix = lm(services_loss_relative ~ service_providers * mut_structure, data = results4)
+nulo = lm(services_loss_relative ~ 1, data = results4)
+library(bbmle)
+AICtab(persist_sp, persist_int, providers, structure, mix, nulo, base = T, delta = T, weights = T)
+
+summary(mix)
+
+library(emmeans)
+compare = emmeans(mix, pairwise ~  service_providers * mut_structure, type = "response")
+
+contrasts = compare$contrasts
+contrasts = as_tibble(contrasts)
+
+constrasts = contrasts %>%
+  mutate(signif = if_else(p.value <= 0.05, "*", ""))
+
+library(openxlsx)
+write.xlsx(contrasts, "C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/contrasts_full.xlsx")
+constrasts
+
+summary(providers)
+contrasts = emmeans(providers, pairwise ~  service_providers, type = "response")
+contrasts = compare$contrasts
+contrasts = as_tibble(contrasts)
+write.xlsx(contrasts, "C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/contrasts_providers.xlsx")
+
+contrasts = emmeans(structure, pairwise ~  mut_structure, type = "response")
+contrasts = compare$contrasts
+contrasts = as_tibble(contrasts)
+write.xlsx(contrasts, "C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/contrasts_structure.xlsx")
+
+str(results4)
+library(sjPlot)
+library(ggeffects)
+library(ggplot2)
+
+# 1. Gera as predições do modelo
+# Se o seu modelo for 'mix', e você quer ver o efeito de 'mut_structure'
+#predicoes <- predict_response(providers, terms = c("mut_structure", "service_providers"))
+
+predicoes <- as.data.frame(predict_response(persist_sp, terms = "persistence_species"))
+tiff("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/serviceXspecies.tiff")
+pdf("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/serviceXspecies.pdf",
+    width = 7, height = 5)
+
+ggplot() +
+  # 1. Pontos: Apenas os dados usados NESTE modelo
+  geom_jitter(data = results4, 
+              aes(x = persistence_species, y = services_loss_relative, col = service_providers), 
+              alpha = 0.4, width = 0.1) +
+  
+  # 2. Intervalo de Confiança do modelo
+  geom_ribbon(data = predicoes, 
+              aes(x = x, ymin = conf.low, ymax = conf.high, group = 1), 
+              alpha = 0.2, fill = "steelblue") +
+  
+  # 3. Linha de Predição do modelo
+  geom_line(data = predicoes, 
+            aes(x = x, y = predicted, group = 1), 
+            linewidth = 1.5, color = "black") +
+  
+  # Estética
+  theme_classic() +
+  labs(x = "Species persistence", 
+       y = "Relative loss os ecosystem services",
+       col = "Service providers") # Nome do grupo aqui
+dev.off()
+
+predicoes <- as.data.frame(predict_response(providers, terms = "service_providers"))
+predicoes <- as.data.frame(predict_response(structure, terms = "mut_structure"))
+tiff("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/serviceXstructure.tiff")
+pdf("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/serviceXstructure.pdf",
+    width = 7, height = 5)
+
+
+
+ggplot() +
+  # 1. Pontos: Apenas os dados usados NESTE modelo
+  geom_jitter(data = results4, 
+              aes(x = mut_structure, y = services_loss_relative), 
+              alpha = 0.4, width = 0.1, color = "gray") +
+  
+  geom_violin(data = results4, 
+              aes(x = mut_structure, y = services_loss_relative, fill = mut_structure), 
+              alpha = 0.4, width = 0.1) +
+  
+  # 2. Intervalo de Confiança do modelo
+  geom_ribbon(data = predicoes, 
+              aes(x = x, ymin = conf.low, ymax = conf.high, group = 1), 
+              alpha = 0.2, fill = "steelblue") +
+  
+  # 3. Linha de Predição do modelo
+  geom_errorbar(data = predicoes, 
+                aes(x = x, ymin = conf.low, ymax = conf.high), 
+                width = 0.15, linewidth = 0.8, color = "black") +
+  
+  # Estética
+  theme_classic() +
+  theme(aspect.ratio = 1, legend.position = "none")+
+  labs(x = "Interaction network structure", 
+       y = "Relative loss os ecosystem services",
+       fill = "")+ # Nome do grupo aqui
+  scale_fill_viridis_d(option = "viridis")
+dev.off()
+
+library(viridis)
