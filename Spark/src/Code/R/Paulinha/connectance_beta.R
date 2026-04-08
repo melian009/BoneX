@@ -27,7 +27,7 @@ setup_connect <- seq(0.1, 1, by = 0.05)
 
 # Create the objects that will store the results
 final_res <- tibble()
-final_res2 <- tibble()
+
 # Choose values for each distribution
 for(k in 1:length(alphaC)){
   pars_combination <- paste0("C~(\u03b1=", alphaC[k], ", \u03b2=", betaC[k], ") ",
@@ -53,32 +53,31 @@ for(k in 1:length(alphaC)){
       
       print(i)
     }
-    tmp_final <- res %>% group_by(connect) %>%
-      summarise(mean_time = mean(time_steps), sd_time = sd(time_steps),
-                mean_sp = mean(sp_persistent), sd_sp = sd(sp_persistent),
-              mean_prop = mean(prop_sp), sd_prop = sd(prop_sp),
-               pars_beta = pars_combination)
-
-    final_res <-  rbind(final_res, tmp_final)
-    final_res2 <- rbind(final_res2, res)
+    
+    final_res <-  rbind(final_res, res)
   }
 }
 
 # Re-ordering the pars
 final_res <- final_res %>% 
   mutate(pars_beta = factor(pars_beta, levels = unique(pars_beta)))
-final_res2 <- final_res2 %>% 
+
+# Summary of the results 
+res_summary <- final_res %>% group_by(pars_beta, connect) %>%
+  mutate(mean_time = mean(time_steps), sd_time = sd(time_steps)) %>% ungroup() %>% 
+  group_by(pars_beta, connect, iteration) %>% 
+  filter(time_steps == max(time_steps)) %>% ungroup() %>% group_by(pars_beta, connect) %>% 
+  summarise(mean_time = mean(mean_time), sd_time = mean(sd_time),
+           mean_sp = mean(sp_persistent), sd_sp = sd(sp_persistent),
+           mean_prop = mean(prop_sp), sd_prop = sd(prop_sp)) %>% ungroup() %>% 
   mutate(pars_beta = factor(pars_beta, levels = unique(pars_beta)))
 
 
 
 
 
-
-
-
 ## Mean time doesn't change that much
-pl_time <- ggplot(final_res, aes(x = connect, y = mean_time, color = pars_beta)) + 
+pl_time <- ggplot(res_summary, aes(x = connect, y = mean_time, color = pars_beta)) + 
   geom_point(size=2) +
   geom_errorbar(aes(ymin=mean_time-sd_time, ymax = mean_time+sd_time), 
                 width=0.02) +
@@ -92,11 +91,13 @@ pl_time <- ggplot(final_res, aes(x = connect, y = mean_time, color = pars_beta))
 pl_time
 
 ## Violing plot with boxplot inside
-pl_time2 <- ggplot(final_res2, aes(x = connect, y = time_steps, fill = pars_beta,
+pl_time2 <- ggplot(final_res, aes(x = connect, y = time_steps, fill = pars_beta,
                        group = connect, color = pars_beta)) +
   geom_violin(trim=FALSE) +
+  labs(x = "Connectance", y="Mean time") +
   geom_boxplot(color = "black", alpha = 0.3) +
   facet_wrap(~pars_beta) +
+  theme_bw() +
   scale_colour_paletteer_d("NatParksPalettes::IguazuFalls") +
   scale_fill_paletteer_d("NatParksPalettes::IguazuFalls") +
   theme(legend.position = "none")
@@ -104,7 +105,7 @@ pl_time2 <- ggplot(final_res2, aes(x = connect, y = time_steps, fill = pars_beta
 pl_time2
 
 #Mean number of species
-pl_sp <- ggplot(final_res, aes(x = connect, y = mean_sp, color = pars_beta)) + 
+pl_sp <- ggplot(res_summary, aes(x = connect, y = mean_sp, color = pars_beta)) + 
   geom_point(size=2) +
   geom_errorbar(aes(ymin=mean_sp-sd_sp, ymax = mean_sp+sd_sp), width=0.02) +
   labs(x = "Connectance", y="Mean surviving species") +
@@ -117,12 +118,15 @@ pl_sp <- ggplot(final_res, aes(x = connect, y = mean_sp, color = pars_beta)) +
 pl_sp
 
 # Distribution of the number of species persistent
-pl_sp2 <- ggplot(final_res2 %>% group_by(pars_beta, connect, iteration) %>% filter(time_steps == max(time_steps)), 
+pl_sp2 <- ggplot(final_res %>% group_by(pars_beta, connect, iteration) %>% 
+                   filter(time_steps == max(time_steps)), 
                  aes(x = connect, y = sp_persistent, fill = pars_beta,
                                    group = connect, color = pars_beta)) +
   geom_violin(trim=FALSE) +
+  labs(x = "Connectance", y="Distribution of surviving species") +
   geom_boxplot(color = "black", alpha = 0.3) +
   facet_wrap(~pars_beta) +
+  theme_bw() +
   scale_colour_paletteer_d("NatParksPalettes::IguazuFalls") +
   scale_fill_paletteer_d("NatParksPalettes::IguazuFalls") +
   theme(legend.position = "none")
@@ -130,7 +134,7 @@ pl_sp2 <- ggplot(final_res2 %>% group_by(pars_beta, connect, iteration) %>% filt
 pl_sp2
 
 #Mean number of species
-pl_prop <- ggplot(final_res, aes(x = connect, y = mean_prop, color = pars_beta)) + 
+pl_prop <- ggplot(res_summary, aes(x = connect, y = mean_prop, color = pars_beta)) + 
   geom_point(size=2) +
   geom_errorbar(aes(ymin=mean_prop-sd_prop, ymax = mean_prop+sd_prop), width=0.02) +
   labs(x = "Connectance", y="Mean proportion of surviving species") +
@@ -142,11 +146,32 @@ pl_prop <- ggplot(final_res, aes(x = connect, y = mean_prop, color = pars_beta))
 
 pl_prop
 
+# Distribution of the proportion of species persistent
+pl_prop2 <- ggplot(final_res %>% group_by(pars_beta, connect, iteration) %>% 
+                   filter(time_steps == max(time_steps)), 
+                 aes(x = connect, y = prop_sp, fill = pars_beta,
+                     group = connect, color = pars_beta)) +
+  geom_violin(trim=FALSE) +
+  labs(x = "Connectance", y="Proportion of surviving species") +
+  geom_boxplot(color = "black", alpha = 0.3) +
+  facet_wrap(~pars_beta) +
+  theme_bw() +
+  scale_colour_paletteer_d("NatParksPalettes::IguazuFalls") +
+  scale_fill_paletteer_d("NatParksPalettes::IguazuFalls") +
+  theme(legend.position = "none")
+
+pl_prop2
+
+
 ggsave("./figures/mean_time.pdf", pl_time, width = 6, height = 4, device = cairo_pdf)
+ggsave("./figures/mean_time2.pdf", pl_time2, width = 6, height = 4, device = cairo_pdf)
 
 ggsave("./figures/mean_spp.pdf", pl_sp, width = 6, height = 4, device = cairo_pdf)
+ggsave("./figures/mean_spp2.pdf", pl_sp2, width = 6, height = 4, device = cairo_pdf)
 
 ggsave("./figures/mean_prop_spp.pdf", pl_prop, width = 6, height = 4, device = cairo_pdf)
+ggsave("./figures/mean_prop_spp2.pdf", pl_prop2, width = 6, height = 4, device = cairo_pdf)
+
 
 ## Ploting the shape of the functions
 beta_data <- tibble()
@@ -162,7 +187,7 @@ for(h in 1:length(alphaC)){
 
 pl_dist <- ggplot(beta_data, aes(x = x, y = y, linetype = type, colour = setup)) +
   geom_line() +
-  facet_wrap(~setup) +
+  facet_wrap(~setup, scales = "free") +
   scale_colour_paletteer_d("NatParksPalettes::IguazuFalls") +
   theme_bw() +
   theme(legend.position = "bottom", axis.text.x = element_text(size = 5)) +

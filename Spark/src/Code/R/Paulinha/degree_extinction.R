@@ -73,13 +73,13 @@ res_degrees <- res_degrees %>% mutate(pars_beta = factor(pars_beta, levels = uni
 # For probability of extinction we are using a proxy that is number of time steps 
 # a species survived
 pl_degrees <- ggplot(res_degrees, aes(x = degree, group = presence, alpha = presence,
-                         fill = pars_beta, color = pars_beta)) + 
+                         fill = pars_beta)) + 
   geom_histogram(position = "dodge", bins = 18) +
   facet_wrap(~pars_beta) +
   theme_bw() +
   scale_colour_paletteer_d("NatParksPalettes::IguazuFalls") +
   scale_fill_paletteer_d("NatParksPalettes::IguazuFalls") +
-  scale_alpha_manual(values = c("extinct" = 0.4, "present" = 0.9)) +
+  scale_alpha_manual(values = c("extinct" = 0.4, "present" = 1)) +
   guides(fill = "none", color = "none") + 
   theme(legend.position = "bottom", axis.text.x = element_text(size = 5),
         axis.title = element_text(size=7), strip.text = element_text(size=5),
