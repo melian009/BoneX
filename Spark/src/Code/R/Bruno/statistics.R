@@ -7,6 +7,9 @@ library(ggpubr)
 library(tidyverse)
 #if(!require(readr)) install.packages("readr")
 library(readr)
+library(glmmTMB)
+library(ggplot2)
+
 results1 <- read_csv("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/results_mutualistic_networks_SIM1.csv")
 
 results2 <- read_csv("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/results_mutualistic_networks_SIM2.csv")
@@ -16,7 +19,7 @@ library(readr)
 results3 <- read_csv("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/results_mutualistic_networks_SIM3.csv")
 results4 <- read_csv("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/results_mutualistic_networks_SIM4.csv")
 
-
+str(results3)
 # Para conferir se agora temos colunas de verdade:
 head(results3[, 1:5])
 results
@@ -29,135 +32,328 @@ results4 <- results4 %>%
 res = bind_rows(results3, results4)
 summary(res)
 
-providers = lmer(persistence_species ~ costs + (1|mut_structure), res)
+
+
+providers = glm(cbind(n_species_final, 60 - n_species_final) ~ costs, family = binomial, data = res)
 plot(fitted(providers), residuals(providers))
-nulo <- lmer(persistence_species ~ 1 + (1|mut_structure), res)
+nulo <- glm(cbind(n_species_final, 60 - n_species_final) ~ 1, family = binomial, data = res)
 anova(providers, nulo, test = "Chisq")
 summary(providers)
+
+# coeficientes
+(b0 <- coef(providers)[1])
+(b1 <- coef(providers)[2])
+
+# probabilidades
+(p_high <- plogis(b0))
+(p_low  <- plogis(b0 + b1))
+
+p_high
+p_low
+
+# odds ratio
+exp(b1)
+
+
+
+newdata <- data.frame(costs = c("high", "low"))
+
+pred <- predict(providers,
+                newdata = newdata,
+                type = "link",
+                se.fit = TRUE)
+
+# converter para probabilidade
+newdata$fit <- plogis(pred$fit)
+newdata$lower <- plogis(pred$fit - 1.96 * pred$se.fit)
+newdata$upper <- plogis(pred$fit + 1.96 * pred$se.fit)
 
 tiff("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/persistenceXcosts_sim3_Xsim4.tiff")
 pdf("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/persistenceXcosts_sim3_Xsim4.pdf",
     width = 7, height = 5)
-ggplot(res, aes(x = costs, y = persistence_species, fill = service_providers))+
-  geom_boxplot()+
-  theme_classic()+
+ggplot() +
+  geom_violin(data = res,
+              aes(x = costs, y = n_species_final/60),
+              width = 0.1, height = 0.02,
+              alpha = 0.2, color = "red") +
+  
+  geom_errorbar(data = newdata,
+                aes(x = costs, ymin = lower, ymax = upper),
+                width = 0.1) +
+  
+  geom_point(data = newdata,
+             aes(x = costs, y = fit),
+             size = 4, color = "black") +
+  
+  ylim(0,1) +
+  ylab("Probability of species survival")+ xlab("Costs")+
   theme(aspect.ratio = 1)+
-  labs(x = "Costs", y = "Species persistence", fill = "Species position")
+  theme_classic()
 dev.off()
-loss(results4, results3)
-# -----------------------------------------------------------------------------
-# Teste 1: Core vs Periphery vs Random - qual provedor é melhor?
-# -----------------------------------------------------------------------------
-# ANOVA para testar diferenças entre os 3 grupos
-
-inter_net = function(results) {
-  
-  # 1. Modelos de ANOVA para o Tukey
-  AOV_interacao <- aov(services_loss_relative ~ service_providers * mut_structure, data = results)
-  AOV_aditivo   <- aov(services_loss_relative ~ service_providers + mut_structure, data = results)
-  
-  # 2. Modelos Lineares para o teste de Qui-quadrado
-  # Nota: service_providers * mut_structure inclui os efeitos principais + interação
-  LM_completo <- lm(services_loss_relative ~ service_providers * mut_structure, data = results)
-  LM_reduzido <- lm(services_loss_relative ~ service_providers + mut_structure, data = results)
-  nulo <- lm(services_loss_relative ~ 1, data = results)
-  summary_completo <- summary(LM_completo)
-  summary_reduzido <- summary(LM_reduzido)
-  
-  # Comparação de modelos
-  comp_modelos = anova(LM_reduzido, LM_completo, test = "Chisq")
-  ANOVA <- anova(LM_completo, nulo, test = "Chisq")
-  p_valor = comp_modelos$`Pr(>Chi)`[2] # Pega o p-valor da comparação
-  
-  print(ANOVA)
-  # 3. Lógica de decisão (Fluxo Correto)
-  if (!is.na(p_valor) && p_valor < 0.05) {
-    cat("\n--- Interação Significativa: Usando Modelo com Interação ---\n")
-    print(TukeyHSD(AOV_interacao))
-    print(comp_modelos)
-    print(summary_completo)
-  } else {
-    cat("\n--- Interação NÃO Significativa: Usando Modelo Aditivo ---\n")
-    print(TukeyHSD(AOV_aditivo))
-    print(comp_modelos)
-    print(summary_reduzido)
-  }
-  
-}
 
 
-inter_net(results4)
-inter_net(results3)
-# -----------------------------------------------------------------------------
-# Teste 2: Persistência de Core vs Periphery DENTRO de cada rede
-# -----------------------------------------------------------------------------
-# Teste t pareado comparando core_persistence vs periphery_persistence
-persistence <- function(results){
 
-results_test <- results %>%
-  mutate(diff_core_periphery = core_persistence - periphery_persistence)
-
-t_test_result <- t.test(results_test$core_persistence, 
-                        results_test$periphery_persistence,
-                        paired = TRUE)
-
-print("=== Teste t: Core vs Periphery ===")
-print(t_test_result)
-print(paste("Core sobrevive mais?", 
-            ifelse(t_test_result$p.value < 0.05, "SIM", "NÃO")))
-}
-
-persistence(results1)
-persistence(results2)
-persistence(results3)
-persistence(results4)
-
-# -----------------------------------------------------------------------------
-# Teste 3: Por estrutura de rede
-# -----------------------------------------------------------------------------
-for(structure in c("nested", "modular", "random")) {
-  cat(sprintf("\n=== %s ===\n", toupper(structure)))
-  
-  data_subset <- results %>% filter(mut_structure == structure)
-  
-  anova_subset <- aov(persistence_species ~ service_providers, 
-                      data = data_subset)
-  
-  print(summary(anova_subset))
-}
 
 
 # -----------------------------------------------------------------------------
-# Teste 4: Persistencia por posição
+# Teste 1: Core vs Periphery  - qual provedor é melhor?
 # -----------------------------------------------------------------------------
 
-teste = lmer(persistence_species ~ mut_structure + (1|service_providers), data = results)
-null = lmer(persistence_species ~ 1 +(1|service_providers), data = results)
-anova(teste, null, test = "Chisq")
-summary(teste)
-teste = lm(persistence_species ~ service_providers * mut_structure , data = results3)
-anova(teste)
+library(dplyr)
+library(tidyr)
 
-summary(teste)
-```
+res_long <- res %>%
+  select(costs, mut_structure,
+         core_survived, n_core_total,
+         periphery_survived, n_periphery_total) %>%
+  pivot_longer(
+    cols = c(core_survived, periphery_survived,
+             n_core_total, n_periphery_total),
+    names_to = c("type", ".value"),
+    names_pattern = "(core|periphery_(.*)"
+  )
 
----
+res_low = res_long %>%
+  filter(costs == "low")
+
+res_high = res_long %>%
+  filter(costs == "high")
+
+
+
+model_high <- glm(
+  cbind(survived, total - survived) ~ type,
+  family = binomial,
+  data = res_high
+)
+nulo_high <- glm(
+  cbind(survived, total - survived) ~ 1,
+  family = binomial,
+  data = res_high
+)
+anova(model, nulo, test = "Chisq")
+summary(model)
+
+
+# coeficientes
+(b0 <- coef(model_high)[1])
+(b1 <- coef(model_high)[2])
+
+# probabilidades
+(p_high <- plogis(b0))
+(p_low  <- plogis(b0 + b1))
+
+p_high
+p_low
+
+# odds ratio
+exp(b1)
+
+#######################################
+
+model_low <- glm(
+  cbind(survived, total - survived) ~ type,
+  family = binomial,
+  data = res_low
+)
+nulo_low <- glm(
+  cbind(survived, total - survived) ~ 1,
+  family = binomial,
+  data = res_low
+)
+anova(model, nulo, test = "Chisq")
+summary(model)
+
+
+# coeficientes
+(b0 <- coef(model_low)[1])
+(b1 <- coef(model_low)[2])
+
+# probabilidades
+(p_high <- plogis(b0))
+(p_low  <- plogis(b0 + b1))
+
+p_high
+p_low
+
+# odds ratio
+exp(b1)
+
+
+##################################
+newdata <- data.frame(type = c("core", "periphery"))
+pred_low <- predict(model_low,
+                    newdata = newdata,
+                    type = "link",
+                    se.fit = TRUE)
+
+new_low <- newdata
+new_low$fit   <- plogis(pred_low$fit)
+new_low$lower <- plogis(pred_low$fit - 1.96 * pred_low$se.fit)
+new_low$upper <- plogis(pred_low$fit + 1.96 * pred_low$se.fit)
+new_low$costs <- "low"
+
+pred_high <- predict(model_high,
+                     newdata = newdata,
+                     type = "link",
+                     se.fit = TRUE)
+
+new_high <- newdata
+new_high$fit   <- plogis(pred_high$fit)
+new_high$lower <- plogis(pred_high$fit - 1.96 * pred_high$se.fit)
+new_high$upper <- plogis(pred_high$fit + 1.96 * pred_high$se.fit)
+new_high$costs <- "high"
+
+newdata_all <- rbind(new_low, new_high)
+res_long$prop <- res_long$survived / res_long$total
+
+
+
+tiff("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/persistenceXtype.tiff")
+pdf("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/persistenceXtype.pdf",
+    width = 7, height = 5)
+
+ggplot() +
+  geom_jitter(data = res_long,
+              aes(x = costs, y = prop, fill = type),
+              alpha = 0.3,
+              position = position_jitterdodge(jitter.width = 0.5,
+                                              dodge.width = 0.8),
+              color = "gray") +
   
-  ## 📊 RESUMO DO GRID
+  geom_violin(data = res_long,
+              aes(x = costs, y = prop, fill = type),
+              alpha = 0.3,
+              position = position_dodge(width = 0.8))+
   
-  ### Grid de Simulações:
-  ```
-3 estruturas × 3 provedores × N replicatas
+  geom_errorbar(data = newdata_all,
+                aes(x = costs, ymin = lower, ymax = upper, color = type),
+                width = 0.15,
+                position = position_dodge(width = 0.8)) +
+  
+  geom_point(data = newdata_all,
+             aes(x = costs, y = fit, color = type),
+             size = 3,
+             position = position_dodge(width = 0.8)) +
+  
+  ylim(0,1) +
+  ylab("Probability of species survival") +
+  xlab("Costs") +
+  theme_classic()
 
-Estruturas:
-  ├── nested     (aninhada)
-├── modular    (modular)
-└── random     (aleatória)
+dev.off()
+# -----------------------------------------------------------------------------
+# Teste 2: Persistencia vs estrutura da rede
+# -----------------------------------------------------------------------------
+library(dplyr)
+library(tidyr)
 
-Provedores:
-  ├── core       (apenas espécies centrais provêm serviços)
-├── periphery  (apenas espécies periféricas provêm serviços)
-└── random     (todas as espécies podem prover, conexão aleatória)
+res_long <- res %>%
+  select(costs, mut_structure,
+         core_survived, n_core_total,
+         periphery_survived, n_periphery_total) %>%
+  pivot_longer(
+    cols = c(core_survived, periphery_survived,
+             n_core_total, n_periphery_total),
+    names_to = c("type", ".value"),
+    names_pattern = "(core|periphery_(.*)"
+  )
 
-Com 10 replicatas = 90 simulações totais
-Com 20 replicatas = 180 simulações totais
+res_low = res_long %>%
+  filter(costs == "low")
+
+res_high = res_long %>%
+  filter(costs == "high")
+
+
+
+model_high <- glm(
+  cbind(survived, total - survived) ~ mut_structure,
+  family = binomial,
+  data = res_high
+)
+nulo_high <- glm(
+  cbind(survived, total - survived) ~ 1,
+  family = binomial,
+  data = res_high
+)
+anova(model_high, nulo_high, test = "Chisq")
+summary(model_high)
+
+library(emmeans)
+
+emm_high <- emmeans(model_high, pairwise ~ mut_structure, type = "response")
+
+#######################################
+
+model_low <- glm(
+  cbind(survived, total - survived) ~ mut_structure,
+  family = binomial,
+  data = res_low
+)
+nulo_low <- glm(
+  cbind(survived, total - survived) ~ 1,
+  family = binomial,
+  data = res_low
+)
+anova(model_low, nulo_low, test = "Chisq")
+summary(model_low)
+
+emm_low <- emmeans(model_low, pairwise ~ mut_structure, type = "response")
+
+
+##
+library(multcomp)
+library(multcompView)
+
+cld_low <- cld(emm_low, Letters = letters, adjust = "tukey")
+
+df_low <- as.data.frame(cld_low)
+df_low$costs <- "low"
+
+
+cld_high <- cld(emm_high, Letters = letters, adjust = "tukey")
+
+df_high <- as.data.frame(cld_high)
+df_high$costs <- "high"
+
+plot_df <- rbind(df_low, df_high)
+
+tiff("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/persistenceXstructure.tiff")
+pdf("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/persistenceXstructure.pdf",
+    width = 7, height = 5)
+
+plot_df$label_y <- plot_df$asymp.UCL + 0.1
+
+pd <- position_dodge(width = 0.8)
+
+ggplot(plot_df,
+       aes(x = costs, y = prob, color = mut_structure)) +
+  
+  geom_jitter(data = res_long,
+              aes(x = costs, y = prop, fill = mut_structure),
+              alpha = 0.3,
+              position = position_jitterdodge(jitter.width = 0.5,
+                                              dodge.width = 0.8),
+              color = "gray") +
+  
+  geom_violin(data = res_long,
+              aes(x = costs, y = prop, fill = mut_structure),
+              alpha = 0.3,
+              position = position_dodge(width = 0.8))+
+  
+  
+  geom_point(position = pd, size = 3) +
+  
+  geom_errorbar(aes(ymin = asymp.LCL, ymax = asymp.UCL),
+                position = pd,
+                width = 0.15) +
+  
+ 
+  
+  ylim(0,1) +
+  labs(y = "Probability of species survival", x ="Costs", fill = "Structure",
+       color = "Structure") +
+  theme_classic()
+
+dev.off()
