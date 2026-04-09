@@ -153,7 +153,7 @@ pl_prop2 <- ggplot(final_res %>% group_by(pars_beta, connect, iteration) %>%
                      group = connect, color = pars_beta)) +
   geom_violin(trim=FALSE) +
   labs(x = "Connectance", y="Proportion of surviving species") +
-  geom_boxplot(color = "black", alpha = 0.3) +
+  geom_boxplot(color = "gray20", alpha = 0.3, lwd=0.25) +
   facet_wrap(~pars_beta) +
   theme_bw() +
   scale_colour_paletteer_d("NatParksPalettes::IguazuFalls") +
