@@ -1,12 +1,5 @@
 library(tidyverse)
 
-#----------------------
-# Inputing or creating network
-network <- function(N, conectancia) {
-  A <- matrix(rbinom(N*N, 1, conectancia), nrow = N, ncol = N)
-  diag(A) <- 0
-  return(A)
-}
 
 #----------------------
 # Environmental condition (all times t values)
