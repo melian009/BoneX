@@ -29,7 +29,7 @@ library(bipartite)   # para NODF e modularidade
 # =============================================================================
 
 source("functions_Bruno.R")                        # environment(), alpha_fun(), Cf()
-source("model_node_actualization.R")               # simulation()
+source("model&node_actualization.R")               # simulation()
 source("eco_services_iteraction.R")                # ecosystem()
 source("identify_core_periphery.R")                # identify_core_periphery_bipartite()
 source("ecosystem_services_network_v2.R")          # ecosystem_services_network_v2()
@@ -42,7 +42,7 @@ source("explore_parameters_v3_redes_reais.R")      # explore_parameters_v3_redes
 # =============================================================================
 
 # --- DEFINA AQUI O CAMINHO PARA SUA PASTA DE REDES ---
-caminho_redes <- "caminho/para/sua/pasta/redes"   # <-- ALTERE AQUI
+caminho_redes <- "C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Empirical/P_AF_bin"   # <-- ALTERE AQUI
 
 # Listar todos os CSVs recursivamente (percorre subpastas por tipo de mutualismo)
 arquivos_csv <- list.files(
