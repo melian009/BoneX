@@ -188,6 +188,11 @@ print(metricas_redes)
 
 grid_params <- expand.grid(
 
+  # --- Número de serviços ecossistêmicos ---
+  # Fixo: manter um único valor
+  # Sensibilidade: c(5, 10, 15)
+  n_services = c(5),        # variar ex: c(5, 10, 15)
+
   # --- Benefício ecológico (B) ---
   B_shape1 = c(0.5),        # variar ex: c(0.5, 1, 2)
   B_shape2 = c(0.5),        # variar ex: c(0.5, 1, 2)
@@ -273,7 +278,7 @@ for (g in seq_len(n_cenarios)) {
     lista_redes               = lista_redes_raw,
     metricas_redes            = metricas_redes,
     service_providers_options = c("core", "periphery", "random"),
-    n_services                = 5,
+    n_services                = p$n_services,
     connectance_ES            = p$connectance_ES,
     distribution_ES           = "lognormal",
     threshold_percentile      = p$threshold_percentile,
@@ -298,6 +303,7 @@ for (g in seq_len(n_cenarios)) {
 
   # Adicionar todas as colunas do grid como identificadores do cenário
   resultado_g$cenario_id           <- g
+  resultado_g$param_n_services     <- p$n_services
   resultado_g$param_B_shape1       <- p$B_shape1
   resultado_g$param_B_shape2       <- p$B_shape2
   resultado_g$param_Ce_shape1      <- p$Ce_shape1
