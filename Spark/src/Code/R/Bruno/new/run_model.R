@@ -54,7 +54,7 @@ arquivos_csv <- list.files(
 
 cat(sprintf("Arquivos encontrados: %d\n", length(arquivos_csv)))
 
-# Função de leitura já existente (de fase_transition.R)
+# Função de leitura já existente (de Mutualistic_networks.R)
 importar_rede_bipartida <- function(caminho) {
   linhas   <- readLines(caminho)
   dados    <- lapply(linhas, function(x) as.numeric(strsplit(x, ",")[[1]]))
