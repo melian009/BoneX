@@ -54,6 +54,13 @@ p_low
 # odds ratio
 exp(b1)
 
+results4$persistence_species
+results4$n_species_final
+str(results4)
+plot(results4$persistence_species, results4$periphery_survived)
+plot(results4$persistence_species, results4$services_loss_relative)
+plot(results4$core_persistence, results4$services_loss_relative)
+plot(results4$periphery_persistence, results4$services_loss_relative)
 
 
 newdata <- data.frame(costs = c("high", "low"))
@@ -368,11 +375,25 @@ persist_int = lm(services_loss_relative ~ persistence_species, data = results4)
 providers = lm(services_loss_relative ~ service_providers, data = results4)
 structure = lm(services_loss_relative ~ mut_structure, data = results4)
 mix = lm(services_loss_relative ~ service_providers * mut_structure, data = results4)
-nulo = lm(services_loss_relative ~ 1, data = results4)
+null = lm(services_loss_relative ~ 1, data = results4)
 library(bbmle)
-AICtab(persist_sp, persist_int, providers, structure, mix, nulo, base = T, delta = T, weights = T)
-
+a = AICtab(persist_sp, persist_int, providers, structure, mix, null, base = T, delta = T, weights = T)
+b = AICtab(providers, structure, mix, null, base = T, delta = T, weights = T)
 summary(mix)
+aics = as_tibble(a, rownames = "model")
+aics = as_tibble(b, rownames = "model")
+
+summary(persist_sp)
+summary(providers)
+summary(structure)
+
+anova(persist_sp, null, test = "Chisq")
+anova(providers, null, test = "Chisq")
+anova(structure, null, test = "Chisq")
+
+library("writexl")
+write_xlsx(aics, "C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/AICs_highcosts.xlsx")
+write_xlsx(aics, "C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/AICs_full_reduced_highcosts.xlsx")
 
 library(emmeans)
 compare = emmeans(mix, pairwise ~  service_providers * mut_structure, type = "response")
@@ -473,3 +494,32 @@ ggplot() +
 dev.off()
 
 library(viridis)
+
+
+
+#############################################
+stru = ggplot(results4, aes(y = services_loss_relative, x = persistence_species, col = mut_structure))+
+  geom_point(alpha = 0.5)+
+  theme_classic()+
+  theme(aspect.ratio = 1)+
+  labs(y = "Relative loss of ecosystem services", x = "Species persistence", col = "Network Structure")+
+  scale_color_viridis_d(option = "C")
+stru
+
+prov = ggplot(results4, aes(y = services_loss_relative, x = persistence_species, col = service_providers))+
+  geom_point(alpha = 0.5)+
+  theme_classic()+
+  theme(aspect.ratio = 1)+
+  labs(y = "Relative loss of ecosystem services", x = "Species persistence", col = "Service providers")+
+  scale_color_viridis_d(option = "viridis")
+prov
+  
+tiff("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/serviceXpersitence&structure.tiff")
+pdf("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/serviceXpersitence&.structure.pdf", width = 7, height = 5)
+stru
+dev.off()
+
+tiff("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/serviceXpersitence&providers_highcosts.tiff")
+pdf("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/first simulations/serviceXpersitence&providers.pdf", width = 7, height = 5)
+prov
+dev.off()

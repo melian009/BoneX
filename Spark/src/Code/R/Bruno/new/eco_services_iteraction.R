@@ -40,13 +40,6 @@ ecosystem <- function(object, ES_matrix) {
 #--------------------------------------------
 
 
-# Calcular serviços ecossistêmicos
-services_dinamics <- ecosystem(resultado, services) #caling the above functions
-services_dinamics
-# Looking at the changes of ecosystem services along the time
-print(services_dinamics$services_history)
 
-# the diference at the first to the last time steps
-print(services_dinamics$delta_E)
 
 

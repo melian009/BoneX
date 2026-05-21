@@ -1,0 +1,272 @@
+
+<style>
+  :root { --teal: #1D9E75; --teal-light: #E1F5EE; --teal-mid: #5DCAA5; --teal-dark: #085041;
+    --amber: #BA7517; --amber-light: #FAEEDA; --purple: #534AB7; --purple-light: #EEEDFE;
+    --coral: #993C1D; --coral-light: #FAECE7; --gray-light: #F1EFE8; --gray-mid: #B4B2A9; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans, sans-serif); padding: 0; }
+  h2.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+  .wrap { padding: 1rem 0.5rem 2rem; max-width: 660px; }
+
+  .block-title {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--color-text-secondary); margin: 1.8rem 0 0.5rem;
+  }
+
+  /* STEP ROW */
+  .step { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; }
+  .step-num {
+    flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 500;
+  }
+  .step-body { flex: 1; min-width: 0; padding-top: 2px; }
+  .step-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+  .step-sub { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; line-height: 1.5; }
+
+  /* color variants */
+  .c-teal   { background: var(--teal-light); color: var(--teal-dark); }
+  .c-amber  { background: var(--amber-light); color: var(--amber); }
+  .c-purple { background: var(--purple-light); color: var(--purple); }
+  .c-coral  { background: var(--coral-light); color: var(--coral); }
+  .c-gray   { background: var(--gray-light); color: var(--color-text-secondary); }
+
+  /* code pill */
+  .pill {
+    display: inline-block; font-size: 11px; font-family: var(--font-mono, monospace);
+    padding: 1px 7px; border-radius: 4px; margin-top: 4px;
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+    color: var(--color-text-primary);
+  }
+  .pill + .pill { margin-left: 4px; }
+
+  /* connector */
+  .connector {
+    margin-left: 13px; border-left: 1.5px dashed var(--color-border-tertiary);
+    height: 10px; margin-bottom: 0;
+  }
+
+  /* file card */
+  .file-card {
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md, 8px);
+    overflow: hidden; margin-bottom: 8px;
+  }
+  .file-header {
+    display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+    background: var(--color-background-secondary);
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    font-size: 12px; font-weight: 500;
+  }
+  .file-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .file-row {
+    display: flex; align-items: flex-start; gap: 10px; padding: 6px 12px;
+    border-bottom: 0.5px solid var(--color-border-tertiary); font-size: 12px;
+  }
+  .file-row:last-child { border-bottom: none; }
+  .file-name { font-family: var(--font-mono, monospace); color: var(--teal-dark); min-width: 280px; }
+  .file-desc { color: var(--color-text-secondary); line-height: 1.4; }
+
+  /* output card */
+  .out-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-top: 6px; }
+  .out-card {
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md, 8px);
+    padding: 10px 12px;
+    background: var(--color-background-primary);
+  }
+  .out-card-label { font-size: 11px; color: var(--color-text-secondary); }
+  .out-card-val { font-size: 13px; font-weight: 500; margin-top: 2px; color: var(--color-text-primary); }
+
+  /* divider */
+  .divider { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 1.4rem 0; }
+
+  /* note box */
+  .note {
+    font-size: 12px; line-height: 1.5; color: var(--color-text-secondary);
+    background: var(--amber-light); border-left: 3px solid var(--amber);
+    border-radius: 0 6px 6px 0; padding: 8px 12px; margin-top: 8px;
+  }
+</style>
+
+<div class="wrap">
+  <h2 class="sr-only">README: ordem de execução do modelo booleano com redes reais</h2>
+
+  <!-- ── BLOCO 0 ─────────────────────────────── -->
+  <div class="block-title"><i class="ti ti-folder-open" aria-hidden="true"></i> Bloco 0 — organização dos arquivos</div>
+
+  <div class="file-card">
+    <div class="file-header">
+      <span class="file-dot" style="background:var(--teal-mid)"></span>
+      Arquivos novos (criados nesta sessão)
+    </div>
+    <div class="file-row">
+      <span class="file-name">identify_core_periphery.R</span>
+      <span class="file-desc">Classifica espécies como core/periférica pelo grau</span>
+    </div>
+    <div class="file-row">
+      <span class="file-name">ecosystem_services_network_v2.R</span>
+      <span class="file-desc">Cria rede de serviços por core / periphery / random</span>
+    </div>
+    <div class="file-row">
+      <span class="file-name">calcular_metricas_rede.R</span>
+      <span class="file-desc">Calcula NODF, Q, conectância, grau médio por rede</span>
+    </div>
+    <div class="file-row">
+      <span class="file-name">explore_parameters_v3_redes_reais.R</span>
+      <span class="file-desc">Loop principal adaptado para redes reais</span>
+    </div>
+    <div class="file-row">
+      <span class="file-name">run_model.R</span>
+      <span class="file-desc">Script master — orquestra tudo e salva resultados</span>
+    </div>
+  </div>
+
+  <div class="file-card">
+    <div class="file-header">
+      <span class="file-dot" style="background:var(--gray-mid)"></span>
+      Arquivos originais que devem estar na mesma pasta
+    </div>
+    <div class="file-row">
+      <span class="file-name">functions_Bruno.R</span>
+      <span class="file-desc">environment(), alpha_fun(), Cf()</span>
+    </div>
+    <div class="file-row">
+      <span class="file-name">model_node_actualization.R</span>
+      <span class="file-desc">simulation() — núcleo do modelo booleano</span>
+    </div>
+    <div class="file-row">
+      <span class="file-name">eco_services_iteraction.R</span>
+      <span class="file-desc">ecosystem() — calcula serviços ao longo do tempo</span>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── BLOCO 1 ─────────────────────────────── -->
+  <div class="block-title"><i class="ti ti-settings" aria-hidden="true"></i> Bloco 1 — antes de rodar (uma única vez)</div>
+
+  <div class="step">
+    <div class="step-num c-gray">0</div>
+    <div class="step-body">
+      <div class="step-title">Instalar pacotes necessários</div>
+      <div class="step-sub">Só precisa rodar uma vez na máquina.</div>
+      <span class="pill">install.packages("bipartite")</span>
+      <span class="pill">install.packages("dplyr")</span>
+      <span class="pill">install.packages("readr")</span>
+    </div>
+  </div>
+
+  <div class="connector"></div>
+
+  <div class="step">
+    <div class="step-num c-gray">1</div>
+    <div class="step-body">
+      <div class="step-title">Definir o caminho das redes no <code style="font-size:12px">run_model.R</code></div>
+      <div class="step-sub">Linha a editar no script master:</div>
+      <span class="pill">caminho_redes &lt;- "seu/caminho/aqui"</span>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── BLOCO 2 ─────────────────────────────── -->
+  <div class="block-title"><i class="ti ti-player-play" aria-hidden="true"></i> Bloco 2 — ordem de execução dentro do run_model.R</div>
+
+  <div class="step">
+    <div class="step-num c-teal">1</div>
+    <div class="step-body">
+      <div class="step-title">Carregar todas as funções</div>
+      <div class="step-sub">7 <code>source()</code> na ordem exata abaixo:</div>
+      <div style="margin-top:6px; display:flex; flex-direction:column; gap:3px;">
+        <span class="pill">source("functions_Bruno.R")</span>
+        <span class="pill">source("model_node_actualization.R")</span>
+        <span class="pill">source("eco_services_iteraction.R")</span>
+        <span class="pill">source("identify_core_periphery.R")</span>
+        <span class="pill">source("ecosystem_services_network_v2.R")</span>
+        <span class="pill">source("calcular_metricas_rede.R")</span>
+        <span class="pill">source("explore_parameters_v3_redes_reais.R")</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector"></div>
+
+  <div class="step">
+    <div class="step-num c-teal">2</div>
+    <div class="step-body">
+      <div class="step-title">Ler as redes reais do disco</div>
+      <div class="step-sub">Lista todos os CSVs recursivamente, lê cada um com
+        <code style="font-size:11px">importar_rede_bipartida()</code>, retorna lista nomeada de matrizes bipartidas binárias.
+      </div>
+    </div>
+  </div>
+
+  <div class="connector"></div>
+
+  <div class="step">
+    <div class="step-num c-amber">3</div>
+    <div class="step-body">
+      <div class="step-title">Calcular métricas estruturais</div>
+      <div class="step-sub">Chama <code style="font-size:11px">calcular_metricas_todas()</code> para todas as redes de uma vez. Salva automaticamente em disco.</div>
+      <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+        <span class="pill">conectância</span>
+        <span class="pill">grau médio</span>
+        <span class="pill">NODF (aninhamento)</span>
+        <span class="pill">Q (modularidade)</span>
+        <span class="pill">n plantas / animais</span>
+      </div>
+      <div class="note">⚠ NODF e Q são lentos para redes grandes. Para redes com &gt;200 espécies, considere rodar com <code>calc_nodf=FALSE</code> e calcular separadamente.</div>
+    </div>
+  </div>
+
+  <div class="connector"></div>
+
+  <div class="step">
+    <div class="step-num c-purple">4</div>
+    <div class="step-body">
+      <div class="step-title">Rodar o modelo booleano</div>
+      <div class="step-sub">Chama <code style="font-size:11px">explore_parameters_v3_redes_reais()</code>. Para cada rede, varia o provedor de serviços e roda <em>n_replicates</em> vezes. Internamente, em cada simulação:</div>
+      <div style="margin-top:8px; display:flex; flex-direction:column; gap:6px;">
+        <div class="step"><div class="step-num c-teal" style="width:20px;height:20px;font-size:10px">4a</div><div class="step-body"><div class="step-title" style="font-size:13px">bipartida → quadrada</div><div class="step-sub">Conversão interna no loop</div></div></div>
+        <div class="step"><div class="step-num c-teal" style="width:20px;height:20px;font-size:10px">4b</div><div class="step-body"><div class="step-title" style="font-size:13px">identify_core_periphery_bipartite()</div><div class="step-sub">Classifica espécies pelo grau</div></div></div>
+        <div class="step"><div class="step-num c-teal" style="width:20px;height:20px;font-size:10px">4c</div><div class="step-body"><div class="step-title" style="font-size:13px">ecosystem_services_network_v2()</div><div class="step-sub">Cria rede ES para core / periphery / random</div></div></div>
+        <div class="step"><div class="step-num c-teal" style="width:20px;height:20px;font-size:10px">4d</div><div class="step-body"><div class="step-title" style="font-size:13px">environment() → simulation()</div><div class="step-sub">Cria θ(t) e roda dinâmica booleana</div></div></div>
+        <div class="step"><div class="step-num c-teal" style="width:20px;height:20px;font-size:10px">4e</div><div class="step-body"><div class="step-title" style="font-size:13px">ecosystem()</div><div class="step-sub">Calcula serviços ao longo do tempo</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector"></div>
+
+  <div class="step">
+    <div class="step-num c-coral">5</div>
+    <div class="step-body">
+      <div class="step-title">Salvar resultados</div>
+      <div class="step-sub">Gerado automaticamente ao final do run_model.R:</div>
+      <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+        <span class="pill">metricas_redes.csv</span>
+        <span class="pill">metricas_redes.rds</span>
+        <span class="pill">resultados_modelo.rds</span>
+        <span class="pill">resultados_modelo.csv</span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── BLOCO 3 ─────────────────────────────── -->
+  <div class="block-title"><i class="ti ti-table" aria-hidden="true"></i> Bloco 3 — o que está no dataframe de saída</div>
+
+  <div class="out-grid">
+    <div class="out-card"><div class="out-card-label">Identificação</div><div class="out-card-val">sim_id, nome_rede, service_providers, replicate</div></div>
+    <div class="out-card"><div class="out-card-label">Estrutura da rede</div><div class="out-card-val">conectância, NODF, Q, grau médio, n espécies</div></div>
+    <div class="out-card"><div class="out-card-label">Core / periphery</div><div class="out-card-val">n_core, n_periphery, persistência por grupo</div></div>
+    <div class="out-card"><div class="out-card-label">Dinâmica</div><div class="out-card-val">persistence_species, persistence_interactions, convergência</div></div>
+    <div class="out-card"><div class="out-card-label">Serviços</div><div class="out-card-val">serv_initial, serv_final, loss, riqueza_servicos</div></div>
+    <div class="out-card"><div class="out-card-label">Históricos (listas)</div><div class="out-card-val">prop_species, prop_interactions, services ao longo do tempo</div></div>
+  </div>
+
+</div>
