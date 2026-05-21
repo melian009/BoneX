@@ -6,8 +6,10 @@
 #   1. Carrega todas as funções
 #   2. Lê as redes reais do disco
 #   3. Calcula métricas estruturais (NODF, Q, conectância...)
-#   4. Roda o modelo Booleano com grid de parâmetros
-#   5. Salva os resultados
+#   4. Define grid de parâmetros
+#   5. Roda o modelo Booleano sobre o grid
+#   6. Consolida e salva resultados
+#   7. Checagem rápida
 #
 # ANTES DE RODAR:
 #   - Defina `caminho_redes` com o caminho para a pasta das suas redes
@@ -47,9 +49,9 @@ caminho_redes <- "caminho/para/sua/pasta/redes"   # <-- ALTERE AQUI
 
 # Listar todos os CSVs recursivamente (percorre subpastas por tipo de mutualismo)
 arquivos_csv <- list.files(
-  path      = caminho_redes,
-  pattern   = "\\.csv$",
-  recursive = TRUE,
+  path       = caminho_redes,
+  pattern    = "\\.csv$",
+  recursive  = TRUE,
   full.names = TRUE
 )
 
@@ -104,7 +106,8 @@ cat(sprintf("Tamanho médio:  %.1f espécies\n", mean(tamanhos)))
 # 3. CALCULAR MÉTRICAS ESTRUTURAIS
 # =============================================================================
 # NODF e Q são lentos para redes grandes.
-# Se já calculou antes, carregue direto: metricas_redes <- readRDS("metricas_redes.rds")
+# Se já calculou antes, carregue direto:
+#   metricas_redes <- readRDS("metricas_redes.rds")
 
 cat("\nCalculando métricas estruturais...\n")
 
@@ -133,87 +136,189 @@ print(metricas_redes)
 # =============================================================================
 # 4. GRID DE PARÂMETROS
 # =============================================================================
-# Defina aqui os valores que quer variar.
-# Cada combinação vira um cenário independente — salvo em arquivo separado.
 #
-# Parâmetros disponíveis para variar:
-#   Cp_multiplier        — custo fisiológico (0 = desativado)
-#   threshold_percentile — corte core/periphery (0.25 = top 25% é core)
-#   connectance_ES       — conectância da rede de serviços
-#   n_replicates         — replicatas por combinação
+# COMO USAR:
+#   - Para manter um parâmetro fixo: deixe só um valor no vetor
+#     ex: Cp_multiplier = c(0)        → fixo em 0, não varia
+#   - Para variar um parâmetro: coloque múltiplos valores
+#     ex: Cp_multiplier = c(0, 0.5, 1.0) → 3 níveis
+#
+# ATENÇÃO AO TAMANHO DO GRID:
+#   O número total de cenários é o PRODUTO de todos os vetores com >1 valor.
+#   Antes de rodar, verifique o total impresso no console.
+#
+# PARÂMETROS DO MODELO:
+#
+#   [BENEFÍCIO ECOLÓGICO — B]
+#     B_shape1, B_shape2: parâmetros da distribuição Beta de onde B é sorteado
+#     Média da Beta = shape1 / (shape1 + shape2)
+#     B alto (shape1 >> shape2): espécies ganham muito de cada parceiro
+#     ex: shape1=2, shape2=0.5 → média ~0.8 (benefício alto)
+#         shape1=0.5, shape2=2 → média ~0.2 (benefício baixo)
+#
+#   [CUSTO ECOLÓGICO — Ce]
+#     Ce_shape1, Ce_shape2: parâmetros da Beta de Ce
+#     Ce alto: interagir custa caro fisiologicamente
+#     ex: shape1=0.5, shape2=0.5 → distribuição U (muito variável)
+#         shape1=1,   shape2=1   → uniforme
+#
+#   [CUSTO FISIOLÓGICO — Cp]
+#     Cp_multiplier: escala o custo fisiológico (0 = desativado)
+#     Cp_shape1, Cp_shape2: forma da distribuição Beta de Cp
+#     Só ativo se Cp_multiplier > 0
+#
+#   [AMBIENTE]
+#     A_min, A_max: amplitude da flutuação ambiental θ(t)
+#       A=0 → ambiente estático
+#       A>0 → ambiente oscila entre -A e +A
+#     w_min, w_max: frequência da oscilação ambiental
+#       w=0 → sem oscilação
+#       w>0 → oscilação periódica
+#     zi_min, zi_max: intervalo do ótimo ambiental de cada espécie
+#       define o quão diferente é o zi de cada espécie
+#
+#   [REDE DE SERVIÇOS]
+#     connectance_ES: fração de células não-zero na ES matrix
+#     threshold_percentile: corte para core/periphery (0.5 = top 50% é core)
+#
+#   [SIMULAÇÃO]
+#     n_replicates: replicatas por combinação (mín recomendado: 30)
+#     t_max: passos máximos de tempo por simulação
 # =============================================================================
 
 grid_params <- expand.grid(
-  Cp_multiplier        = c(0, 0.5, 1.0),
-  threshold_percentile = c(0.25, 0.50, 0.75),
-  stringsAsFactors     = FALSE
+
+  # --- Benefício ecológico (B) ---
+  B_shape1 = c(0.5),        # variar ex: c(0.5, 1, 2)
+  B_shape2 = c(0.5),        # variar ex: c(0.5, 1, 2)
+
+  # --- Custo ecológico (Ce) ---
+  Ce_shape1 = c(0.5),       # variar ex: c(0.5, 1, 2)
+  Ce_shape2 = c(0.5),       # variar ex: c(0.5, 1, 2)
+
+  # --- Custo fisiológico (Cp) ---
+  Cp_multiplier = c(0),     # variar ex: c(0, 0.5, 1.0)
+  Cp_shape1     = c(0.5),   # só importa se Cp_multiplier > 0
+  Cp_shape2     = c(0.5),   # só importa se Cp_multiplier > 0
+
+  # --- Ambiente ---
+  A_min = c(0),             # variar ex: c(0, 0.5, 1.0)
+  A_max = c(0),             # variar ex: c(0, 0.5, 1.0)
+  w_min = c(0),             # variar ex: c(0, 0.1, 0.5)
+  w_max = c(0),             # variar ex: c(0, 0.1, 0.5)
+  zi_min = c(1),            # variar ex: c(1, 5)
+  zi_max = c(10),           # variar ex: c(10, 50)
+
+  # --- Rede de serviços ---
+  connectance_ES       = c(0.3),   # variar ex: c(0.1, 0.3, 0.5)
+  threshold_percentile = c(0.5),   # variar ex: c(0.25, 0.50, 0.75)
+
+  # --- Simulação ---
+  n_replicates = c(50),     # aumentar para mais robustez estatística
+  t_max        = c(10000),  # raramente precisa mudar
+
+  stringsAsFactors = FALSE
 )
 
-cat(sprintf("Total de cenários no grid: %d\n", nrow(grid_params)))
-cat(sprintf("Simulações por cenário: %d redes × 3 provedores × 50 replicatas = %d\n",
-            length(lista_redes_raw),
-            length(lista_redes_raw) * 3 * 50))
-cat(sprintf("Total geral de simulações: %d\n\n",
-            nrow(grid_params) * length(lista_redes_raw) * 3 * 50))
+# Informações sobre o grid
+n_cenarios   <- nrow(grid_params)
+n_redes      <- length(lista_redes_raw)
+n_provedores <- 3  # core, periphery, random
+n_rep        <- unique(grid_params$n_replicates)
+
+cat(sprintf("\n=== GRID DE PARÂMETROS ===\n"))
+cat(sprintf("Cenários no grid:          %d\n", n_cenarios))
+cat(sprintf("Redes por cenário:         %d\n", n_redes))
+cat(sprintf("Provedores por rede:       %d (core / periphery / random)\n", n_provedores))
+cat(sprintf("Replicatas por combinação: %d\n", n_rep))
+cat(sprintf("Total de simulações:       %d\n\n",
+            n_cenarios * n_redes * n_provedores * n_rep))
 
 
 # =============================================================================
 # 5. RODAR O MODELO BOOLEANO — LOOP SOBRE O GRID
 # =============================================================================
 
-lista_resultados <- vector("list", nrow(grid_params))
+lista_resultados <- vector("list", n_cenarios)
 
-for (g in seq_len(nrow(grid_params))) {
+for (g in seq_len(n_cenarios)) {
 
-  cp_val  <- grid_params$Cp_multiplier[g]
-  thr_val <- grid_params$threshold_percentile[g]
+  p <- grid_params[g, ]
 
-  nome_arquivo <- sprintf("resultados_Cp%.2f_thr%.2f.rds", cp_val, thr_val)
+  # Nome do arquivo de checkpoint baseado nos parâmetros que variam
+  nome_arquivo <- sprintf(
+    "resultados_cenario_%03d_Cp%.2f_A%.2f_thr%.2f.rds",
+    g, p$Cp_multiplier, p$A_max, p$threshold_percentile
+  )
 
-  # Pular cenário se já foi salvo (permite retomar de onde parou)
+  # Pular se já foi calculado (permite retomar de onde parou)
   if (file.exists(nome_arquivo)) {
     cat(sprintf("\n--- Cenário %d/%d já existe, carregando: %s ---\n",
-                g, nrow(grid_params), nome_arquivo))
+                g, n_cenarios, nome_arquivo))
     lista_resultados[[g]] <- readRDS(nome_arquivo)
     next
   }
 
-  cat(sprintf("\n--- Cenário %d/%d | Cp=%.2f | threshold=%.2f ---\n",
-              g, nrow(grid_params), cp_val, thr_val))
+  cat(sprintf(
+    "\n--- Cenário %d/%d | B=(%.1f,%.1f) | Ce=(%.1f,%.1f) | Cp=%.2f | A=(%.2f,%.2f) | thr=%.2f ---\n",
+    g, n_cenarios,
+    p$B_shape1, p$B_shape2,
+    p$Ce_shape1, p$Ce_shape2,
+    p$Cp_multiplier,
+    p$A_min, p$A_max,
+    p$threshold_percentile
+  ))
 
   resultado_g <- explore_parameters_v3_redes_reais(
     lista_redes               = lista_redes_raw,
     metricas_redes            = metricas_redes,
     service_providers_options = c("core", "periphery", "random"),
     n_services                = 5,
-    connectance_ES            = 0.3,
+    connectance_ES            = p$connectance_ES,
     distribution_ES           = "lognormal",
-    threshold_percentile      = thr_val,
-    B_shape1                  = 0.5,
-    B_shape2                  = 0.5,
-    Ce_shape1                 = 0.5,
-    Ce_shape2                 = 0.5,
-    Cp_multiplier             = cp_val,
-    A_min                     = 0,
-    A_max                     = 0,
-    w_min                     = 0,
-    w_max                     = 0,
-    t_max                     = 10000,
-    zi_min                    = 1,
-    zi_max                    = 10,
-    n_replicates              = 50,
+    threshold_percentile      = p$threshold_percentile,
+    B_shape1                  = p$B_shape1,
+    B_shape2                  = p$B_shape2,
+    Ce_shape1                 = p$Ce_shape1,
+    Ce_shape2                 = p$Ce_shape2,
+    Cp_shape1                 = p$Cp_shape1,
+    Cp_shape2                 = p$Cp_shape2,
+    Cp_multiplier             = p$Cp_multiplier,
+    A_min                     = p$A_min,
+    A_max                     = p$A_max,
+    w_min                     = p$w_min,
+    w_max                     = p$w_max,
+    t_max                     = p$t_max,
+    zi_min                    = p$zi_min,
+    zi_max                    = p$zi_max,
+    n_replicates              = p$n_replicates,
     seed                      = 123,
     verbose                   = TRUE
   )
 
-  # Adicionar colunas identificadoras do cenário
-  resultado_g$cenario_id          <- g
-  resultado_g$param_Cp_multiplier <- cp_val
-  resultado_g$param_threshold     <- thr_val
+  # Adicionar todas as colunas do grid como identificadores do cenário
+  resultado_g$cenario_id           <- g
+  resultado_g$param_B_shape1       <- p$B_shape1
+  resultado_g$param_B_shape2       <- p$B_shape2
+  resultado_g$param_Ce_shape1      <- p$Ce_shape1
+  resultado_g$param_Ce_shape2      <- p$Ce_shape2
+  resultado_g$param_Cp_multiplier  <- p$Cp_multiplier
+  resultado_g$param_Cp_shape1      <- p$Cp_shape1
+  resultado_g$param_Cp_shape2      <- p$Cp_shape2
+  resultado_g$param_A_min          <- p$A_min
+  resultado_g$param_A_max          <- p$A_max
+  resultado_g$param_w_min          <- p$w_min
+  resultado_g$param_w_max          <- p$w_max
+  resultado_g$param_zi_min         <- p$zi_min
+  resultado_g$param_zi_max         <- p$zi_max
+  resultado_g$param_connectance_ES <- p$connectance_ES
+  resultado_g$param_threshold      <- p$threshold_percentile
+  resultado_g$param_n_replicates   <- p$n_replicates
+  resultado_g$param_t_max          <- p$t_max
 
   # Checkpoint — salva imediatamente ao terminar cada cenário
   saveRDS(resultado_g, nome_arquivo)
-  cat(sprintf("Cenário %d salvo em: %s\n", g, nome_arquivo))
+  cat(sprintf("Cenário %d/%d salvo em: %s\n", g, n_cenarios, nome_arquivo))
 
   lista_resultados[[g]] <- resultado_g
 }
@@ -257,10 +362,11 @@ print(
     )
 )
 
-cat("\n--- Resumo por cenário (Cp × threshold) ---\n")
+cat("\n--- Resumo por cenário ---\n")
 print(
   resultados %>%
-    group_by(param_Cp_multiplier, param_threshold, service_providers) %>%
+    group_by(cenario_id, param_Cp_multiplier, param_A_max,
+             param_threshold, service_providers) %>%
     summarise(
       media_persist_especies = mean(persistence_species, na.rm = TRUE),
       media_services_loss    = mean(services_loss_relative, na.rm = TRUE),
