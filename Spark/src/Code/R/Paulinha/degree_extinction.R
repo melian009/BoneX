@@ -16,7 +16,7 @@ source("functions_betaD.R")
 nspi <- 60
 nspj <- 75
 # Number of simulations
-nsim <- 100
+nsim <- 500
 # Expected connectance
 connect <- .65
 
@@ -87,4 +87,4 @@ pl_degrees <- ggplot(res_degrees, aes(x = degree, group = presence, alpha = pres
 
 pl_degrees
 
-ggsave("./figures/degree_distributions.pdf", pl_degrees, width = 5, height = 4, device = cairo_pdf)
+#ggsave("./figures/degree_distributions.pdf", pl_degrees, width = 5, height = 4, device = cairo_pdf)

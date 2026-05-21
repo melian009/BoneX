@@ -104,7 +104,7 @@ for(j in 1:nrow(setup)){
 p_main <- res %>% group_by(setup, iteration) %>% 
   filter(time_steps == max(time_steps)) %>% 
   ggplot(., aes(x = diff_distr, y=prop_sp, group = setup)) + geom_point(alpha = 0.5) +
-  theme_bw() + labs(x = "E[Costs] - E[Benefits]", y = "Proportion of surviving species")
+  theme_bw() + labs(x = "E[Benefits] - E[Costs]", y = "Proportion of surviving species")
 
 
 ## Inset showing the beta distribution with parameter b=1

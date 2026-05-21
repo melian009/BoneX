@@ -163,14 +163,15 @@ pl_prop2 <- ggplot(final_res %>% group_by(pars_beta, connect, iteration) %>%
 pl_prop2
 
 
-ggsave("./figures/mean_time.pdf", pl_time, width = 6, height = 4, device = cairo_pdf)
-ggsave("./figures/mean_time2.pdf", pl_time2, width = 6, height = 4, device = cairo_pdf)
-
-ggsave("./figures/mean_spp.pdf", pl_sp, width = 6, height = 4, device = cairo_pdf)
-ggsave("./figures/mean_spp2.pdf", pl_sp2, width = 6, height = 4, device = cairo_pdf)
-
-ggsave("./figures/mean_prop_spp.pdf", pl_prop, width = 6, height = 4, device = cairo_pdf)
-ggsave("./figures/mean_prop_spp2.pdf", pl_prop2, width = 6, height = 4, device = cairo_pdf)
+# To save the plots uncomment
+# ggsave("./figures/mean_time.pdf", pl_time, width = 6, height = 4, device = cairo_pdf)
+# ggsave("./figures/mean_time2.pdf", pl_time2, width = 6, height = 4, device = cairo_pdf)
+# 
+# ggsave("./figures/mean_spp.pdf", pl_sp, width = 6, height = 4, device = cairo_pdf)
+# ggsave("./figures/mean_spp2.pdf", pl_sp2, width = 6, height = 4, device = cairo_pdf)
+# 
+# ggsave("./figures/mean_prop_spp.pdf", pl_prop, width = 6, height = 4, device = cairo_pdf)
+# ggsave("./figures/mean_prop_spp2.pdf", pl_prop2, width = 6, height = 4, device = cairo_pdf)
 
 
 ## Ploting the shape of the functions
@@ -195,4 +196,5 @@ pl_dist <- ggplot(beta_data, aes(x = x, y = y, linetype = type, colour = setup))
 
 pl_dist
 
-ggsave("./figures/mean_distributions.pdf", pl_dist, width = 5, height = 4, device = cairo_pdf)
+# To save the plot, uncomment
+#ggsave("./figures/mean_distributions.pdf", pl_dist, width = 5, height = 4, device = cairo_pdf)
