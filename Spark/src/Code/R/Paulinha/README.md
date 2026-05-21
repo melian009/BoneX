@@ -105,25 +105,81 @@ A report of the work in progress is available at
         physiological (abiotic) cost; the output is a list with
 
         (i) the community matrix where rows represent time steps and
+            columns are species, 1 represents species' presence, and 0
+            absence;
+        (ii) A matrix of interactions (square); 
+        (iii) B matrix of
+             benefits;
+        (iv) C matrix of costs; and 
+        (v) costs_p physiological costs for
+              each species.
+
+-   **functions_lognorm.R** additional supportive functions when modeling
+    costs and benefits using the Lognormal Distribution
+
+    -   *kl_lognorm()* estimates the Kullback-Leibler Divergence between
+        two lognormal distributions; takes as input parameters mu and sigma
+        from both distributions -- all positive values; Reference doi:
+        10.3390/e26110959
+
+    -   *mean_lognorm()* estimates the first moment (mean) of a Lognormal
+        distribution given input parameters mu and sigma
+
+    -   *diff_mean_lognormal()* estimates the difference between the mean two
+        lognormal distributions (input are parameters mu and sigma of each
+        distribution)
+
+    -   *create_CB_lognormal()* creates the cost/benefit matrix based on the
+        adjancency matrix following a lognormal distribution; input is the
+        interaction matrix, which can be bipartite or not, mu and sigma are 
+        the parameters associated with the lognormal
+
+    -   *boolean_model()* runs the model, takes as input the number of
+        species in each category of a bipartite system; the expected
+        connectance; alpha (environmental cost); and the parameters of
+        the lognormal distribution associated with costs, benefits and the
+        physiological (abiotic) cost; the output is a list with
+
+        (i) the community matrix where rows represent time steps and
             columns are species, 1 represents presence of species, 0
             absence;
-        (ii) A matrix of interactions (square); (iii) B matrix of
+        (ii) A matrix of interactions (square); 
+        (iii) B matrix of
              benefits;
-        (iii) C matrix of costs; and (v) costs_p physiological costs for
+        (iv) C matrix of costs; and 
+        (v) costs_p physiological costs for
               each species.
 
 ### **Basic analysis**
 
--   **diff_beta.R** simulates the model given different parameterizations of 
-    the beta distribution and computes the proportion of surviving species 
-    given differences between the distribution of costs and benefits. The 
-    difference between the distributions is given by the difference between
-    the first moment of the distribution (mean expected value)
+-   **diff_beta.R** (also with subscription 2 and 3) 
+    simulates the model comparing different parameterizations of the beta 
+    distribution and computes the proportion of surviving species given the 
+    distribution of costs and benefits. The difference between the distributions
+    is estimated by the difference between the first moment of the distribution 
+    (mean expected value). Plots the proportion of surviving species given the 
+    difference between expected benefits and costs. The inset in the plot shows 
+    some of the combinations of parameters and the resulting shape of the beta 
+    distribution. 
+    
+-   **connectance_beta.R** estimates the effect of network connectance on the 
+    proportion of surviving species by simulating the system with a range of
+    values for connectance. For different values of connectance, plots 
+    results of mean time until community stabilizes, final number of species,
+    proportion fo persistent species, and a plot showing the shape of the used
+    distribution.
+    
+-   **degree_extinction.R** compares the degree distribution between species 
+    that went extinct versus species that persisted until community stabilized.
+    Plots the degree distribution for multiple simulations, facet according to 
+    parameter combination of the beta distribution.
     
 -   **diff_lognorm.R** simulates the model given different parameterizations of 
     the beta distribution and computes the proportion of surviving species 
-    given differences between the distribution of costs and benefits.
-    
+    given differences between the distribution of costs and benefits. Plots the 
+    proportion of surviving species given the difference between expected 
+    benefits and costs. The inset in the plot shows some of the combinations of 
+    parameters and the resulting shape of the lognormal distribution. 
     
     
 ### **Advanced analysis**: Null models, dynamic simulations, and pattern
