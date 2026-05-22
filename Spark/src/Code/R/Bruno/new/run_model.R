@@ -45,7 +45,7 @@ source("explore_parameters_v3_redes_reais.R")  # explore_parameters_v3_redes_rea
 # =============================================================================
 
 # --- DEFINA AQUI O CAMINHO PARA SUA PASTA DE REDES ---
-caminho_redes <- "caminho/para/sua/pasta/redes"   # <-- ALTERE AQUI
+caminho_redes <- "~/Bruno/Empirical"   # <-- ALTERE AQUI
 
 # Listar todos os CSVs recursivamente (percorre subpastas por tipo de mutualismo)
 arquivos_csv <- list.files(
@@ -127,8 +127,8 @@ metricas_redes <- metricas_redes %>%
   )
 
 # Salvar métricas (não precisa recalcular nas próximas sessões)
-saveRDS(metricas_redes, "metricas_redes.rds")
-write.csv(metricas_redes, "metricas_redes.csv", row.names = FALSE)
+saveRDS(metricas_redes, "~/Bruno/outputs/metricas_redes.rds")
+write.csv(metricas_redes, "~/Bruno/outputs/metricas_redes.csv", row.names = FALSE)
 cat("Métricas salvas em metricas_redes.rds e metricas_redes.csv\n\n")
 print(metricas_redes)
 
@@ -186,44 +186,65 @@ print(metricas_redes)
 #     t_max: passos máximos de tempo por simulação
 # =============================================================================
 
-grid_params <- expand.grid(
+# -----------------------------------------------------------------------------
+# PASSO 1: Pares B/Ce garantindo Beneficio > Custo
+#
+# B e Ce sao definidos em pares para evitar combinacoes indesejadas.
+# Tres niveis de razao beneficio/custo:
+#   fraco    - diferenca pequena  (B media=0.60, Ce media=0.40)
+#   moderado - diferenca moderada (B media=0.71, Ce media=0.29)
+#   forte    - diferenca grande   (B media=0.83, Ce media=0.17)
+#
+# Para fixar em um unico nivel, deixe so uma linha no rbind.
+# Para adicionar mais niveis, inclua novas linhas.
+# -----------------------------------------------------------------------------
 
-  # --- Número de serviços ecossistêmicos ---
-  # Fixo: manter um único valor
-  # Sensibilidade: c(5, 10, 15)
-  n_services = c(5),        # variar ex: c(5, 10, 15)
+BCe_grid <- rbind(
+  data.frame(B_shape1=3, B_shape2=2, Ce_shape1=2, Ce_shape2=3, nivel_BCe="fraco",    stringsAsFactors=FALSE),
+  data.frame(B_shape1=5, B_shape2=2, Ce_shape1=2, Ce_shape2=5, nivel_BCe="moderado", stringsAsFactors=FALSE),
+  data.frame(B_shape1=5, B_shape2=1, Ce_shape1=1, Ce_shape2=5, nivel_BCe="forte",    stringsAsFactors=FALSE)
+)
 
-  # --- Benefício ecológico (B) ---
-  B_shape1 = c(0.5),        # variar ex: c(0.5, 1, 2)
-  B_shape2 = c(0.5),        # variar ex: c(0.5, 1, 2)
+# -----------------------------------------------------------------------------
+# PASSO 2: Demais parametros via expand.grid (produto cartesiano)
+#
+# Para fixar um parametro: deixe so um valor no vetor.
+# Para variar: adicione mais valores ex: Cp_multiplier = c(0, 0.5, 1.0)
+# -----------------------------------------------------------------------------
 
-  # --- Custo ecológico (Ce) ---
-  Ce_shape1 = c(0.5),       # variar ex: c(0.5, 1, 2)
-  Ce_shape2 = c(0.5),       # variar ex: c(0.5, 1, 2)
+outros_params <- expand.grid(
 
-  # --- Custo fisiológico (Cp) ---
-  Cp_multiplier = c(0),     # variar ex: c(0, 0.5, 1.0)
-  Cp_shape1     = c(0.5),   # só importa se Cp_multiplier > 0
-  Cp_shape2     = c(0.5),   # só importa se Cp_multiplier > 0
+  # Numero de servicos ecossistemicos
+  n_services = c(5, 10, 15),        # sensibilidade: c(5, 10, 15)
 
-  # --- Ambiente ---
+  # Custo fisiologico (Cp)
+  Cp_multiplier = c(0,0.1,0.3,0.5),     # variar ex: c(0, 0.5, 1.0)
+  Cp_shape1     = c(1),   # so importa se Cp_multiplier > 0
+  Cp_shape2     = c(1),   # so importa se Cp_multiplier > 0
+
+  # Ambiente
   A_min = c(0),             # variar ex: c(0, 0.5, 1.0)
   A_max = c(0),             # variar ex: c(0, 0.5, 1.0)
   w_min = c(0),             # variar ex: c(0, 0.1, 0.5)
   w_max = c(0),             # variar ex: c(0, 0.1, 0.5)
   zi_min = c(1),            # variar ex: c(1, 5)
-  zi_max = c(10),           # variar ex: c(10, 50)
+  zi_max = c(1),           # variar ex: c(10, 50)
 
-  # --- Rede de serviços ---
+  # Rede de servicos
   connectance_ES       = c(0.3),   # variar ex: c(0.1, 0.3, 0.5)
   threshold_percentile = c(0.5),   # variar ex: c(0.25, 0.50, 0.75)
 
-  # --- Simulação ---
-  n_replicates = c(50),     # aumentar para mais robustez estatística
+  # Simulacao
+  n_replicates = c(100),     # aumentar para mais robustez estatistica
   t_max        = c(10000),  # raramente precisa mudar
 
   stringsAsFactors = FALSE
 )
+
+# -----------------------------------------------------------------------------
+# PASSO 3: Combinar os dois grids
+# -----------------------------------------------------------------------------
+grid_params <- merge(BCe_grid, outros_params, by = NULL)
 
 # Informações sobre o grid
 n_cenarios   <- nrow(grid_params)
@@ -303,6 +324,7 @@ for (g in seq_len(n_cenarios)) {
 
   # Adicionar todas as colunas do grid como identificadores do cenário
   resultado_g$cenario_id           <- g
+  resultado_g$param_nivel_BCe      <- p$nivel_BCe
   resultado_g$param_n_services     <- p$n_services
   resultado_g$param_B_shape1       <- p$B_shape1
   resultado_g$param_B_shape2       <- p$B_shape2
@@ -337,13 +359,13 @@ for (g in seq_len(n_cenarios)) {
 resultados <- bind_rows(lista_resultados)
 
 # Completo com históricos (só abre no R)
-saveRDS(resultados, "resultados_modelo_completo.rds")
+saveRDS(resultados, "~/Bruno/outputs/resultados_modelo_completo.rds")
 
 # Simplificado sem históricos (abre no Excel também)
 resultados_csv <- resultados %>%
   select(-prop_species_history, -prop_interactions_history, -services_history)
 
-write.csv(resultados_csv, "resultados_modelo_completo.csv", row.names = FALSE)
+write.csv(resultados_csv, "~/Bruno/outputs/resultados_modelo_completo.csv", row.names = FALSE)
 
 cat("\nResultados consolidados salvos em:\n")
 cat("  resultados_modelo_completo.rds  (completo, com históricos)\n")
