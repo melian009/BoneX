@@ -45,7 +45,7 @@ source("explore_parameters_v3_redes_reais.R")  # explore_parameters_v3_redes_rea
 # =============================================================================
 
 # --- DEFINA AQUI O CAMINHO PARA SUA PASTA DE REDES ---
-caminho_redes <- "~/Bruno/Empirical"   # <-- ALTERE AQUI
+caminho_redes <- "data path"   # <-- ALTERE AQUI
 
 # Listar todos os CSVs recursivamente (percorre subpastas por tipo de mutualismo)
 arquivos_csv <- list.files(
@@ -127,8 +127,8 @@ metricas_redes <- metricas_redes %>%
   )
 
 # Salvar métricas (não precisa recalcular nas próximas sessões)
-saveRDS(metricas_redes, "~/Bruno/outputs/metricas_redes.rds")
-write.csv(metricas_redes, "~/Bruno/outputs/metricas_redes.csv", row.names = FALSE)
+saveRDS(metricas_redes, "path to save/data.rds")
+write.csv(metricas_redes, "path to save/data.csv", row.names = FALSE)
 cat("Métricas salvas em metricas_redes.rds e metricas_redes.csv\n\n")
 print(metricas_redes)
 
@@ -359,13 +359,13 @@ for (g in seq_len(n_cenarios)) {
 resultados <- bind_rows(lista_resultados)
 
 # Completo com históricos (só abre no R)
-saveRDS(resultados, "~/Bruno/outputs/resultados_modelo_completo.rds")
+saveRDS(resultados, "Path to save/data.rds")
 
 # Simplificado sem históricos (abre no Excel também)
 resultados_csv <- resultados %>%
   select(-prop_species_history, -prop_interactions_history, -services_history)
 
-write.csv(resultados_csv, "~/Bruno/outputs/resultados_modelo_completo.csv", row.names = FALSE)
+write.csv(resultados_csv, "path to save/data.csv", row.names = FALSE)
 
 cat("\nResultados consolidados salvos em:\n")
 cat("  resultados_modelo_completo.rds  (completo, com históricos)\n")
