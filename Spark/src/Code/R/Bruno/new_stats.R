@@ -5,7 +5,7 @@ library(tidyverse)
 library(readr)
 library(glmmTMB)
 library(ggplot2)
-library(openxlsx)
+library(openxlsx2)
 library(ggeffects)
 library(bbmle)
 
@@ -338,60 +338,216 @@ descriptive <- resultados %>%
 
 #4.2 data manegement - pivot longer
 
+
+## =============================================================================
+# ANÁLISE: EFEITO DAS MÉTRICAS ESTRUTURAIS NA PERSISTÊNCIA DE ESPÉCIES
+# =============================================================================
+#
+# Pergunta 1 — COMO cada métrica estrutural afeta a persistência?
+#   -> Modelo multivariado único, coeficientes em z-score (direção, magnitude, p)
+#
+# Pergunta 2 — QUAL métrica é mais importante?
+#   -> Ranking dos |coeficientes| padronizados do MESMO modelo multivariado
+#
+# Cenário fixado em param_nivel_BCe == "moderate" (ajuste se quiser outro)
+# =============================================================================
+
+library(dplyr)
+library(glmmTMB)
+library(car)
+library(broom.mixed)
+install.packages("broom.mixed")
+# -----------------------------------------------------------------------
+# 1. FILTRAR CENÁRIO E TRATAR NAs (NODF/Q podem faltar em redes grandes)
+# -----------------------------------------------------------------------
+
 estruc <- resultados %>%
-  filter(param_nivel_BCe == "moderate") 
+  filter(param_nivel_BCe == "moderate")
 
-# 1. Modelo para Conectância
-mod_conectancia <- glmmTMB(
-  cbind(n_species_final, n_species_total - n_species_final) ~ 
-    conectancia + (1 | nome_rede),
+n_antes <- nrow(estruc)
+
+estruc <- estruc %>%
+  filter(!is.na(NODF), !is.na(Q), !is.na(conectancia),
+         !is.na(n_species_total), !is.na(n_interacoes),
+         !is.na(mean_degree_core), !is.na(mean_degree_periphery))
+
+n_depois <- nrow(estruc)
+
+cat("=== TRATAMENTO DE NAs ===\n")
+cat(sprintf("Linhas antes:  %d\n", n_antes))
+cat(sprintf("Linhas depois: %d\n", n_depois))
+cat(sprintf("Excluídas:     %d (%.1f%%)\n\n", n_antes - n_depois,
+            100 * (n_antes - n_depois) / n_antes))
+
+redes_excluidas <- resultados %>%
+  filter(param_nivel_BCe == "moderate") %>%
+  filter(is.na(NODF) | is.na(Q)) %>%
+  distinct(nome_rede)
+
+cat(sprintf("Redes únicas excluídas (NODF/Q ausente): %d\n\n", nrow(redes_excluidas)))
+
+
+# -----------------------------------------------------------------------
+# 2. PADRONIZAR (Z-SCORE) OS PREDITORES ESTRUTURAIS
+# -----------------------------------------------------------------------
+
+estruc <- estruc %>%
+  mutate(
+    NODF_z     = as.numeric(scale(NODF)),
+    Q_z        = as.numeric(scale(Q)),
+    conect_z   = as.numeric(scale(conectancia)),
+    size_z     = as.numeric(scale(n_species_total)),
+    n_inter_z  = as.numeric(scale(n_interacoes)),
+    deg_core_z = as.numeric(scale(mean_degree_core)),
+    deg_peri_z = as.numeric(scale(mean_degree_periphery))
+  )
+
+
+# -----------------------------------------------------------------------
+# 3. CHECAR MULTICOLINEARIDADE ENTRE PREDITORES (antes do VIF do modelo)
+# -----------------------------------------------------------------------
+
+cat("=== MATRIZ DE CORRELAÇÃO ENTRE PREDITORES (z-score) ===\n")
+cor_matrix <- cor(estruc[, c("NODF_z","Q_z","conect_z","size_z",
+                             "n_inter_z","deg_core_z","deg_peri_z")],
+                  use = "complete.obs")
+print(round(cor_matrix, 2))
+cat("\n")
+
+
+# -----------------------------------------------------------------------
+# 4. MODELO MULTIVARIADO COMPLETO
+#
+#    NOTA: n_interacoes_z tende a ser quase colinear com size_z e
+#    conect_z (interações = conectância × n_plantas × n_animais).
+#    Se o VIF de n_inter_z for muito alto, ele é removido no passo 5.
+# -----------------------------------------------------------------------
+
+mod_full <- glmmTMB(
+  cbind(n_species_final, n_species_total - n_species_final) ~
+    NODF_z + Q_z + conect_z + size_z + n_inter_z + deg_core_z + deg_peri_z +
+    (1 | nome_rede),
   data   = estruc,
   family = binomial
 )
 
-
-# 2. Modelo para Aninhamento (NODF)
-mod_nodf <- glmmTMB(
-  cbind(n_species_final, n_species_total - n_species_final) ~ 
-    NODF + (1 | nome_rede),
-  data   = estruc,
-  family = binomial
-)
-
-# 3. Modelo para Modularidade (Q)
-mod_modularity <- glmmTMB(
-  cbind(n_species_final, n_species_total - n_species_final) ~ 
-    Q + (1 | nome_rede),
-  data   = estruc,
-  family = binomial
-)
+cat("=== VIF DO MODELO COMPLETO ===\n")
+print(vif(mod_full))
+cat("\n")
 
 
-null <-glmmTMB(
-  cbind(n_species_final, n_species_total - n_species_final) ~ 1 + (1 | nome_rede),
-  data = estruc, family = binomial
-)
+# -----------------------------------------------------------------------
+# 5. REMOVER PREDITORES COM VIF > 5 (UM POR VEZ, O MAIOR PRIMEIRO)
+#    E REAJUSTAR O MODELO — repete até todos os VIFs ficarem <= 5
+# -----------------------------------------------------------------------
+
+remove_high_vif <- function(formula_terms, data, threshold = 5) {
+  
+  repeat {
+    f <- as.formula(paste(
+      "cbind(n_species_final, n_species_total - n_species_final) ~",
+      paste(formula_terms, collapse = " + "),
+      "+ (1 | nome_rede)"
+    ))
+    
+    m <- glmmTMB(f, data = data, family = binomial)
+    
+    if (length(formula_terms) <= 1) return(list(model = m, terms = formula_terms))
+    
+    v <- vif(m)
+    if (max(v) <= threshold) return(list(model = m, terms = formula_terms))
+    
+    termo_remover <- names(v)[which.max(v)]
+    cat(sprintf("Removendo '%s' (VIF = %.2f)\n", termo_remover, max(v)))
+    formula_terms <- setdiff(formula_terms, termo_remover)
+  }
+}
+
+cat("=== SELEÇÃO DE PREDITORES (VIF <= 5) ===\n")
+todos_termos <- c("NODF_z","Q_z","conect_z","size_z","n_inter_z","deg_core_z","deg_peri_z")
+
+resultado_vif <- remove_high_vif(todos_termos, estruc, threshold = 5)
+mod_final     <- resultado_vif$model
+termos_finais <- resultado_vif$terms
+
+cat(sprintf("\nPreditores finais: %s\n\n", paste(termos_finais, collapse=", ")))
+cat("=== VIF DO MODELO FINAL ===\n")
+print(vif(mod_final))
+cat("\n")
 
 
-compare = AICtab(mod_nodf, mod_conectancia, mod_modularity, null, base = T, delta = T, weights = T)
-round(compare_df$weight,3)
+# -----------------------------------------------------------------------
+# 6. PERGUNTA 1 — COMO cada métrica afeta a persistência?
+#    (direção, magnitude, significância)
+# -----------------------------------------------------------------------
 
-compare_df <- data.frame(
-  Modelo = attr(compare, "row.names"),
-  as.data.frame(compare)
-)
-class(compare_df)
-write_xlsx(compare_df, "C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/model_run/results/aic_structure.xlsx")
+cat("=== RESUMO DO MODELO FINAL ===\n")
+print(summary(mod_final))
 
+tabela_efeitos <- tidy(mod_final, effects = "fixed", conf.int = TRUE) %>%
+  filter(term != "(Intercept)") %>%
+  mutate(
+    sig = case_when(
+      p.value < 0.001 ~ "***",
+      p.value < 0.01  ~ "**",
+      p.value < 0.05  ~ "*",
+      TRUE            ~ ""
+    )
+  ) %>%
+  select(term, estimate, std.error, conf.low, conf.high, p.value, sig)
+
+cat("\n=== PERGUNTA 1: EFEITO DE CADA MÉTRICA (em log-odds por DP) ===\n")
+print(tabela_efeitos)
+
+
+# -----------------------------------------------------------------------
+# 7. PERGUNTA 2 — QUAL métrica é mais importante?
+#    (ranking pelo |coeficiente| padronizado do MESMO modelo)
+# -----------------------------------------------------------------------
+
+tabela_ranking <- tabela_efeitos %>%
+  mutate(abs_estimate = abs(estimate)) %>%
+  arrange(desc(abs_estimate)) %>%
+  select(term, estimate, abs_estimate, p.value, sig)
+
+cat("\n=== PERGUNTA 2: RANKING DE IMPORTÂNCIA (|efeito| por DP) ===\n")
+print(tabela_ranking)
+
+
+# -----------------------------------------------------------------------
+# 8. R² DO MODELO FINAL (variação explicada)
+# -----------------------------------------------------------------------
+
+library(performance)
+cat("\n=== R² DO MODELO FINAL ===\n")
+print(r2(mod_final))
+
+
+# -----------------------------------------------------------------------
+# 9. SALVAR RESULTADOS
+# -----------------------------------------------------------------------
+
+write.csv(tabela_efeitos,  "tabela_efeitos_estrutura.csv",  row.names = FALSE)
+write.csv(tabela_ranking,  "tabela_ranking_estrutura.csv",  row.names = FALSE)
+saveRDS(mod_final, "mod_estrutura_final.rds")
+
+cat("\nResultados salvos:\n")
+cat("  tabela_efeitos_estrutura.csv\n")
+cat("  tabela_ranking_estrutura.csv\n")
+cat("  mod_estrutura_final.rds\n")
 
 library(patchwork) # Garante a colagem perfeita dos gráficos
 
 
 # --- 1. GERAR AS PREDICÕES REAIS (Usando os modelos individuais corretos) ---
 # [all] garante que o ggeffects explore a amplitude real de cada variável no banco
-preds_con <- as.data.frame(ggpredict(mod_conectancia, terms = "conectancia [all]"))
-preds_nod <- as.data.frame(ggpredict(mod_nodf, terms = "NODF [all]"))
-preds_mod <- as.data.frame(ggpredict(mod_modularity, terms = "Q [all]"))
+preds_con <- as.data.frame(ggpredict(mod_conectancia, terms = "conectancia [all]", bias_correction = T))
+preds_nod <- as.data.frame(ggpredict(mod_nodf, terms = "NODF [all]", bias_correction = T))
+preds_mod <- as.data.frame(ggpredict(mod_modularity, terms = "Q [all]", bias_correction = T))
+preds_core <- as.data.frame(ggpredict(core, terms = "mean_degree_core [all]", bias_correction = T))
+preds_peri <- as.data.frame(ggpredict(periphery, terms = "mean_degree_periphery [all]", bias_correction = T))
+
+
 
 # Filtro para o cenário moderado nos dados brutos
 estruc <- resultados %>% filter(param_nivel_BCe == "moderate")
@@ -399,42 +555,78 @@ estruc <- resultados %>% filter(param_nivel_BCe == "moderate")
 
 # --- 2. CONSTRUIR CADA GRÁFICO SEPARADAMENTE ---
 
-# Gráfico A: Conectância (Eixo X vai de 0 a 1)
+# Gráfico A: Conectância
 p1 <- ggplot() +
   geom_point(data = estruc, aes(x = conectancia, y = persistence_species, color = tipo_mutualismo_label), alpha = 0.02, size = 0.8) +
   geom_ribbon(data = preds_con, aes(x = x, ymin = conf.low, ymax = conf.high), alpha = 0.3, fill = "grey20") +
   geom_line(data = preds_con, aes(x = x, y = predicted), color = "black", linewidth = 1) +
-  labs(x = "Connectance", y = "Species Persistence") +
-  theme_classic() + theme(legend.position = "none", axis.text = element_text(color = "black"))+
-  theme(aspect.ratio = 1)
+  labs(x = "Connectance", y = "Species Persistence", color = "Mutualism") + # 'color' padronizado
+  theme_classic() + 
+  theme(axis.text = element_text(color = "black"), aspect.ratio = 1)
 
-# Gráfico B: NODF (Eixo X vai de 0 a 100)
+# Gráfico B: NODF
 p2 <- ggplot() +
   geom_point(data = estruc, aes(x = NODF, y = persistence_species, color = tipo_mutualismo_label), alpha = 0.02, size = 0.8) +
   geom_ribbon(data = preds_nod, aes(x = x, ymin = conf.low, ymax = conf.high), alpha = 0.3, fill = "grey20") +
   geom_line(data = preds_nod, aes(x = x, y = predicted), color = "black", linewidth = 1) +
-  labs(x = "Nestedness (NODF)", y = "") + # Remove o Y para não repetir no painel
-  theme_classic() + theme(legend.position = "none", axis.text = element_text(color = "black"))+
-  theme(aspect.ratio = 1)
+  labs(x = "Nestedness (NODF)", y = "", color = "Mutualism") + # Remove o título de Y, mantém o color
+  theme_classic() + 
+  theme(axis.text = element_text(color = "black"), aspect.ratio = 1)
 
-# Gráfico C: Modularidade Q (Eixo X vai de 0 a 1)
+# Gráfico C: Modularidade Q
 p3 <- ggplot() +
   geom_point(data = estruc, aes(x = Q, y = persistence_species, color = tipo_mutualismo_label), alpha = 0.02, size = 0.8) +
   geom_ribbon(data = preds_mod, aes(x = x, ymin = conf.low, ymax = conf.high), alpha = 0.3, fill = "grey20") +
   geom_line(data = preds_mod, aes(x = x, y = predicted), color = "black", linewidth = 1) +
   labs(x = "Modularity (Q)", y = "", color = "Mutualism") +
-  theme_classic() + theme(axis.text = element_text(color = "black")) +
-  guides(color = guide_legend(override.aes = list(alpha = 1, size = 2.5)))+
-  theme(aspect.ratio = 1)
+  theme_classic() + 
+  theme(axis.text = element_text(color = "black"), aspect.ratio = 1)
+
+# Gráfico D: Mean degree core
+p4 <- ggplot() +
+  geom_point(data = estruc, aes(x = mean_degree_core, y = persistence_species, color = tipo_mutualismo_label), alpha = 0.02, size = 0.8) +
+  geom_ribbon(data = preds_core, aes(x = x, ymin = conf.low, ymax = conf.high), alpha = 0.3, fill = "grey20") +
+  geom_line(data = preds_core, aes(x = x, y = predicted), color = "black", linewidth = 1) +
+  labs(x = "Mean degree of core species", y = "Species Persistence", color = "Mutualism") +
+  theme_classic() + 
+  theme(axis.text = element_text(color = "black"), aspect.ratio = 1)
+
+# Gráfico E: Mean degree periphery
+p5 <- ggplot() +
+  geom_point(data = estruc, aes(x = mean_degree_periphery, y = persistence_species, color = tipo_mutualismo_label), alpha = 0.02, size = 0.8) +
+  geom_ribbon(data = preds_peri, aes(x = x, ymin = conf.low, ymax = conf.high), alpha = 0.3, fill = "grey20") +
+  geom_line(data = preds_peri, aes(x = x, y = predicted), color = "black", linewidth = 1) +
+  labs(x = "Mean degree of peripheral species", y = "", color = "Mutualism") +
+  theme_classic() + 
+  theme(axis.text = element_text(color = "black"), aspect.ratio = 1)+
+  guides(color = guide_legend(title = "Mutualism", override.aes = list(alpha = 1, size = 2.5)))
 
 
-# --- 3. JUNTAR TUDO COM PATCHWORK E SALVAR ---
+# --- 3. JUNTAR TUDO COM PATCHWORK E AJUSTAR LAYOUT ---
 
-tiff("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/model_run/results/persistence_VS_network_metrics_FIXED.tiff",
-     w = 3200, h = 1200, res = 300, compression = "lzw")
+tiff("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/model_run/results/persistence_VS_network_metrics_PERFEITO.tiff",
+     w = 3600, h = 2400, res = 300, compression = "lzw")
 
-# O operador '|' coloca os gráficos lado a lado e 'plot_layout(guides = "collect")' unifica a legenda à direita
-(p1 | p2 | p3) + plot_layout(guides = "collect")
+# Criamos uma matriz de design: 
+# Linha 1: p1 (a), p2 (b), p3 (c)
+# Linha 2: p4 (d), p5 (e), e '#' indica um espaço vazio planejado para a legenda unificada
+layout_matriz <- "
+ABC
+DE#
+"
+
+# Juntamos usando o wrap_plots que interpreta essa matriz perfeitamente
+final_plot <- wrap_plots(A = p1, B = p2, C = p3, D = p4, E = p5, design = layout_matriz) + 
+  plot_layout(guides = "collect") + 
+  plot_annotation(tag_levels = 'a', tag_prefix = '(', tag_suffix = ')') & 
+  theme(
+    legend.position = "right",                         # Direciona a legenda coletada para o espaço '#'
+    plot.tag = element_text(face = "bold", size = 14), # Tags em negrito
+    axis.text = element_text(color = "black")
+  )
+
+# Renderiza o painel final no TIFF
+final_plot
 
 dev.off()
 
