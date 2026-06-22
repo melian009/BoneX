@@ -360,6 +360,7 @@ install.packages("broom.mixed")
 # -----------------------------------------------------------------------
 # 1. FILTRAR CENÁRIO E TRATAR NAs (NODF/Q podem faltar em redes grandes)
 # -----------------------------------------------------------------------
+str(resultados)
 
 estruc <- resultados %>%
   filter(param_nivel_BCe == "moderate")
@@ -399,7 +400,8 @@ estruc <- estruc %>%
     size_z     = as.numeric(scale(n_species_total)),
     n_inter_z  = as.numeric(scale(n_interacoes)),
     deg_core_z = as.numeric(scale(mean_degree_core)),
-    deg_peri_z = as.numeric(scale(mean_degree_periphery))
+    deg_peri_z = as.numeric(scale(mean_degree_periphery)), 
+    custo_z    = 
   )
 
 
