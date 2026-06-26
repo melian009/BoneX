@@ -50,7 +50,7 @@ resultados$service_providers = as.factor(resultados$service_providers)
 
 # 2.1 Physiological costs over moderate mutualism
 phisio = resultados %>%
-  filter(param_nivel_BCe == "moderate")
+  filter(param_nivel_BCe == "moderate",service_providers == "random")
 phisio$param_Cp_multiplier = as.factor(phisio$param_Cp_multiplier)
 
 #param_Cp_multiplier
@@ -275,7 +275,7 @@ cp <- glmmTMB(
 
 null <- glmmTMB(
   cbind(n_species_final, n_species_total - n_species_final) ~ 
-    1 + (1 | nome_rede),
+    param_Cp_multiplier + (1 | nome_rede),
   data   = phisio,
   family = binomial
 )
@@ -306,7 +306,7 @@ df_preds <- as.data.frame(preds_inter) %>%
 tiff("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/model_run/results/sp_pers_VS_system&cost.tiff",
      w = 2000, h = 2000, res = 300, compression = "lzw")
 
-ggplot() +
+p = ggplot() +
   # Dados brutos: pontos espalhados com transparência e organizados por sistema (dodge)
   geom_jitter(data = phisio, 
               aes(x = param_Cp_multiplier, y = persistence_species, color = sistema),
@@ -341,8 +341,24 @@ ggplot() +
     legend.position = "right",
     legend.title = element_text(face = "bold")
   )
+
+
 dev.off()
 
+library(magick)
+library(colorblindcheck)
+# 1. Defina o caminho do seu arquivo TIFF
+caminho_tiff <- "C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/model_run/results/sp_pers_VS_system&cost.tiff"
+
+# 2. Defina onde quer salvar o PNG temporário
+caminho_png <- "C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/model_run/results/sp_pers_VS_system_cost.png"
+
+# 3. Carregue e converta a imagem
+imagem_tiff <- image_read(caminho_tiff)
+image_write(imagem_tiff, path = caminho_png, format = "png")
+
+# 4. Agora sim, rode o simulador com o PNG gerado
+colorspace::cvd_emulator(caminho_png)
 ################################################################################
 # 2. Persistence of Species position at network 
 ################################################################################
@@ -454,6 +470,7 @@ descriptive <- resultados %>%
     sd_species = sd(n_species_total, na.rm = TRUE),
     sd_persistence = sd(n_species_final, na.rm = TRUE),
   )
+library(openxlsx)
 write.xlsx(descriptive, "C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/model_run/descriptive.xlsx")
 
 #4.2 data manegement - pivot longer
@@ -941,15 +958,24 @@ mod4 <- glmmTMB(
     (NODF_z + Q_z + conect_z + size_z + deg_core_z + deg_peri_z) * custo_cat +
     (1 | nome_rede),
   data   = estruc,
-  family = binomial
+  family = binomial,
+  control = glmmTMBControl(
+    optCtrl = list(iter.max = 1500, eval.max = 2000),
+    collect = FALSE
+  )
 )
+
 
 null4 <- glmmTMB(
   cbind(n_species_final, n_species_total - n_species_final) ~
     custo_cat +
     (1 | nome_rede),
   data   = estruc,
-  family = binomial
+  family = binomial,
+  control = glmmTMBControl(
+    optCtrl = list(iter.max = 1500, eval.max = 2000),
+    collect = FALSE
+  )
 )
 
 anova(mod4, null4, test = "Chisq")
@@ -1170,7 +1196,8 @@ metricas_info <- list(
 df_cond <- lapply(metricas_info, function(m) {
   pred <- ggpredict(
     mod4,
-    terms = c("custo_cat", m$cond)
+    terms = c("custo_cat", m$cond),
+    bias_correction = TRUE
   )
   data.frame(
     metrica   = m$label,
@@ -1253,6 +1280,6 @@ fig_cond <- ggplot() +
 # Renderizar o gráfico na tela
 fig_cond
 
-ggsave("fig_conditional_effects.tiff",
+ggsave("C:/Users/bruno/OneDrive/Documentos/GitHub/BoneX/Spark/Data/Simulated/Bruno/model_run/results/fig_conditional_effects.tiff",
        fig_cond, width = 10, height = 7, dpi = 300)
 dev.off()
