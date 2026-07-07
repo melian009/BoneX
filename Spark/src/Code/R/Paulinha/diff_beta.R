@@ -141,6 +141,9 @@ p_inset <- ggplot(beta_dist_long, aes(x = x, y = Density, color = Parameters)) +
 
 ggdraw() +
   draw_plot(p_main) +
-  draw_plot(p_inset, x = 0.1, y = 0.55, width = 0.4, height = 0.4)
+  #draw_plot(p_inset, x = 0.1, y = 0.55, width = 0.4, height = 0.4) +
+  stat_ecdf(aes(x=setup$diff), geom = "step")
 
-ggsave("./figures/beta1_c03.pdf", width = 7)
+
+
+#ggsave("./figures/beta1_c03.pdf", width = 7)

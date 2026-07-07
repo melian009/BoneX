@@ -21,25 +21,32 @@ We developed a framework to explore how costs and benefits associated with speci
 
 Given the broad nature of the modeling framework we took two complementary approaches. Within the first approach we explored how the processes incorporated in the model lead to network structures that resemble empirical ones. The second approach takes empirical networks as a starting point and explores the consequences of the processes incorporated in the model to the persistence of mutualisms and ecosystem services. These two approaches are explored concomitantly and attack (i) how processes lead to patterns and (ii) the consequences of processes in the emerging patterns.
 
+\section*{Methods}\label{sec:methods}
+The two approaches share the same modeling framework's backbone. The common shared aspects of both projects are presented below and afterwards each approach described its own questions and peculiarities. In both cases, a bipartite network of interacting species is defined (either theoretically or empirically). The two sets of nodes can represent plants and pollinators and/or plants and frugivores. Interactions are established between nodes from different sets and each interaction is associated with costs and benefits. The balance between costs and benefits defines which species will be present in the community following a decision function.
+
+
 ## Interaction networks
 
 We use our modeling framework as a benchmark to understand what distributions of costs and benefits associated with the interactions leads to networks whose structure resemble empirical networks. Starting from a pool of potential interacting species from two groups (i.e., a bipartite structure of plants and pollinators, for example), we assume all species can potentially interact, given a certain connectance and a random structure to define which species interact. \textit{This is a first approximation, we can also use other models to define potential interactions that take into account realistic degree distributions} Once interactions are established, we define the costs and benefits associated with each interaction for each partner.
 
 ## Cost and benefit functions
 
-Costs and benefits can be described as functions with a giving underlying distribution.
+The costs and benefits associated with the interactions between species follow an underlying distribution. We used the beta distribution, which is defined on the interval $[0,1]$ in terms of two parameters $\alpha$ and $\beta$ and can take diverse shapes, allowing the exploration of a diverse array of combinations of costs and benefits. Additionally, it provides a limit to the maximum benefit (cost) a species can have. The upper limit is $k$ (the degree of the species, assuming it receives the maximum benefit from all its partners, as benefits are an additive function -- see Sec.[Decision function]{#decision-function}). The beta distribution was used previously to model interactions in food web models [@williams2000simple, @cattin2004phylogenetic, @dunne2008compilation, @stouffer2005quantitative].
 
-### Beta distribution
+Each pairwise interaction is hence associated with an underlying cost and an underlying benefit, which might follow different parameterizations from a beta distribution. The balance between costs and benefits defined by the decision function determines whether a species is able to persist in a community.
 
-Continuous probability distribution defined on the interval $[0,1]$ in terms of two positive parameters $\alpha$ and $\beta$. It is a suitable distribution for modeling the costs and benefits as they are defined only in the positive realm, and can take diverse shapes. Additionally, it provides a limit to the maximum benefit (cost) a species can have. The upper limit in this case is $k$ (the degree of the species, assuming it receives the maximum benefit from all its partners and benefits are an additive function). The beta distribution has been used to model interactions in food web models before [@williams2000simple, @cattin2004phylogenetic, @dunne2008compilation, @stouffer2005quantitative].
+## Decision Function
 
-```{r beta, echo=FALSE, out.width="50%", fig.cap="Costs and benefits drawn from a beta distribution"}
-  ggplot() +
-  stat_function(fun = dbeta, args = list(shape1 = 5, shape2 = 2.5), aes(color = "Benefit"), lwd=1.5) +
-  stat_function(fun = dbeta, args = list(shape1 = 2.5, shape2 = 3), aes(color = "Cost"), lwd=1.5) +
-  scale_color_manual("Curve", values = c("Benefit" = "orchid4", "Cost" = "goldenrod")) +
-  theme_minimal()
-```
+Our framework considers a Boolean network determining whether species persist in their environment given the costs and benefits associated with the interactions they establish with mutualistic partners, as well as a contribution of physiological costs associated with the environment. The existence of costs and benefits depends on the presence of an interaction encoded in the adjacency matrix that defines which species interact with whom. The decision function for species $i$ is defined as follows:
+
+\[
+w_i = \underbrace{\sum_j(B_{ij} - C_{ij})}_\text{biotic} - \underbrace{\alpha P_i}_\text{abiotic}
+\]
+
+where $B_{ij}$ is the element $ij$ of the matrix $B$ that encodes the benefits, similarly $C_{ij}$ is the element $ij$ of the matrix $C$ that encodes the costs of the interaction, both sampled from beta distributions. For each pairwise interaction, a net benefit is estimated and summed across all interaction partners, which is the biotic component of the decision function. $P_i$ is the physiological cost associated with the baseline survival of species $i$ and parameter $\alpha$ is the environmental effect, which in combination with the physiological cost compose the abiotic component of the decision function.
+Whenever $w_i > 0$ species $i$ persists in the environment, whereas whenever $w_i \leq 0$ species $i$ goes extinct. 
+
+
 
 ### Boundary conditions for costs and benefits and the persistence/extinction of species
 
@@ -77,6 +84,11 @@ For the negative case ($0 < \theta_d \leq 1$) the parameters are $a=\beta_2$, $b
 ## The Ecosystem-Services Matrix
 
 The matrix describing the ecosystem services is composed of services on the rows and species contributing to the services as its columns. This view of multiple species contributing to an ecosystem service recognizes that services are built through species acting as providers of the service per se and species playing a supporting role in the service [@keyes2021ecological]. The structure of the ecosystem service matrix can be explored from a theoretical point of view as well as using specific case studies. For instance, we can connect the structure of the empirical network of interactions with the structure of the ecosystem services matrix, where species that play a central role in the matrix are associated with certain services whereas species in the periphery of the network are associated with other services. In this example we further explore how these services differ in their robustness to species' loss or to environmental changes.
+
+
+
+
+\newpage
 
 ### Follow-up questions
 
