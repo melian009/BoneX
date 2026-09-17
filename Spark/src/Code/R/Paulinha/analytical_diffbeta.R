@@ -85,3 +85,166 @@ modified_ddiff <- function (x, alpha1, alpha2, beta1, beta2, log = FALSE,
 
 
 modified_ddiff(1.5, 0.5, 0.5, 1, 1)
+
+
+
+#____________________________________________________________#
+# Alternative Solution
+dbeta_diff <- function(d, a1, b1, a2, b2) {
+  # Normalize input vector and allocate space for results
+  res <- numeric(length(d))
+  
+  # Constant denominator (product of individual beta functions)
+  B_prod <- beta(a1, b1) * beta(a2, b2)
+  
+  for(i in seq_along(d)) {
+    val <- d[i]
+    
+    # 1. Outside the domain (-1, 1)
+    if (val <= -1 || val >= 1) {
+      res[i] <- 0
+      next
+    }
+    
+    # 2. Case: d > 0 (Formula 1)
+    if (val > 0) {
+      term_coef <- beta(a2, b1) * (val^(b1 + b2 - 1)) * ((1 - val)^(a2 + b1 - 1)) / B_prod
+      F1_val <- tolerance::F1(
+        a = b1, 
+        b = a1 + b1 + a2 + b2 - 2, 
+        b.prime = 1 - a1, 
+        c = b1 + a2, 
+        x = 1 - val, 
+        y = 1 - val^2
+      )
+      res[i] <- term_coef * F1_val
+    }
+    
+    # 3. Case: d < 0 (Formula 2)
+    else if (val < 0) {
+      term_coef <- beta(a1, b2) * ((-val)^(b1 + b2 - 1)) * ((1 + val)^(a1 + b2 - 1)) / B_prod
+      F1_val <- tolerance::F1(
+        a = b2, 
+        b = 1 - a2, 
+        b.prime = a1 + b1 + a2 + b2 - 2, 
+        c = a1 + b2, 
+        x = 1 - val^2, 
+        y = 1 + val
+      )
+      res[i] <- term_coef * F1_val
+    }
+    
+    # 4. Case: d == 0 
+    else {
+      if ((a1 + a2 > 1) && (b1 + b2 > 1)) {
+        res[i] <- beta(a1 + a2 - 1, b1 + b2 - 1) / B_prod
+      } else {
+        res[i] <- Inf # Handles the asymptotic limit if parameters are too small
+      }
+    }
+  }
+  
+  return(res)
+}
+
+# Define distribution parameters
+a1 <- 2; b1 <- 5   # X ~ Beta(2, 5)
+a2 <- 3; b2 <- 2   # Y ~ Beta(3, 2)
+
+# Generate 100,000 simulations for empirical checking
+set.seed(42)
+sim_X <- rbeta(100000, a1, b1)
+sim_Y <- rbeta(100000, a2, b2)
+sim_diff <- sim_X - sim_Y
+
+# Plot the empirical distribution
+hist(sim_diff, breaks = 60, probability = TRUE, col = "lightgray", border = "white",
+     main = "PDF of Difference Between Two Beta Distributions",
+     xlab = "d = X - Y", xlim = c(-1, 1))
+
+# Superimpose the analytic PDF using our function
+eval_points <- seq(-0.99, 0.99, length.out = 200)
+analytic_y <- dbeta_diff(eval_points, a1, b1, a2, b2)
+
+lines(eval_points, analytic_y, col = "royalblue", lwd = 2.5)
+legend("topright", legend = c("Simulation (rbeta)", "Analytic (Pham-Gia et al.)"),
+       col = c("lightgray", "royalblue"), lwd = c(8, 2.5), bty = "n")
+
+
+
+# For the CDF
+pbeta_diff <- function(d, a1, b1, a2, b2) {
+  res <- numeric(length(d))
+  B_prod <- beta(a1, b1) * beta(a2, b2)
+  
+  for(i in seq_along(d)) {
+    val <- d[i]
+    
+    # Boundary constraints
+    if (val <= -1) {
+      res[i] <- 0
+      next
+    }
+    if (val >= 1) {
+      res[i] <- 1
+      next
+    }
+    
+    # Case 1: d <= 0
+    if (val <= 0) {
+      term_coef <- beta(a1, b2) * ((-val)^(b1 + b2)) * ((1 + val)^(a1 + b2 - 1)) / 
+        ((b1 + b2) * B_prod)
+      
+      F1_val <- tolerance::F1(
+        a = b1 + b2, 
+        b = 1 - a2, 
+        b.prime = a1 + b1 + a2 + b2 - 2, 
+        c = b1 + b2 + 1, 
+        x = 1 - val^2, 
+        y = 1 + val
+      )
+      res[i] <- term_coef * F1_val
+    } 
+    
+    # Case 2: d > 0 (Using 1 minus the complementary upper probability)
+    else {
+      term_coef <- beta(a2, b1) * (val^(b1 + b2)) * ((1 - val)^(a2 + b1 - 1)) / 
+        ((b1 + b2) * B_prod)
+      
+      F1_val <- tolerance::F1(
+        a = b1 + b2, 
+        b = a1 + b1 + a2 + b2 - 2, 
+        b.prime = 1 - a1, 
+        c = b1 + b2 + 1, 
+        x = 1 - val, 
+        y = 1 - val^2
+      )
+      res[i] <- 1 - (term_coef * F1_val)
+    }
+  }
+  
+  return(res)
+}
+
+# Parameters for X ~ Beta(2, 5) and Y ~ Beta(3, 2)
+a1 <- 5; b1 <- 3
+a2 <- 5; b2 <- 3.5
+
+# Monte Carlo simulation (100,000 samples)
+set.seed(42)
+sim_X <- rbeta(100000, a1, b1)
+sim_Y <- rbeta(100000, a2, b2)
+sim_diff <- sim_X - sim_Y
+
+# Plot the Empirical CDF
+plot(ecdf(sim_diff), col = "lightgray", lwd = 5,
+     main = "CDF of Difference Between Two Beta Distributions",
+     xlab = "d = X - Y", ylab = "P(D <= d)", xlim = c(-1, 1))
+
+# Superimpose our exact analytic CDF calculation
+eval_points <- seq(-0.99, 0.99, length.out = 200)
+analytic_cdf <- pbeta_diff(eval_points, a1, b1, a2, b2)
+
+lines(eval_points, analytic_cdf, col = "firebrick", lwd = 2)
+legend("bottomright", legend = c("Empirical ECDF", "Analytic CDF (Pham-Gia)"),
+       col = c("lightgray", "firebrick"), lwd = c(5, 2), bty = "n")

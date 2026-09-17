@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2026.1.28)  27 MAY 2026 16:36
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2026.1.28)  31 AUG 2026 18:19
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -320,6 +320,9 @@ File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
 
 LaTeX Warning: Label `decision-function' multiply defined.
 
+
+LaTeX Warning: Label `fig:lognormal' multiply defined.
+
 )
 \openout1 = `Notes_Paulinha.aux'.
 
@@ -411,33 +414,81 @@ File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 LaTeX Font Info:    Trying to load font information for U+msb on input line 107.
 (/Users/plemos/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-)
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 168.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 168.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 168.
-[1
+) [1
 
-{/Users/plemos/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/Users/plemos/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}] [2{/Users/plemos/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/Users/plemos/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/Users/plemos/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}{/Users/plemos/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}] [3]
-<Notes_Paulinha_files/figure-latex/lognormal-1.pdf, id=39, 469.755pt x 325.215pt>
+{/Users/plemos/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/Users/plemos/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}]
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <10> on input line 181.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <7> on input line 181.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <5> on input line 181.
+[2{/Users/plemos/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/Users/plemos/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/Users/plemos/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}{/Users/plemos/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}]
+<../src/Code/R/Paulinha/figures/beta1.pdf, id=31, 505.89pt x 410.53375pt>
+File: ../src/Code/R/Paulinha/figures/beta1.pdf Graphic file (type pdf)
+<use ../src/Code/R/Paulinha/figures/beta1.pdf>
+Package pdftex.def Info: ../src/Code/R/Paulinha/figures/beta1.pdf  used on input line 278.
+(pdftex.def)             Requested size: 234.8775pt x 190.60806pt.
+[3 <../src/Code/R/Paulinha/figures/beta1.pdf>]
+<../src/Code/R/Paulinha/figures/beta2.pdf, id=50, 505.89pt x 318.18875pt>
+File: ../src/Code/R/Paulinha/figures/beta2.pdf Graphic file (type pdf)
+<use ../src/Code/R/Paulinha/figures/beta2.pdf>
+Package pdftex.def Info: ../src/Code/R/Paulinha/figures/beta2.pdf  used on input line 294.
+(pdftex.def)             Requested size: 225.4804pt x 141.8193pt.
+<../src/Code/R/Paulinha/figures/beta3.pdf, id=51, 505.89pt x 410.53375pt>
+File: ../src/Code/R/Paulinha/figures/beta3.pdf Graphic file (type pdf)
+<use ../src/Code/R/Paulinha/figures/beta3.pdf>
+Package pdftex.def Info: ../src/Code/R/Paulinha/figures/beta3.pdf  used on input line 296.
+(pdftex.def)             Requested size: 225.4804pt x 182.97823pt.
+<../src/Code/R/Paulinha/figures/lognorm.pdf, id=52, 505.89pt x 410.53375pt>
+File: ../src/Code/R/Paulinha/figures/lognorm.pdf Graphic file (type pdf)
+<use ../src/Code/R/Paulinha/figures/lognorm.pdf>
+Package pdftex.def Info: ../src/Code/R/Paulinha/figures/lognorm.pdf  used on input line 313.
+(pdftex.def)             Requested size: 234.8775pt x 190.60806pt.
+[4 <../src/Code/R/Paulinha/figures/beta2.pdf> <../src/Code/R/Paulinha/figures/beta3.pdf> <../src/Code/R/Paulinha/figures/lognorm.pdf>]
+<../src/Code/R/Paulinha/figures/degree_distributions.pdf, id=90, 361.35pt x 289.08pt>
+File: ../src/Code/R/Paulinha/figures/degree_distributions.pdf Graphic file (type pdf)
+<use ../src/Code/R/Paulinha/figures/degree_distributions.pdf>
+Package pdftex.def Info: ../src/Code/R/Paulinha/figures/degree_distributions.pdf  used on input line 341.
+(pdftex.def)             Requested size: 305.33789pt x 244.27234pt.
+<../src/Code/R/Paulinha/figures/mean_time.pdf, id=91, 433.62pt x 289.08pt>
+File: ../src/Code/R/Paulinha/figures/mean_time.pdf Graphic file (type pdf)
+<use ../src/Code/R/Paulinha/figures/mean_time.pdf>
+Package pdftex.def Info: ../src/Code/R/Paulinha/figures/mean_time.pdf  used on input line 359.
+(pdftex.def)             Requested size: 305.33789pt x 203.56763pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<../src/Code/R/Paulinha/figures/mean_prop_spp.pdf, id=94, 433.62pt x 289.08pt>
+File: ../src/Code/R/Paulinha/figures/mean_prop_spp.pdf Graphic file (type pdf)
+<use ../src/Code/R/Paulinha/figures/mean_prop_spp.pdf>
+Package pdftex.def Info: ../src/Code/R/Paulinha/figures/mean_prop_spp.pdf  used on input line 375.
+(pdftex.def)             Requested size: 305.33789pt x 203.56763pt.
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[5 <../src/Code/R/Paulinha/figures/degree_distributions.pdf>] [6 <../src/Code/R/Paulinha/figures/mean_time.pdf> <../src/Code/R/Paulinha/figures/mean_prop_spp.pdf
+
+pdfTeX warning: pdflatex (file ../src/Code/R/Paulinha/figures/mean_prop_spp.pdf): PDF inclusion: multiple pdfs with page group included in a single page
+>]
+<Notes_Paulinha_files/figure-latex/lognormal-1.pdf, id=155, 469.755pt x 325.215pt>
 File: Notes_Paulinha_files/figure-latex/lognormal-1.pdf Graphic file (type pdf)
 <use Notes_Paulinha_files/figure-latex/lognormal-1.pdf>
-Package pdftex.def Info: Notes_Paulinha_files/figure-latex/lognormal-1.pdf  used on input line 330.
+Package pdftex.def Info: Notes_Paulinha_files/figure-latex/lognormal-1.pdf  used on input line 482.
 (pdftex.def)             Requested size: 234.8775pt x 162.6071pt.
-[4 <./Notes_Paulinha_files/figure-latex/lognormal-1.pdf>]
-<Notes_Paulinha_files/figure-latex/functions-1.pdf, id=55, 469.755pt x 325.215pt>
+[7]
+<Notes_Paulinha_files/figure-latex/functions-1.pdf, id=166, 469.755pt x 325.215pt>
 File: Notes_Paulinha_files/figure-latex/functions-1.pdf Graphic file (type pdf)
 <use Notes_Paulinha_files/figure-latex/functions-1.pdf>
-Package pdftex.def Info: Notes_Paulinha_files/figure-latex/functions-1.pdf  used on input line 364.
+Package pdftex.def Info: Notes_Paulinha_files/figure-latex/functions-1.pdf  used on input line 516.
 (pdftex.def)             Requested size: 234.8775pt x 162.6071pt.
-<Notes_Paulinha_files/figure-latex/coexistence-1.pdf, id=57, 469.755pt x 325.215pt>
+[8 <./Notes_Paulinha_files/figure-latex/lognormal-1.pdf> <./Notes_Paulinha_files/figure-latex/functions-1.pdf>]
+<Notes_Paulinha_files/figure-latex/coexistence-1.pdf, id=187, 469.755pt x 325.215pt>
 File: Notes_Paulinha_files/figure-latex/coexistence-1.pdf Graphic file (type pdf)
 <use Notes_Paulinha_files/figure-latex/coexistence-1.pdf>
-Package pdftex.def Info: Notes_Paulinha_files/figure-latex/coexistence-1.pdf  used on input line 380.
+Package pdftex.def Info: Notes_Paulinha_files/figure-latex/coexistence-1.pdf  used on input line 532.
 (pdftex.def)             Requested size: 234.8775pt x 162.6071pt.
-[5 <./Notes_Paulinha_files/figure-latex/functions-1.pdf> <./Notes_Paulinha_files/figure-latex/coexistence-1.pdf>] [6] (./Notes_Paulinha.aux)
+[9 <./Notes_Paulinha_files/figure-latex/coexistence-1.pdf>] [10] (./Notes_Paulinha.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
@@ -447,18 +498,18 @@ LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 11160 strings out of 469514
- 171621 string characters out of 5469022
- 589124 words of memory out of 5000000
- 39619 multiletter control sequences out of 15000+600000
+ 11242 strings out of 469514
+ 174677 string characters out of 5469022
+ 592965 words of memory out of 5000000
+ 39685 multiletter control sequences out of 15000+600000
  684005 words of font info for 82 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 89i,8n,93p,1030b,460s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmex10.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi7.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr12.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr17.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr5.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr7.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy7.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on Notes_Paulinha.pdf (6 pages, 276171 bytes).
+ 89i,8n,93p,1033b,458s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmex10.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi5.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi7.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr12.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr17.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr5.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr7.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy7.pfb></Users/plemos/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on Notes_Paulinha.pdf (10 pages, 793826 bytes).
 PDF statistics:
- 192 PDF objects out of 1000 (max. 8388607)
- 146 compressed objects within 2 object streams
- 31 named destinations out of 1000 (max. 500000)
- 88 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 342 PDF objects out of 1000 (max. 8388607)
+ 266 compressed objects within 3 object streams
+ 47 named destinations out of 1000 (max. 500000)
+ 171 words of extra memory for PDF output out of 10000 (max. 10000000)
 

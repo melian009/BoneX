@@ -43,7 +43,8 @@ for(k in 1:length(alphaC)){
     
     tmp_degree <- tibble(species = names(rowSums(model_output$A)),
                          degree=rowSums(model_output$A), 
-                         presence= ifelse(t(tail(model_output$community, 1)) == 1, "present", "extinct")[,1],
+                         presence= ifelse(t(tail(model_output$community, 1)) == 1, 
+                                          "present", "extinct")[,1],
                          iteration = i,
                          pars_beta = pars_combination)
     res_degrees <- rbind(res_degrees, tmp_degree)
@@ -66,7 +67,8 @@ for(k in 1:length(alphaC)){
   
   final_res <-  rbind(final_res, tmp_final)
 }
-res_degrees <- res_degrees %>% mutate(pars_beta = factor(pars_beta, levels = unique(pars_beta)))
+res_degrees <- res_degrees %>% mutate(pars_beta = factor(pars_beta, 
+                                                         levels = unique(pars_beta)))
 
 ## Is there a relationship between initial degree and "probability of extinction"
 # It doesn't seem so

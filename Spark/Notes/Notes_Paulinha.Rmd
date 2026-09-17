@@ -1,9 +1,11 @@
 ---
 title: "Notes on Spark Project"
 author: "Paulinha"
-output: pdf_document
-header-includes:
- - \usepackage{amsmath}
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+header-includes: \usepackage{amsmath}
 bibliography: refs_Spark.bib
 ---
 
@@ -21,7 +23,7 @@ We developed a framework to explore how costs and benefits associated with speci
 
 Given the broad nature of the modeling framework we took two complementary approaches. Within the first approach we explored how the processes incorporated in the model lead to network structures that resemble empirical ones. The second approach takes empirical networks as a starting point and explores the consequences of the processes incorporated in the model to the persistence of mutualisms and ecosystem services. These two approaches are explored concomitantly and attack (i) how processes lead to patterns and (ii) the consequences of processes in the emerging patterns.
 
-\section*{Methods}\label{sec:methods}
+# Methods
 The two approaches share the same modeling framework's backbone. The common shared aspects of both projects are presented below and afterwards each approach described its own questions and peculiarities. In both cases, a bipartite network of interacting species is defined (either theoretically or empirically). The two sets of nodes can represent plants and pollinators and/or plants and frugivores. Interactions are established between nodes from different sets and each interaction is associated with costs and benefits. The balance between costs and benefits defines which species will be present in the community following a decision function.
 
 
@@ -31,7 +33,7 @@ We use our modeling framework as a benchmark to understand what distributions of
 
 ## Cost and benefit functions
 
-The costs and benefits associated with the interactions between species follow an underlying distribution. We used the beta distribution, which is defined on the interval $[0,1]$ in terms of two parameters $\alpha$ and $\beta$ and can take diverse shapes, allowing the exploration of a diverse array of combinations of costs and benefits. Additionally, it provides a limit to the maximum benefit (cost) a species can have. The upper limit is $k$ (the degree of the species, assuming it receives the maximum benefit from all its partners, as benefits are an additive function -- see Sec.[Decision function]{#decision-function}). The beta distribution was used previously to model interactions in food web models [@williams2000simple, @cattin2004phylogenetic, @dunne2008compilation, @stouffer2005quantitative].
+The costs and benefits associated with the interactions between species follow an underlying distribution. We used the beta distribution, which is defined on the interval $[0,1]$ in terms of two parameters $\alpha$ and $\beta$ and can take diverse shapes, allowing the exploration of a diverse array of combinations of costs and benefits. Additionally, it provides a limit to the maximum benefit (cost) a species can have. The upper limit is $k$ (the degree of the species, assuming it receives the maximum benefit from all its partners, as benefits are an additive function -- see Sec.[Decision function]{#decision-function}). The beta distribution was used previously to model trophic and competitive interactions  [@cattin2004phylogenetic, @dunne2008compilation, @stouffer2005quantitative, @fowler2010extinction].
 
 Each pairwise interaction is hence associated with an underlying cost and an underlying benefit, which might follow different parameterizations from a beta distribution. The balance between costs and benefits defined by the decision function determines whether a species is able to persist in a community.
 
@@ -48,6 +50,101 @@ Whenever $w_i > 0$ species $i$ persists in the environment, whereas whenever $w_
 
 
 
+## The Ecosystem-Services Matrix
+
+The matrix describing the ecosystem services is composed of services on the rows and species contributing to the services as its columns. This view of multiple species contributing to an ecosystem service recognizes that services are built through species acting as providers of the service per se and species playing a supporting role in the service [@keyes2021ecological]. The structure of the ecosystem service matrix can be explored from a theoretical point of view as well as using specific case studies. For instance, we can connect the structure of the empirical network of interactions with the structure of the ecosystem services matrix, where species that play a central role in the matrix are associated with certain services whereas species in the periphery of the network are associated with other services. In this example we further explore how these services differ in their robustness to species' loss or to environmental changes.
+
+
+# Results
+
+## Model setting and random expectations
+
+The first part of the projects focuses on the effects of the distribution of costs and benefits on the persistence of species interacting in random bipartite networks, following the Erdös-Renyi (ER) model. The system is initialized with $n_i$ species in one set and $n_j$ species in the other set. Interactions are established between species belonging to different sets, and the probability of an interaction between species from different sets is given by $p$, which is the expected connectance under the ER-model. Following the Boolean rules, we explored the proportion of surviving species given the difference between the first moment of the distribution of costs and of benefits, i.e., given the difference in the expected values of benefits $E[B]$ and costs $E[C]$. For the beta distribution, this difference ($d$) is given by:
+
+$$
+d = E[B] - E[C]
+$$
+$$
+E[B]=\frac{\alpha_b}{\alpha_b+\beta_b} 
+$$
+$$
+E[C]=\frac{\alpha_c}{\alpha_c+\beta_c} 
+$$
+
+When the difference is negative ($d<0$), expected costs surpass the expected benefits for species interactions, and hence, we expect more species to go extinct. Alternatively, when $d>0$ the expected benefits are greater than the expected cost, allowing a greater number of species to coexist.
+
+\begin{figure}[htbp!]
+    \centering
+    \includegraphics[width=0.5\linewidth]{../src/Code/R/Paulinha/figures/beta1.pdf}
+    \caption{Proportion of surviving species given the difference between the expected value of benefits and costs under beta parameterization considering $\beta = 1$ and $0.01 < \alpha< 0.99$. The inset shows the shape of the distribution for different values of $\alpha$ when $\beta =1$. The model was run with random networks consisting of 115 nodes (50 on one set of species and 65 on the other set) and expected connectance of $p=0.65$. Each combination of $\alpha_b$ (associated with benefits) and $\alpha_c$ (associated with costs) had 10 replicates and the proportion of surviving species was recorded.}
+    \label{fig:surviving}
+\end{figure}
+
+Figure \ref{fig:surviving} shows whenever expected costs are greater than expected benefits (negative values on the $x$-axis), all species go extinct. As the difference decreases, an increasing proportion of species remain in the system. Finally, when expected benefits are much greater than expected costs (positive values on the $x$-axis), all species remain in the system. This pattern holds for other parameterizations of the beta distribution \ref{fig:alternative_beta}, and alternative choice of distribution (e.g., Lognormal distribution).
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.48\textwidth]{../src/Code/R/Paulinha/figures/beta2.pdf}
+    \hfill
+    \includegraphics[width=0.48\textwidth]{../src/Code/R/Paulinha/figures/beta3.pdf}
+    \caption{Proportion of surviving species given the difference between expected value of benefits and expected value of costs under beta distributions with parameters following the inset graphs.}
+    \label{fig:alternative_beta}
+\end{figure}
+
+When modeling costs and benefits using a Lognormal distribution. In this case, the expected values are given by $E[X] = e^{(\mu+\frac{\sigma^2}{2})}$. For the lognormal distribution, there is a greater variance in the range of parameter values leading to coexistence than observed for the beta distribution. Even with a greater variance, both distributions lead to an $S-$shaped pattern on the probability of coexistence. These analyses suggest a robust pattern in how asymmetries in the distribution of costs and benefits shape species coexistence.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.5\textwidth]{../src/Code/R/Paulinha/figures/lognorm.pdf}
+    \caption{Proportion of surviving species given the difference between expected value of benefits and expected value of costs under lognormal distribution with parameters following the inset graphs. This set of simulations also considered random networks with 115 nodes (50 on one set and 65 on the other set and expected connectance of $p=0.65$.}
+    \label{fig:lognormal}
+\end{figure}
+
+Simulations explored parameter combinations in which the final number of surviving species is variable. 
+
+
+## Probability of extinction
+
+Under the ER-model degree distribution is homogeneous, with the mean expected degree $<k_i> = p(n-1)$ and the variance of the degree distribution $\sigma^2 = p(1-p)(n-1)$. Even if homogeneous, the distribution has a variance and the probability of extinction of a species could be related to their initial degree. Nevertheless, for networks that follow the ER-model, there was no relationship between initial degree and probability of extinction, regardless of specific choice of parameters associated with costs and benefits. Figure \ref{fig:degree} shows a series of histograms with the degree distribution resulting from 100 simulations for each panel with a combination of parameters for the distribution of costs and benefits. Darker colors represent the initial degree of surviving species whereas lighter colors represent the initial degree of species that went extinct during the simulation. Distributions are overlapping showing there's no effect of initial degree on species' extinction. 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.65\textwidth]{../src/Code/R/Paulinha/figures/degree_distributions.pdf}
+    \caption{Initial degree distribution at the beginning of the simulation, accounting for species that survived (darker colors) and species that went extinct (light colors). These sets of simulations considered random networks with 115 nodes (50 on one set and 65 on the other set and expected connectance of $p=0.65$) with 100 replicates for each parameter combination. Each panel presents a different combination of parameters for the distribution of costs (C) and benefits (B).}
+    \label{fig:degree}
+\end{figure}
+
+
+## Effect of connectance
+
+Connectance (number of realized interactions given all possible interactions) can influence dynamics, from the time it takes for dynamics to stabilize to the final number of surviving species. 
+The number of time steps it takes for species' number to stabilize does not depend on network connectance nor on specific parameterization of the beta distribution describing costs and benefits. The mean time across all simulations is $3.75$ with a standard deviation ranging from $sd = 1.66-2.52$.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.65\textwidth]{../src/Code/R/Paulinha/figures/mean_time.pdf}
+    \caption{Mean (and standard deviation) of the number of time steps until dynamics stabilize, i.e. no changes in the number of species in the community, as a function of network connectance.}
+    \label{fig:meantime}
+\end{figure}
+
+The final proportion of surviving species, however, is sensitive to both parameter combination underlying interactions and the connectance of the network. When costs are greater than benefits (panels, 1, 5 and 6 in Figure \ref{fig:sp_connectance}) increasing connectance decreases the final number (proportion) of surviving species. When benefits are slightly higher than costs (panels 2,3, and 4 in Figure \ref{fig:sp_connectance}) increasing connectance in the system favors a greater proportion of surviving species.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.65\textwidth]{../src/Code/R/Paulinha/figures/mean_prop_spp.pdf}
+    \caption{Proportion of surviving species as a function of network connectance.}
+    \label{fig:sp_connectance}
+\end{figure}
+
+
+\newpage
+
+### Follow-up questions
+
+How is the robustness of food webs related to the ecosystem services they provide? [@keyes2021ecological] explored the consequences of secondary extinctions to the maintenance of services in a food web system. They found that food web and service robustness are highly correlated but service robustness is dependent on trophic level. Additionally, they also found that species providing services **do not** necessarily play a critical role in stabilizing food webs and that species that play supporting roles in service are the critical ones to robustness (of food webs and services). How dependent are these results to the underlying system providing the service? In their case, services are provided through a food web, should we expect different results for pollination or seed dispersal systems? In other words *how does the nature of the underlying ecological system influences the robustness of ecosystem services they provide?*
+
+
+## Supplementary Material
 ### Boundary conditions for costs and benefits and the persistence/extinction of species
 
 What are the boundary conditions for the expectation of having all species present ($benefits > costs$) and for having all species extinct of the system (i.e., when $benefits < costs$)? In other words, we want to know what is the probability of having the benefits surpass the costs, resulting in all species present in the network, and alternatively, what is the probability of having all species removed from the network if the costs of interaction surpass their benefits. The solution to this problem, considering costs and benefits distributed following independent beta distributions, relies on Appell F1 Hypergeometric function and was derived by @pham1993bayesian. Since the Boolean function determining whether a species will be present is given by a positive fitness, this can be achieved by a species having greater benefits than costs for its interactions (i.e. $\theta_b > \theta_c$), with $\theta_b = X_1 \sim Beta(\alpha_1, \beta_1)$ and $\theta_c = X_2 \sim Beta(\alpha_2, \beta_2)$. We want to determine the distribution of the difference $\theta_d = \theta_b - \theta_c$. This difference is piece wise and given by ([@pham1993bayesian]):
@@ -79,20 +176,6 @@ with $(q)_m$ representing the Pochhammer symbol, indicating the rising factor.
 Substituting the parameters, for the negative case ($-1 \leq \theta_d < 0$) the parameters are $a=\beta_1$, $b_1 = \alpha_1+\beta_1+\alpha2+\beta_2-2$, $b_2 = 1-\alpha_1$; $c = \beta_1+\alpha_2$; $x=1-\theta_2$, $y= 1-\theta_d^2$.
 For the negative case ($0 < \theta_d \leq 1$) the parameters are $a=\beta_2$, $b_1 = 1-\alpha_2$, $b_2 = \alpha_1+\beta_1+\alpha2+\beta_2-2$, ; $c = \alpha_1+\beta_2$; $x=1-\theta_2^2$, $y= 1+\theta_d$.
 
-
-
-## The Ecosystem-Services Matrix
-
-The matrix describing the ecosystem services is composed of services on the rows and species contributing to the services as its columns. This view of multiple species contributing to an ecosystem service recognizes that services are built through species acting as providers of the service per se and species playing a supporting role in the service [@keyes2021ecological]. The structure of the ecosystem service matrix can be explored from a theoretical point of view as well as using specific case studies. For instance, we can connect the structure of the empirical network of interactions with the structure of the ecosystem services matrix, where species that play a central role in the matrix are associated with certain services whereas species in the periphery of the network are associated with other services. In this example we further explore how these services differ in their robustness to species' loss or to environmental changes.
-
-
-
-
-\newpage
-
-### Follow-up questions
-
-How is the robustness of food webs related to the ecosystem services they provide? [@keyes2021ecological] explored the consequences of secondary extinctions to the maintenance of services in a food web system. They found that food web and service robustness are highly correlated but service robustness is dependent on trophic level. Additionally, they also found that species providing services **do not** necessarily play a critical role in stabilizing food webs and that species that play supporting roles in service are the critical ones to robustness (of food webs and services). How dependent are these results to the underlying system providing the service? In their case, services are provided through a food web, should we expect different results for pollination or seed dispersal systems? In other words *how does the nature of the underlying ecological system influences the robustness of ecosystem services they provide?*
 
 ### Other potential distributions
 
