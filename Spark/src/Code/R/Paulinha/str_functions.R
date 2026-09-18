@@ -3,15 +3,16 @@
 ## Build a graph with a core (all connected) and peripheral structure
 ## core nodes are nodes_ci (number of rows) and node_cj (number of columns)
 build_corep_graph <- function(nodes_ci, nodes_cj, nodes_pi, nodes_pj,
-                              expected_connectance, return_adjancecy=TRUE){
+                              expected_connectance, return_adjacency=TRUE){
+  
+  nodes_i <- nodes_ci+nodes_pi
+  nodes_j <- nodes_cj+nodes_pj
   
   # Check for minimal connectance given core
   ct_min <- min(c(1/nodes_ci, 1/nodes_cj))
   
-  # Estimate the connectance from peripheral->core sp
-  connec_pc <- ((expected_connectance * (nodes_ci+nodes_pi) * 
-                   (nodes_cj+nodes_pj)) - nodes_ci*nodes_pi)/(nodes_ci*nodes_pj +
-                                                                nodes_cj*nodes_pi)
+  connec_pc <- expected_connectance
+  
   # Value needs to be at least this minimum
   if(expected_connectance<=ct_min){
     cat("connectance needs to be greater than:", ct_min, 
@@ -24,26 +25,60 @@ build_corep_graph <- function(nodes_ci, nodes_cj, nodes_pi, nodes_pj,
    A_core <- matrix(1, nodes_ci, nodes_cj)
    # 2. The first periphery (periphery sp. randomly connected to core)
    all_p_connected <- FALSE
+   i <- 1
    while(!all_p_connected){
     B_perif_col <- (matrix(runif(nodes_ci*nodes_pj), 
                            nodes_ci, nodes_pj) <= connec_pc)
     all_p_connected <- all(colSums(B_perif_col)>0)
+    i <- i+1
+    if(i>10000){
+      connec_pc <- connec_pc+0.01
+      i <- 1
+      cat("\n set connectance cols:", connec_pc)
+    }
    }
    B_perif_col <- B_perif_col*1
+   
+   
    # 3. The second periphery (periphery sp. randomly connected to core)
+   connec_pc <- expected_connectance
+   
    all_p_connected <- FALSE
+   i <- 1
    while(!all_p_connected){
      B_perif_row <- (matrix(runif(nodes_cj*nodes_pi), 
                             nodes_pi, nodes_cj) <= connec_pc)
      all_p_connected <- all(rowSums(B_perif_row)>0)
+     i <- i+1
+     if(i>10000){
+       connec_pc <- connec_pc+0.01
+       i <- 1
+       cat("\n set connectance rows:", connec_pc, "\n")
+     }
    }
    B_perif_row <- B_perif_row*1
+   
+   
+   
    # 4. Assemble the parts
    A <- matrix(0, nrow = nodes_ci+nodes_pi, ncol = nodes_cj+nodes_pj)
    A[1:nodes_ci, 1:nodes_cj] <- A_core
    A[(nodes_ci+1):(nodes_ci+nodes_pi), 1:nodes_cj] <- B_perif_row
    A[1:nodes_ci, (nodes_cj+1):(nodes_cj+nodes_pj)] <- B_perif_col
   
+   rownames(A) <- c(paste0("spi_c", 1:nodes_ci), paste0("spi_p", 1:nodes_pi))
+   colnames(A) <- c(paste0("spj_c", 1:nodes_cj), paste0("spj_p", 1:nodes_pj))
+   
+  # To return the adjacency (square) matrix 
+   if(return_adjacency){
+     A <- cbind(rbind(matrix(0,nodes_i,nodes_i), t(A)),
+                rbind(A, matrix(0,nodes_j,nodes_j)))
+     rownames(A) <- c(paste0("spi_c", 1:nodes_ci), paste0("spi_p", 1:nodes_pi), 
+                      paste0("spj_c", 1:nodes_cj), paste0("spj_p", 1:nodes_pj))
+     colnames(A) <- c(paste0("spi_c", 1:nodes_ci), paste0("spi_p", 1:nodes_pi), 
+                      paste0("spj_c", 1:nodes_cj), paste0("spj_p", 1:nodes_pj))
+   }
+   
    return(A)
 }
 
