@@ -90,3 +90,110 @@ pl_degrees <- ggplot(res_degrees, aes(x = degree, group = presence, alpha = pres
 pl_degrees
 
 #ggsave("./figures/degree_distributions.pdf", pl_degrees, width = 5, height = 4, device = cairo_pdf)
+
+
+## To actually estimate the probability -- GLM
+## Species that went extinct are 1
+res_degrees <- res_degrees %>% mutate(status = ifelse(presence == "present", 0, 1))
+
+## Probability of extinction per se
+# 1. Fit the logistic regression model for initial degree
+model_initial <- glm(status ~ degree, data = res_degrees,
+                     family = binomial)
+
+# 2. Check the summary for p-values and coefficients
+summary(model_initial)
+
+# 3. Calculate Odds Ratios
+exp(coef(model_initial))
+
+## Visualizing
+# 1. Calculate empirical extinction rates per degree to avoid overplotting
+empirical_data <- res_degrees %>%
+  group_by(degree) %>%
+  summarise(
+    # Proportion of species that went extinct at this specific degree
+    empirical_prob = mean(status),
+    # Count how many species have this degree (for sizing points)
+    sample_size = n()
+  )
+
+# 2. Create the visualization
+ggplot() +
+  # Plot empirical binned points (size adjusted by sample size so rare degrees don't distort trends)
+  geom_point(data = empirical_data, aes(x = degree, y = empirical_prob, size = sample_size), 
+             alpha = 0.6, color = "darkblue") +
+  
+  # Overlay the exact logistic regression model curve calculated from the full dataset
+  geom_smooth(data = res_degrees, aes(x = degree, y = status),
+              method = "glm", method.args = list(family = "binomial"), 
+              se = TRUE, color = "red", size = 1.2) +
+  
+  # Formatting
+  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
+  labs(
+    title = "Empirical Extinction Probability vs. Species Degree",
+    subtitle = "Points show actual extinction rates; Red line shows GLM prediction",
+    x = "Species Degree",
+    y = "Extinction Probability (%)",
+    size = "Number of Species"
+  ) +
+  theme_minimal()
+
+
+
+
+## The beta parameterization can influence the probability of extinction
+model_with_pars <- glm(status ~ degree * pars_beta, data = res_degrees,
+                       family = binomial)
+
+# 2. Check the summary for p-values and coefficients
+summary(model_with_pars)
+
+# 3. Calculate Odds Ratios
+exp(coef(model_with_pars))
+
+
+# 1. Group and bin data to get empirical proportions without 360k point clutter
+empirical_binned <- res_degrees %>%
+  group_by(pars_beta, degree) %>%
+  summarise(
+    empirical_prob = mean(status),
+    sample_size = n(),
+    .groups = "drop"
+  ) %>%
+  # Clean up or wrap long label names so they fit nicely in grid headers
+  mutate(pars_beta_clean = str_wrap(pars_beta, width = 20))
+
+# Also clean the labels in the main dataset for matching the facets
+res_degrees_clean <- res_degrees %>%
+  mutate(pars_beta_clean = str_wrap(pars_beta, width = 20))
+
+# 2. Build the Faceted Grid Plot
+ggplot() +
+  # Empirical binned points (sized by abundance in that bin)
+  geom_point(data = empirical_binned, aes(x = degree, y = empirical_prob, size = sample_size), 
+             alpha = 0.4, color = "midnightblue") +
+  
+  # GLM Logistic Curves calculated independently per panel
+  geom_smooth(data = res_degrees_clean, aes(x = degree, y = status),
+              method = "glm", method.args = list(family = "binomial"), 
+              se = TRUE, color = "tomato", size = 1) +
+  
+  # Grid layout - splits your 6 combinations into clean panels
+  facet_wrap(~ pars_beta_clean, scales = "free_x") + 
+  
+  # Formatting aesthetics
+  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
+  labs(
+    title = "Context-Dependent Extinction Risks across Parameter Settings",
+    subtitle = "Notice how some slopes go downward (protective degree) while the baseline trends upward.",
+    x = "Species Degree (k)",
+    y = "Empirical Extinction Probability (%)",
+    size = "Observations"
+  ) +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(face = "bold", size = 9), # Makes panel titles readable
+    panel.spacing = unit(1, "lines")
+  )

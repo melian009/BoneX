@@ -139,6 +139,12 @@ The final proportion of surviving species, however, is sensitive to both paramet
 
 \newpage
 
+### Notes on references
+
+[@keyes2021ecological] Comparison of food web robustness and the services they provide, investigating factors that determine service response to secondary extinctions. They have seven different services (wave attenuattion, soreline stabilization, carbon sequestration, water filtration, fishery, birdwatching, and waterfowl hunting). Species in the food web are divided into ecosystem service providers and supporting species. They explore 12 extinctions scenarios. Their key findings: (i) food web and service robustness are highly correlated; (ii) service robustness varies with trophic level and redundancy; (iii) species providing services **do not** play a critical role in stabilizing food webs; (iv) important supporting species are critical for both food and service robustness.
+
+[@ross2021universal] robustness of ecosystem services to species loss using a "qualitative Boolean framework". The drivers of robustness are features of the network that link species to the functions though functional traits. Species are "aggregated" into functional traits that in turn contribute to ecosystem service. Service is binary and present as long as there's one species with a given functional trait the service is present. They explore bipartite networks with a random structure as well as pollination and seed dispersal networks. 
+
 ### Follow-up questions
 
 How is the robustness of food webs related to the ecosystem services they provide? [@keyes2021ecological] explored the consequences of secondary extinctions to the maintenance of services in a food web system. They found that food web and service robustness are highly correlated but service robustness is dependent on trophic level. Additionally, they also found that species providing services **do not** necessarily play a critical role in stabilizing food webs and that species that play supporting roles in service are the critical ones to robustness (of food webs and services). How dependent are these results to the underlying system providing the service? In their case, services are provided through a food web, should we expect different results for pollination or seed dispersal systems? In other words *how does the nature of the underlying ecological system influences the robustness of ecosystem services they provide?*

@@ -99,3 +99,278 @@ pl_degrees <- ggplot(res_degrees, aes(x = degree, group = presence, alpha = pres
 pl_degrees
 
 #ggsave("./figures/str_degree_distributions.pdf", pl_degrees, width = 5, height = 4, device = cairo_pdf)
+
+
+tmp_degree <- tmp_degree %>% mutate(status = ifelse(presence == "present", 0, 1))
+res_degrees <- res_degrees %>% mutate(status = ifelse(presence == "present", 0, 1))
+## Probability of extinction per se
+# 1. Fit the logistic regression model for initial degree
+model_initial <- glm(status ~ degree, data = res_degrees,
+                     family = binomial)
+
+# 2. Check the summary for p-values and coefficients
+summary(model_initial)
+
+# 3. Calculate Odds Ratios
+exp(coef(model_initial))
+
+## Visualizing
+# 1. Calculate empirical extinction rates per degree to avoid overplotting
+empirical_data <- res_degrees %>%
+  group_by(degree) %>%
+  summarise(
+    # Proportion of species that went extinct at this specific degree
+    empirical_prob = mean(status),
+    # Count how many species have this degree (for sizing points)
+    sample_size = n()
+  )
+
+# 2. Create the visualization
+ggplot() +
+  # Plot empirical binned points (size adjusted by sample size so rare degrees don't distort trends)
+  geom_point(data = empirical_data, aes(x = degree, y = empirical_prob, size = sample_size), 
+             alpha = 0.6, color = "darkblue") +
+  
+  # Overlay the exact logistic regression model curve calculated from the full dataset
+  geom_smooth(data = res_degrees, aes(x = degree, y = status),
+              method = "glm", method.args = list(family = "binomial"), 
+              se = TRUE, color = "red", size = 1.2) +
+  
+  # Formatting
+  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
+  labs(
+    title = "Empirical Extinction Probability vs. Species Degree",
+    subtitle = "Points show actual extinction rates; Red line shows GLM prediction",
+    x = "Species Degree",
+    y = "Extinction Probability (%)",
+    size = "Number of Species"
+  ) +
+  theme_minimal()
+
+
+## The beta parameterization can influence the probability of extinction
+model_with_pars <- glm(status ~ degree * pars_beta, data = res_degrees,
+                     family = binomial)
+
+# 2. Check the summary for p-values and coefficients
+summary(model_with_pars)
+
+# 3. Calculate Odds Ratios
+exp(coef(model_with_pars))
+
+
+# 1. Group and bin data to get empirical proportions without 360k point clutter
+empirical_binned <- res_degrees %>%
+  group_by(pars_beta, degree) %>%
+  summarise(
+    empirical_prob = mean(status),
+    sample_size = n(),
+    .groups = "drop"
+  ) %>%
+  # Clean up or wrap long label names so they fit nicely in grid headers
+  mutate(pars_beta_clean = str_wrap(pars_beta, width = 20))
+
+# Also clean the labels in the main dataset for matching the facets
+res_degrees_clean <- res_degrees %>%
+  mutate(pars_beta_clean = str_wrap(pars_beta, width = 20))
+
+# 2. Build the Faceted Grid Plot
+ggplot() +
+  # Empirical binned points (sized by abundance in that bin)
+  geom_point(data = empirical_binned, aes(x = degree, y = empirical_prob, size = sample_size), 
+             alpha = 0.4, color = "midnightblue") +
+  
+  # GLM Logistic Curves calculated independently per panel
+  geom_smooth(data = res_degrees_clean, aes(x = degree, y = status),
+              method = "glm", method.args = list(family = "binomial"), 
+              se = TRUE, color = "tomato", size = 1) +
+  
+  # Grid layout - splits your 6 combinations into clean panels
+  facet_wrap(~ pars_beta_clean, scales = "free_x") + 
+  
+  # Formatting aesthetics
+  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
+  labs(
+    title = "Context-Dependent Extinction Risks across Parameter Settings",
+    subtitle = "Notice how some slopes go downward (protective degree) while the baseline trends upward.",
+    x = "Species Degree (k)",
+    y = "Empirical Extinction Probability (%)",
+    size = "Observations"
+  ) +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(face = "bold", size = 9), # Makes panel titles readable
+    panel.spacing = unit(1, "lines")
+  )
+
+
+
+## Classifying core and peripheral species to fit a new model
+res_degrees <- res_degrees %>% mutate(species_type = ifelse(str_detect(species, "_c"), "core", "peripheral"))
+
+# Fiting the model including species type (Central vs Peripheral)
+model_with_type <- glm(status ~ degree * pars_beta * species_type, 
+                       family = binomial, 
+                       data = res_degrees)
+
+# View the full coefficient table
+summary(model_with_type)
+
+# 1. Group and bin data by parameter combination AND species type
+empirical_binned_type <- res_degrees %>%
+  group_by(pars_beta, species_type, degree) %>%
+  summarise(
+    empirical_prob = mean(status),
+    sample_size = n(),
+    .groups = "drop"
+  ) %>%
+  mutate(pars_beta_clean = str_wrap(pars_beta, width = 20))
+
+# Clean labels for the main dataset
+res_degrees_clean <- res_degrees %>%
+  mutate(pars_beta_clean = str_wrap(pars_beta, width = 20))
+
+# 2. Build the Multi-Group Faceted Grid Plot
+ggplot() +
+  # Empirical binned points split by type (Central vs Peripheral)
+  geom_point(data = empirical_binned_type, 
+             aes(x = degree, y = empirical_prob, size = sample_size, color = species_type), 
+             alpha = 0.3) +
+  
+  # Separate GLM Logistic Curves for Central vs Peripheral in each panel
+  geom_smooth(data = res_degrees_clean, 
+              aes(x = degree, y = status, color = species_type, fill = species_type),
+              method = "glm", method.args = list(family = "binomial"), 
+              se = TRUE, size = 1) +
+  
+  # Grid layout split by your parameter settings
+  facet_wrap(~ pars_beta_clean, scales = "free_x") + 
+  
+  # Aesthetic styling and color palettes
+  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
+  scale_color_manual(values = c("core" = "#E69F00", "peripheral" = "#56B4E9")) +
+  scale_fill_manual(values = c("core" = "#E69F00", "peripheral" = "#56B4E9")) +
+  labs(
+    title = "Extinction Probability by Network Position and Parameterization",
+    subtitle = "Comparing how degree protects central vs. peripheral species across dynamics",
+    x = "Species Degree (k)",
+    y = "Empirical Extinction Probability (%)",
+    size = "Observations",
+    color = "Species Type",
+    fill = "Species Type"
+  ) +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(face = "bold", size = 9),
+    panel.spacing = unit(1, "lines"),
+    legend.position = "bottom"
+  )
+
+
+
+# A more parsimonious model structure
+model_clean <- glm(status ~ (degree * pars_beta) + (degree * type_sp), 
+                   family = binomial, 
+                   data = res_degrees)
+
+summary(model_clean)
+
+
+# 1. Compress 360k rows into binned empirical probabilities using your exact columns
+empirical_binned_type <- res_degrees %>%
+  group_by(pars_beta, type_sp, degree) %>%
+  summarise(
+    empirical_prob = mean(status),
+    sample_size = n(),
+    .groups = "drop"
+  ) %>%
+  mutate(pars_beta_clean = str_wrap(pars_beta, width = 20))
+
+# Clean labels in the master dataset for matching
+res_degrees_clean <- res_degrees %>%
+  mutate(pars_beta_clean = str_wrap(pars_beta, width = 20))
+
+# 2. Plot the relationship
+ggplot() +
+  # Empirical points sized by abundance and colored by type_sp
+  geom_point(data = empirical_binned_type, 
+             aes(x = degree, y = empirical_prob, size = sample_size, color = type_sp), 
+             alpha = 0.35) +
+  
+  # Independent GLM trendlines for central vs peripheral per facet
+  geom_smooth(data = res_degrees_clean, 
+              aes(x = degree, y = status, color = type_sp, fill = type_sp),
+              method = "glm", method.args = list(family = "binomial"), 
+              se = TRUE, size = 1) +
+  
+  # Facet grid wrapping by parameter configurations
+  facet_wrap(~ pars_beta_clean, scales = "free_x") + 
+  
+  # Color schemes & formatting
+  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
+  scale_color_manual(values = c("core" = "#D55E00", "peripheral" = "#0072B2")) +
+  scale_fill_manual(values = c("core" = "#D55E00", "peripheral" = "#0072B2")) +
+  labs(
+    title = "Extinction Risk Drivers: Degree, Position, and Dynamics",
+    subtitle = "Comparing central vs. peripheral vulnerability slopes across configurations",
+    x = "Species Degree (k)",
+    y = "Extinction Probability (%)",
+    size = "Sample Size",
+    color = "Species Type",
+    fill = "Species Type"
+  ) +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(face = "bold", size = 9),
+    panel.spacing = unit(1, "lines"),
+    legend.position = "bottom"
+  )
+
+
+
+
+#______________________________________________________#
+# 1. Use R's predict function to get the exact fitted lines from your cleaner model
+res_degrees$predicted_prob <- predict(model_clean, type = "response")
+
+# 2. Extract unique prediction lines for smooth plotting (prevents jagged zig-zag lines)
+prediction_lines <- res_degrees %>%
+  select(pars_beta, type_sp, degree, predicted_prob) %>%
+  distinct() %>%
+  mutate(pars_beta_clean = str_wrap(pars_beta, width = 20))
+
+# 3. Compress raw 360k rows into binned empirical data points
+empirical_binned <- res_degrees %>%
+  group_by(pars_beta, type_sp, degree) %>%
+  summarise(
+    empirical_prob = mean(status),
+    sample_size = n(),
+    .groups = "drop"
+  ) %>%
+  mutate(pars_beta_clean = str_wrap(pars_beta, width = 20))
+
+# 4. Generate the definitive plot
+ggplot() +
+  # Binned empirical points
+  geom_point(data = empirical_binned, 
+             aes(x = degree, y = empirical_prob, size = sample_size, color = type_sp), 
+             alpha = 0.3) +
+  
+  # Exact model-fit lines (replaces geom_smooth to reflect your actual formula constraints)
+  geom_line(data = prediction_lines, 
+            aes(x = degree, y = predicted_prob, color = type_sp), 
+            size = 1.2) +
+  
+  facet_wrap(~ pars_beta_clean, scales = "free_x") + 
+  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
+  scale_color_manual(values = c("core" = "#D55E00", "peripheral" = "#0072B2")) +
+  labs(
+    title = "Model-Fitted Extinction Risk: Degree, Position, and Dynamics",
+    subtitle = "Lines display the clean additive interaction model predictions",
+    x = "Species Degree (k)",
+    y = "Extinction Probability (%)",
+    size = "Sample Size",
+    color = "Species Network Type"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom", strip.text = element_text(face = "bold"))
