@@ -9,7 +9,8 @@ format:
     include-in-header:
       - text: |
           \usepackage{amsmath}
-bibliography: refs_Spark.bib
+bibliography: ../Notes/refs_Spark.bib
+toc: true
 ---
 
 ```{r setup, include=FALSE}
@@ -44,9 +45,9 @@ Each pairwise interaction is hence associated with an underlying cost and an und
 
 Our framework considers a Boolean network determining whether species persist in their environment given the costs and benefits associated with the interactions they establish with mutualistic partners, as well as a contribution of physiological costs associated with the environment. The existence of costs and benefits depends on the presence of an interaction encoded in the adjacency matrix that defines which species interact with whom. The decision function for species $i$ is defined as follows:
 
-\[
-w_i = \underbrace{\sum_j(B_{ij} - C_{ij})}_\text{biotic} - \underbrace{\alpha P_i}_\text{abiotic}
-\]
+$$
+w_i = \underbrace{\sum_j(B_{ij} - C_{ij})}_{\text{biotic}} - \underbrace{\alpha P_i}_{\text{abiotic}}
+$$
 
 where $B_{ij}$ is the element $ij$ of the matrix $B$ that encodes the benefits, similarly $C_{ij}$ is the element $ij$ of the matrix $C$ that encodes the costs of the interaction, both sampled from beta distributions. For each pairwise interaction, a net benefit is estimated and summed across all interaction partners, which is the biotic component of the decision function. $P_i$ is the physiological cost associated with the baseline survival of species $i$ and parameter $\alpha$ is the environmental effect, which in combination with the physiological cost compose the abiotic component of the decision function.
 Whenever $w_i > 0$ species $i$ persists in the environment, whereas whenever $w_i \leq 0$ species $i$ goes extinct. 
@@ -82,6 +83,8 @@ When the difference is negative ($d<0$), expected costs surpass the expected ben
     \caption{Proportion of surviving species given the difference between the expected value of benefits and costs under beta parameterization considering $\beta = 1$ and $0.01 < \alpha< 0.99$. The inset shows the shape of the distribution for different values of $\alpha$ when $\beta =1$. The model was run with random networks consisting of 115 nodes (50 on one set of species and 65 on the other set) and expected connectance of $p=0.65$. Each combination of $\alpha_b$ (associated with benefits) and $\alpha_c$ (associated with costs) had 10 replicates and the proportion of surviving species was recorded.}
     \label{fig:surviving}
 \end{figure}
+
+![My caption has parameters $\beta = 1$ and $0.01 < \alpha < 0.99$.](../src/Code/R/Paulinha/figures/beta1.pdf){#fig-surviving width=50%}
 
 Figure \ref{fig:surviving} shows whenever expected costs are greater than expected benefits (negative values on the $x$-axis), all species go extinct. As the difference decreases, an increasing proportion of species remain in the system. Finally, when expected benefits are much greater than expected costs (positive values on the $x$-axis), all species remain in the system. This pattern holds for other parameterizations of the beta distribution \ref{fig:alternative_beta}, and alternative choice of distribution (e.g., Lognormal distribution).
 

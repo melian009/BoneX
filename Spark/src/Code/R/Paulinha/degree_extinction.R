@@ -119,28 +119,32 @@ empirical_data <- res_degrees %>%
   )
 
 # 2. Create the visualization
-ggplot() +
+pl_initial <- ggplot() +
   # Plot empirical binned points (size adjusted by sample size so rare degrees don't distort trends)
   geom_point(data = empirical_data, aes(x = degree, y = empirical_prob, size = sample_size), 
-             alpha = 0.6, color = "darkblue") +
+             alpha = 0.6, color = "darkslateblue") +
   
   # Overlay the exact logistic regression model curve calculated from the full dataset
   geom_smooth(data = res_degrees, aes(x = degree, y = status),
               method = "glm", method.args = list(family = "binomial"), 
-              se = TRUE, color = "red", size = 1.2) +
+              se = TRUE, color = "goldenrod", size = 1.2) +
   
   # Formatting
   scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
   labs(
-    title = "Empirical Extinction Probability vs. Species Degree",
-    subtitle = "Points show actual extinction rates; Red line shows GLM prediction",
+    title = "Empirical Extinction Probability vs. Species Degree (ER model)",
+    subtitle = "Points show actual extinction rates; Golden line shows GLM prediction",
     x = "Species Degree",
     y = "Extinction Probability (%)",
     size = "Number of Species"
   ) +
-  theme_minimal()
+  theme_bw() +
+  theme(legend.position = "bottom"
+        )
 
-
+pl_initial
+# Saving the plot
+#ggsave("./figures/degree_distributions_glm_all.pdf", pl_initial, width = 8, height = 6, device = cairo_pdf)
 
 
 ## The beta parameterization can influence the probability of extinction
@@ -170,30 +174,38 @@ res_degrees_clean <- res_degrees %>%
   mutate(pars_beta_clean = str_wrap(pars_beta, width = 20))
 
 # 2. Build the Faceted Grid Plot
-ggplot() +
+pl_glm_pars <- ggplot() +
   # Empirical binned points (sized by abundance in that bin)
-  geom_point(data = empirical_binned, aes(x = degree, y = empirical_prob, size = sample_size), 
-             alpha = 0.4, color = "midnightblue") +
+  geom_point(data = empirical_binned, aes(x = degree, y = empirical_prob, size = sample_size, color = pars_beta), 
+             alpha = 0.4) +
   
   # GLM Logistic Curves calculated independently per panel
-  geom_smooth(data = res_degrees_clean, aes(x = degree, y = status),
+  geom_smooth(data = res_degrees_clean, aes(x = degree, y = status, color = pars_beta),
               method = "glm", method.args = list(family = "binomial"), 
-              se = TRUE, color = "tomato", size = 1) +
+              se = TRUE, size = 1) +
   
   # Grid layout - splits your 6 combinations into clean panels
   facet_wrap(~ pars_beta_clean, scales = "free_x") + 
   
   # Formatting aesthetics
+  scale_colour_paletteer_d("NatParksPalettes::IguazuFalls") +
+  scale_fill_paletteer_d("NatParksPalettes::IguazuFalls") +
   scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
   labs(
-    title = "Context-Dependent Extinction Risks across Parameter Settings",
-    subtitle = "Notice how some slopes go downward (protective degree) while the baseline trends upward.",
+    title = "Extinction Risks across Parameter Settings",
+    subtitle = "Downward slopes indicate protective degree while the baseline trends upward.",
     x = "Species Degree (k)",
     y = "Empirical Extinction Probability (%)",
     size = "Observations"
   ) +
-  theme_minimal() +
-  theme(
+  theme_bw() +
+  guides(color = "none") +
+  theme(legend.position = "bottom",
     strip.text = element_text(face = "bold", size = 9), # Makes panel titles readable
     panel.spacing = unit(1, "lines")
   )
+
+pl_glm_pars
+
+# Saving the plot
+#ggsave("./figures/degree_distributions_glm_pars.pdf", pl_glm_pars, width = 8, height = 6, device = cairo_pdf)
